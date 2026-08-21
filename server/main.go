@@ -8,7 +8,7 @@
 //
 // Запуск:
 //
-//	go run ./server -addr :8080 -dir .
+//	go run ./server -addr :8090 -dir .
 //
 // При первом запуске создаётся учётная запись администратора; логин и пароль
 // печатаются в журнал. Задать их заранее можно через ADMIN_USER и
@@ -34,7 +34,9 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":8080", "адрес и порт, например :8080")
+	// 8080 на рабочих машинах почти всегда занят Apache из XAMPP, OpenServer
+	// или PostgreSQL, поэтому по умолчанию берём порт, который свободен чаще.
+	addr := flag.String("addr", ":8090", "адрес и порт, например :8090")
 	dir := flag.String("dir", ".", "каталог с файлами сайта")
 	leadsPath := flag.String("leads", "leads.jsonl", "файл, куда дописываются заявки")
 	dbPath := flag.String("db", "data/woodwerk.db", "файл базы данных SQLite")
