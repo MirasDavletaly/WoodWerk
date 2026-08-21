@@ -16,3 +16,8 @@ _dbg_*.html
 _t*.html
 *.log
 *.bak
+
+# Заявки и сборка Go-сервера
+leads.jsonl
+server/server
+server/server.exe

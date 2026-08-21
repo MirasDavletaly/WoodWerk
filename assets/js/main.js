@@ -308,30 +308,43 @@
       var btn = $('button[type="submit"]', form);
       if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Отправляем…'; }
 
-      // Здесь подключается реальная отправка. Валидацию, антиспам и CSRF-защиту
-      // обязательно продублировать на сервере — всё, что выше, обходится в консоли.
-      //
-      //   fetch('/api/lead', {
-      //     method: 'POST',
-      //     credentials: 'same-origin',
-      //     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-      //     body: JSON.stringify(payload)
-      //   }).then(...)
-      void payload;
-      setTimeout(function () {
+      function done() {
         if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
         form.reset();
-        var wrap = form.parentElement;
-        var success = $('.form-success', wrap);
-        if (success) {
-          form.classList.add('is-hidden');
-          success.classList.add('is-visible');
-          setTimeout(function () {
-            success.classList.remove('is-visible');
-            form.classList.remove('is-hidden');
-          }, 6000);
-        }
-      }, 700);
+        var success = $('.form-success', form.parentElement);
+        if (!success) return;
+        form.classList.add('is-hidden');
+        success.classList.add('is-visible');
+        setTimeout(function () {
+          success.classList.remove('is-visible');
+          form.classList.remove('is-hidden');
+        }, 6000);
+      }
+
+      var endpoint = (window.WOODWERK && window.WOODWERK.leadEndpoint) || '';
+
+      if (!endpoint) {
+        // Демо-режим: бэкенд не настроен, показываем экран успеха без отправки.
+        setTimeout(done, 700);
+        return;
+      }
+
+      // Серверная валидация и антиспам обязательны — всё, что выше, обходится в консоли.
+      fetch(endpoint, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      }).then(function (data) {
+        if (data && data.ok === false) throw new Error(data.error || 'reject');
+        done();
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
+        fail('Не удалось отправить заявку. Позвоните нам: +7 (747) 902-44-01');
+      });
     });
   });
 
@@ -422,7 +435,28 @@
       if (emptyEl) catalog.appendChild(emptyEl);
     }
 
-    $$('input[data-filter]').forEach(function (i) { i.addEventListener('change', apply); });
+    // Фильтры на телефоне свёрнуты: иначе до товаров надо пролистать весь список.
+    var fWrap = $('.filters');
+    var fToggle = $('[data-filters-toggle]');
+    var fCount = $('[data-filters-count]');
+
+    if (fToggle && fWrap) {
+      fToggle.addEventListener('click', function () {
+        var open = fWrap.classList.toggle('is-open');
+        fToggle.setAttribute('aria-expanded', String(open));
+      });
+    }
+
+    function refreshCount() {
+      if (!fCount) return;
+      var n = $$('input[data-filter]:checked').length;
+      fCount.textContent = n;
+      fCount.classList.toggle('is-visible', n > 0);
+    }
+
+    $$('input[data-filter]').forEach(function (i) {
+      i.addEventListener('change', function () { apply(); refreshCount(); });
+    });
     if (sortSel) sortSel.addEventListener('change', sort);
 
     var reset = $('[data-reset-filters]');
@@ -430,6 +464,7 @@
       reset.addEventListener('click', function () {
         $$('input[data-filter]').forEach(function (i) { i.checked = false; });
         apply();
+        refreshCount();
       });
     }
 
@@ -445,6 +480,11 @@
       });
     });
     apply();
+    refreshCount();
+    if (fWrap && $$('input[data-filter]:checked').length) {
+      fWrap.classList.add('is-open');
+      if (fToggle) fToggle.setAttribute('aria-expanded', 'true');
+    }
   }
 
   /* ------------------------------------------------------------------

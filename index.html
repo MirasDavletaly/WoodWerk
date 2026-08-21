@@ -24,48 +24,49 @@
 <!-- ====================== ВЕРХНЯЯ СТРОКА ====================== -->
 <div class="topbar">
   <div class="container topbar__inner">
-    <div class="topbar__left">
-      <span class="topbar__item topbar__item--hours">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        Пн–Пт 9:00–20:00, Сб 10:00–18:00 (МСК)
-      </span>
-      <a href="contacts.html" class="topbar__item">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
-        Москва, ул. Складочная, 1с18 — цех и шоурум
-      </a>
-    </div>
-    <div class="topbar__right">
-      <a href="mailto:info@woodwerk.ru" class="topbar__item topbar__item--mail">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        info@woodwerk.ru
-      </a>
-      <span class="topbar__socials">
-        <a href="#" aria-label="Telegram" title="Telegram"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
-        <a href="#" aria-label="WhatsApp" title="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.4.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
-        <a href="#" aria-label="Instagram" title="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
-        <a href="#" aria-label="Pinterest" title="Pinterest"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 0-2.9l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.5 1.8-2.5.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.9 1.5 1.9 1.9 0 3.2-2.4 3.2-5.2 0-2.1-1.5-3.7-4.1-3.7-3 0-4.8 2.2-4.8 4.7 0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.8c-.1.3-.3.4-.5.3-1.4-.6-2.1-2.2-2.1-4C5.3 8.3 7.7 5 12.3 5c3.7 0 6.2 2.7 6.2 5.6 0 3.8-2.1 6.6-5.2 6.6-1 0-2-.6-2.4-1.2l-.6 2.5c-.2.8-.7 1.8-1.1 2.4A10 10 0 1 0 12 2z"/></svg></a>
-      </span>
-    </div>
+    <span class="topbar__item topbar__item--hours">Пн–Пт 9:00–20:00, Сб 10:00–18:00 (МСК)</span>
+    <span class="topbar__right">
+      <a href="contacts.html" class="topbar__item">Москва, ул. Складочная, 1, стр. 18</a>
+      <a href="mailto:info@woodwerk.ru" class="topbar__item topbar__item--mail">info@woodwerk.ru</a>
+    </span>
   </div>
 </div>
 
 <!-- ====================== ШАПКА ====================== -->
 <header class="header">
-  <div class="container header__inner">
-    <a href="index.html" class="logo">
-      <img src="assets/img/logo.svg" alt="WOODWERK" class="logo__mark" width="42" height="42">
-      <span class="logo__text">
-        <span class="logo__name">Woodwerk</span>
-        <span class="logo__tag">массив дерева</span>
-      </span>
-    </a>
+  <div class="header__bar">
+    <div class="container header__inner">
+      <button class="burger" type="button" aria-label="Меню" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
 
-    <nav class="nav">
-      <ul class="nav__list">
-        <li class="nav__item nav__item--has-mega">
-          <a href="catalog.html" class="nav__link">
+      <a href="index.html" class="logo">
+        <img src="assets/img/logo.svg" alt="WOODWERK" class="logo__mark" width="42" height="42">
+        <span class="logo__text">
+          <span class="logo__name">Woodwerk</span>
+          <span class="logo__tag">массив дерева</span>
+        </span>
+      </a>
+
+      <div class="header__actions">
+        <span class="header__socials">
+        <a href="#" aria-label="WhatsApp" title="WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.4.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
+        <a href="#" aria-label="Telegram" title="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
+        <a href="#" aria-label="Instagram" title="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+        </span>
+        <a href="tel:+77479024401" class="header__phone">+7 (747) 902-44-01</a>
+        <button class="btn btn--primary btn--sm header__cta" data-open-modal type="button">Оставить заявку</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <ul class="navbar__list">
+        <li class="navbar__item navbar__item--catalog">
+          <a href="catalog.html" class="navbar__link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
             Каталог
-            <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
           </a>
           <div class="mega">
             <div class="mega__inner">
@@ -105,12 +106,12 @@
               <div>
                 <div class="mega__title">Породы дерева</div>
                 <ul class="mega__links">
-                  <li><a href="#species">Дуб европейский</a></li>
-                  <li><a href="#species">Ясень</a></li>
-                  <li><a href="#species">Орех американский</a></li>
-                  <li><a href="#species">Термоясень</a></li>
-                  <li><a href="#species">Венге</a></li>
-                  <li><a href="#species">Лиственница сибирская</a></li>
+                  <li><a href="catalog.html?wood=oak">Дуб европейский</a></li>
+                  <li><a href="catalog.html?wood=ash">Ясень</a></li>
+                  <li><a href="catalog.html?wood=walnut">Орех американский</a></li>
+                  <li><a href="catalog.html?wood=thermo">Термоясень</a></li>
+                  <li><a href="catalog.html?wood=wenge">Венге</a></li>
+                  <li><a href="catalog.html?wood=larch">Лиственница сибирская</a></li>
                 </ul>
               </div>
               <a class="mega__promo" href="#collections">
@@ -123,21 +124,15 @@
             </div>
           </div>
         </li>
-        <li class="nav__item"><a href="about.html" class="nav__link">О компании</a></li>
-        <li class="nav__item"><a href="about.html#production" class="nav__link">Производство</a></li>
-        <li class="nav__item"><a href="delivery.html" class="nav__link">Оплата и доставка</a></li>
-        <li class="nav__item"><a href="contacts.html" class="nav__link">Контакты</a></li>
+        <li class="navbar__item"><a href="about.html" class="navbar__link">О компании</a></li>
+        <li class="navbar__item"><a href="about.html#production" class="navbar__link">Производство</a></li>
+        <li class="navbar__item navbar__item--optional"><a href="index.html#projects" class="navbar__link">Проекты</a></li>
+        <li class="navbar__item"><a href="delivery.html" class="navbar__link">Оплата и доставка</a></li>
+        <li class="navbar__item navbar__item--optional"><a href="partnership.html" class="navbar__link">Сотрудничество</a></li>
+        <li class="navbar__item"><a href="contacts.html" class="navbar__link">Контакты</a></li>
       </ul>
-    </nav>
-
-    <div class="header__actions">
-      <a href="tel:+77479024401" class="header__phone">+7 (747) 902-44-01</a>
-      <button class="btn btn--primary btn--sm" data-open-modal type="button">Заявка</button>
-      <button class="burger" type="button" aria-label="Меню" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </div>
-  </div>
+  </nav>
 </header>
 
 <!-- ====================== МОБИЛЬНОЕ МЕНЮ ====================== -->
@@ -173,6 +168,7 @@
     </div>
     <div class="m-item"><a class="m-item__link" href="about.html">О компании</a></div>
     <div class="m-item"><a class="m-item__link" href="about.html#production">Производство</a></div>
+    <div class="m-item"><a class="m-item__link" href="index.html#projects">Проекты</a></div>
     <div class="m-item"><a class="m-item__link" href="delivery.html">Оплата и доставка</a></div>
     <div class="m-item"><a class="m-item__link" href="partnership.html">Сотрудничество</a></div>
     <div class="m-item"><a class="m-item__link" href="contacts.html">Контакты</a></div>
@@ -180,6 +176,9 @@
   <div class="mobile-nav__foot">
     <a href="tel:+77479024401" class="mobile-nav__phone">+7 (747) 902-44-01</a>
     <span class="u-note">Пн–Пт 9:00–20:00, Сб 10:00–18:00</span>
+    <span class="mobile-nav__socials"><a href="#" aria-label="WhatsApp" title="WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.4.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
+        <a href="#" aria-label="Telegram" title="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
+        <a href="#" aria-label="Instagram" title="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a></span>
     <button class="btn btn--primary btn--block" data-open-modal type="button">Оставить заявку</button>
   </div>
 </div>
@@ -193,28 +192,20 @@
     </div>
     <div class="container hero__inner">
       <div class="hero__content">
-        <span class="eyebrow reveal">Собственное производство с 2013 года</span>
         <h1 class="hero__title reveal" data-delay="80">
-          Мебель и интерьер<br>из <b>массива дерева</b>
+          Мебель и интерьер<br>из массива дерева
         </h1>
         <p class="hero__text reveal" data-delay="160">
-          Проектируем, изготавливаем и монтируем под ключ: кухни, гардеробные,
-          лестницы, стеновые панели и двери. Точность до миллиметра, честная
-          древесина камерной сушки, гарантия 7 лет.
+          Собственное производство с 2013 года. Кухни, гардеробные, лестницы,
+          стеновые панели и двери под ключ — точность до миллиметра и гарантия 7 лет.
         </p>
         <div class="hero__actions reveal" data-delay="240">
-          <button class="btn btn--primary" data-open-modal type="button">Рассчитать проект</button>
-          <a class="btn btn--ghost" href="catalog.html">Смотреть каталог</a>
-        </div>
-        <div class="hero__facts reveal" data-delay="320">
-          <div class="hero__fact"><strong data-count="12" data-suffix=" лет">0</strong><span>на рынке</span></div>
-          <div class="hero__fact"><strong data-count="2400" data-suffix="+">0</strong><span>проектов сдано</span></div>
-          <div class="hero__fact"><strong data-count="5500" data-suffix=" м²">0</strong><span>площадь цеха</span></div>
-          <div class="hero__fact"><strong data-count="7" data-suffix=" лет">0</strong><span>гарантия</span></div>
+          <button class="btn btn--light" data-open-modal type="button">Оставить заявку</button>
+          <a class="btn btn--ghost" href="catalog.html">Каталог</a>
         </div>
       </div>
     </div>
-    <a class="hero__scroll" href="#usp"><i></i>листайте</a>
+    <a class="hero__scroll" href="#usp" aria-label="Листать вниз"><i></i></a>
   </section>
 
   <!-- ====================== ПРЕИМУЩЕСТВА ====================== -->
@@ -262,99 +253,105 @@
   </section>
 
   <!-- ====================== КОЛЛЕКЦИИ ====================== -->
-  <section class="section" id="collections">
+  <section class="section section--black" id="collections">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head section-head--center">
         <div>
-          <span class="eyebrow reveal">Коллекции Woodwerk</span>
-          <h2 class="section-title reveal" data-delay="60">Шесть <b>характеров</b> дерева</h2>
+          <h2 class="section-title reveal" data-delay="60">Панели и мебель <b>Woodwerk</b></h2>
           <p class="section-lead reveal" data-delay="120">
-            Каждая коллекция — это порода, тон и способ обработки. Мы подбираем текстуру
-            под свет и площадь помещения, а не наоборот.
+            Шесть пород, шесть характеров. Подбираем текстуру и тон под свет и площадь
+            помещения — а не наоборот.
           </p>
         </div>
-        <a href="catalog.html" class="link-more reveal" data-delay="180">
-          Весь каталог
-          <svg width="18" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M0 8h22M15 1l7 7-7 7"/></svg>
-        </a>
       </div>
 
-      <div class="collections__grid">
-        <a href="catalog.html?wood=oak" class="collection reveal">
-          <span class="collection__img"><img src="assets/img/wood/oak.svg" alt="Коллекция DUBRAVA — массив дуба"></span>
-          <span class="collection__tag">Хит продаж</span>
-          <span class="collection__body">
-            <span class="collection__name">Dubrava</span>
-            <span class="collection__desc">Дуб европейский. Плотный, светлый, с выразительным лучевым рисунком.</span>
-            <span class="collection__meta">
+      <div class="collections">
+        <span class="collections__watermark" aria-hidden="true">DUBRAVA NOCE FRAXA</span>
+        <div class="collections__grid">
+          <a href="catalog.html?wood=oak" class="collection reveal" data-delay="0">
+            <span class="collection__img"><img src="assets/img/wood/oak.svg" alt="Коллекция Dubrava — Дуб европейский" loading="lazy"></span>
+            <span class="collection__tag">Хит продаж</span>
+            <span class="collection__body">
+              <span class="collection__name">Dubrava</span>
+              <span class="collection__wood">Дуб европейский</span>
+              <span class="collection__desc">Плотный, светлый, с выразительным лучевым рисунком</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 24 900 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
-
-        <a href="catalog.html?wood=walnut" class="collection reveal" data-delay="80">
-          <span class="collection__img"><img src="assets/img/wood/walnut.svg" alt="Коллекция NOCE — массив ореха"></span>
-          <span class="collection__tag">Премиум</span>
-          <span class="collection__body">
-            <span class="collection__name">Noce</span>
-            <span class="collection__desc">Орех американский. Глубокий шоколадный тон и живая волна волокна.</span>
-            <span class="collection__meta">
+          </a>
+          <a href="catalog.html?wood=walnut" class="collection reveal" data-delay="80">
+            <span class="collection__img"><img src="assets/img/wood/walnut.svg" alt="Коллекция Noce — Орех американский" loading="lazy"></span>
+            <span class="collection__tag">Премиум</span>
+            <span class="collection__body">
+              <span class="collection__name">Noce</span>
+              <span class="collection__wood">Орех американский</span>
+              <span class="collection__desc">Глубокий шоколадный тон и живая волна волокна</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 32 400 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
-
-        <a href="catalog.html?wood=ash" class="collection reveal" data-delay="160">
-          <span class="collection__img"><img src="assets/img/wood/ash.svg" alt="Коллекция FRAXA — массив ясеня"></span>
-          <span class="collection__body">
-            <span class="collection__name">Fraxa</span>
-            <span class="collection__desc">Ясень. Светлая база под тонировку в любой оттенок — от белёного до графита.</span>
-            <span class="collection__meta">
+          </a>
+          <a href="catalog.html?wood=ash" class="collection reveal" data-delay="160">
+            <span class="collection__img"><img src="assets/img/wood/ash.svg" alt="Коллекция Fraxa — Ясень" loading="lazy"></span>
+            
+            <span class="collection__body">
+              <span class="collection__name">Fraxa</span>
+              <span class="collection__wood">Ясень</span>
+              <span class="collection__desc">Светлая база под тонировку в любой оттенок</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 19 800 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
-
-        <a href="catalog.html?wood=thermo" class="collection reveal" data-delay="60">
-          <span class="collection__img"><img src="assets/img/wood/thermo.svg" alt="Коллекция TERMA — термоясень"></span>
-          <span class="collection__tag">Для влажных зон</span>
-          <span class="collection__body">
-            <span class="collection__name">Terma</span>
-            <span class="collection__desc">Термоясень. Не боится влаги и перепадов: ванная, сауна, фасад, терраса.</span>
-            <span class="collection__meta">
+          </a>
+          <a href="catalog.html?wood=thermo" class="collection reveal" data-delay="0">
+            <span class="collection__img"><img src="assets/img/wood/thermo.svg" alt="Коллекция Terma — Термоясень" loading="lazy"></span>
+            <span class="collection__tag">Для влажных зон</span>
+            <span class="collection__body">
+              <span class="collection__name">Terma</span>
+              <span class="collection__wood">Термоясень</span>
+              <span class="collection__desc">Не боится влаги: ванная, сауна, фасад, терраса</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 27 600 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
-
-        <a href="catalog.html?wood=wenge" class="collection reveal" data-delay="140">
-          <span class="collection__img"><img src="assets/img/wood/wenge.svg" alt="Коллекция WENGE — массив венге"></span>
-          <span class="collection__body">
-            <span class="collection__name">Wenge</span>
-            <span class="collection__desc">Венге. Почти чёрный графит с контрастной прожилкой — для строгих интерьеров.</span>
-            <span class="collection__meta">
+          </a>
+          <a href="catalog.html?wood=wenge" class="collection reveal" data-delay="80">
+            <span class="collection__img"><img src="assets/img/wood/wenge.svg" alt="Коллекция Wenge — Венге" loading="lazy"></span>
+            
+            <span class="collection__body">
+              <span class="collection__name">Wenge</span>
+              <span class="collection__wood">Венге</span>
+              <span class="collection__desc">Почти чёрный графит с контрастной прожилкой</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 41 200 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
-
-        <a href="catalog.html?wood=larch" class="collection reveal" data-delay="220">
-          <span class="collection__img"><img src="assets/img/wood/larch.svg" alt="Коллекция LARIX — лиственница"></span>
-          <span class="collection__tag">Выгодно</span>
-          <span class="collection__body">
-            <span class="collection__name">Larix</span>
-            <span class="collection__desc">Лиственница сибирская. Тёплый янтарь и лучшая цена за квадратный метр.</span>
-            <span class="collection__meta">
+          </a>
+          <a href="catalog.html?wood=larch" class="collection reveal" data-delay="160">
+            <span class="collection__img"><img src="assets/img/wood/larch.svg" alt="Коллекция Larix — Лиственница сибирская" loading="lazy"></span>
+            <span class="collection__tag">Выгодно</span>
+            <span class="collection__body">
+              <span class="collection__name">Larix</span>
+              <span class="collection__wood">Лиственница сибирская</span>
+              <span class="collection__desc">Тёплый янтарь и лучшая цена за квадратный метр</span>
+            </span>
+            <span class="collection__foot">
               <span class="collection__price">от 16 500 ₽/м²</span>
-              <span>Смотреть →</span>
+              <span class="collection__more">Посмотреть коллекцию →</span>
             </span>
-          </span>
-        </a>
+          </a>
+        </div>
+        <p class="swipe-hint" aria-hidden="true">Листайте вбок →</p>
+      </div>
+
+      <div class="section-foot">
+        <a href="catalog.html" class="btn btn--light">Весь каталог</a>
       </div>
     </div>
   </section>
@@ -364,7 +361,6 @@
     <div class="container">
       <div class="section-head section-head--center">
         <div>
-          <span class="eyebrow reveal">Что мы делаем</span>
           <h2 class="section-title reveal" data-delay="60">Интерьер <b>целиком</b> — из одного цеха</h2>
           <p class="section-lead reveal" data-delay="120">
             Кухня, гардеробная, лестница и панели, сделанные в одной мастерской из одной
@@ -438,7 +434,6 @@
           </div>
         </div>
         <div class="split__body">
-          <span class="eyebrow reveal">О компании</span>
           <h2 class="section-title reveal" data-delay="60">WOODWERK — <b>работа с деревом</b> без компромиссов</h2>
           <p class="section-lead reveal" data-delay="120">
             Мы начинали в 2013 году с одной мастерской на 120 м² и трёх станков. Сегодня
@@ -463,6 +458,12 @@
               Фотоотчёт с каждого этапа производства в личном чате проекта
             </li>
           </ul>
+          <div class="stat-row stat-row--inline reveal" data-delay="200">
+            <div class="stat"><strong data-count="12">0</strong><span>лет на рынке</span></div>
+            <div class="stat"><strong data-count="2400" data-suffix="+">0</strong><span>проектов</span></div>
+            <div class="stat"><strong data-count="5500" data-suffix=" м²">0</strong><span>площадь цеха</span></div>
+            <div class="stat"><strong data-count="7" data-suffix=" лет">0</strong><span>гарантия</span></div>
+          </div>
           <div class="signature reveal" data-delay="240">
             <span class="signature__ava">АК</span>
             <div>
@@ -480,7 +481,6 @@
     <div class="container">
       <div class="section-head">
         <div>
-          <span class="eyebrow reveal">Как мы работаем</span>
           <h2 class="section-title reveal" data-delay="60">Пять шагов <b>до монтажа</b></h2>
         </div>
         <p class="section-lead reveal u-maxw-420" data-delay="120">
@@ -529,7 +529,6 @@
     <div class="container">
       <div class="section-head">
         <div>
-          <span class="eyebrow reveal">Наши проекты</span>
           <h2 class="section-title reveal" data-delay="60">Реальные <b>интерьеры</b> клиентов</h2>
           <p class="section-lead reveal" data-delay="120">
             Более 2 400 сданных объектов в Москве и области — от студии 28 м² до загородного дома на 600 м².
@@ -593,8 +592,7 @@
     <div class="container">
       <div class="section-head section-head--center">
         <div>
-          <span class="eyebrow reveal">Материалы</span>
-          <h2 class="section-title reveal" data-delay="60">Породы, с которыми <b>мы работаем</b></h2>
+          <h2 class="section-title reveal" data-delay="60">Породы дерева, с которыми <b>мы работаем</b></h2>
           <p class="section-lead reveal" data-delay="120">
             Закупаем доску напрямую у поставщиков из Воронежской области, Карелии и США.
             Каждая партия проходит входной контроль по влажности и сортности.
@@ -642,8 +640,7 @@
     <div class="container">
       <div class="section-head">
         <div>
-          <span class="eyebrow reveal">Отзывы</span>
-          <h2 class="section-title reveal" data-delay="60">Что говорят <b>клиенты</b></h2>
+          <h2 class="section-title reveal" data-delay="60">Отзывы <b>клиентов</b></h2>
         </div>
         <div class="slider-nav reveal" data-delay="120">
           <button data-slider="prev" type="button" aria-label="Назад">
@@ -742,8 +739,7 @@
     <div class="container container--narrow">
       <div class="section-head section-head--center">
         <div>
-          <span class="eyebrow reveal">Вопросы и ответы</span>
-          <h2 class="section-title reveal" data-delay="60">Коротко о <b>главном</b></h2>
+          <h2 class="section-title reveal" data-delay="60">Частые <b>вопросы</b></h2>
         </div>
       </div>
 
@@ -825,7 +821,6 @@
     <div class="cta__bg"><img src="assets/img/wood/band.svg" alt="" aria-hidden="true"></div>
     <div class="container cta__inner">
       <div>
-        <span class="eyebrow reveal">Оставьте заявку</span>
         <h2 class="section-title reveal" data-delay="60">Рассчитаем ваш проект <b>за 1 день</b></h2>
         <p class="cta__lead reveal" data-delay="120">
           Оставьте контакты — инженер свяжется в течение 30 минут в рабочее время,
@@ -1070,10 +1065,23 @@
   </div>
 </div>
 
+<!-- ====================== МОБИЛЬНАЯ ПАНЕЛЬ ДЕЙСТВИЙ ====================== -->
+<div class="action-bar">
+  <a href="tel:+77479024401" class="action-bar__btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2.2 2A17 17 0 0 1 3 5.2 2 2 0 0 1 5 3z"/></svg>
+    Позвонить
+  </a>
+  <button class="action-bar__btn action-bar__btn--primary" data-open-modal type="button">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg>
+    Оставить заявку
+  </button>
+</div>
+
 <button class="to-top" type="button" aria-label="Наверх">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
+<script src="assets/js/config.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>
