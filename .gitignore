@@ -29,3 +29,6 @@ uploads/
 *.db
 *.db-shm
 *.db-wal
+
+# Кеш дизайн-детектора — машинный, в репозиторий не нужен
+.impeccable/hook.cache.json
