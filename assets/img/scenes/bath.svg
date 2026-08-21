@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="1000" height="750" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFE9E1"/><stop offset="1" stop-color="#DED4C6"/></linearGradient>
+    <linearGradient id="ht" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9C6B41"/><stop offset=".5" stop-color="#B98455"/><stop offset="1" stop-color="#7E5230"/></linearGradient>
+  </defs>
+  <rect width="1000" height="750" fill="url(#hw)"/>
+
+  <!-- плитка на стене -->
+  <g stroke="#D6CABA" stroke-width="2" opacity=".8">
+    <path d="M0 120h1000M0 240h1000M0 360h1000M0 480h1000"/>
+    <path d="M120 0v480M280 0v480M440 0v480M600 0v480M760 0v480M920 0v480"/>
+  </g>
+
+  <!-- реечная вставка за зеркалом -->
+  <rect x="300" y="60" width="400" height="330" fill="url(#ht)"/>
+  <g stroke="#6E4728" stroke-width="6" opacity=".7">
+    <path d="M330 60v330M366 60v330M402 60v330M438 60v330M474 60v330M510 60v330M546 60v330M582 60v330M618 60v330M654 60v330M686 60v330"/>
+  </g>
+
+  <!-- зеркало -->
+  <rect x="372" y="104" width="256" height="242" rx="120" fill="#E9E4DB"/>
+  <rect x="372" y="104" width="256" height="242" rx="120" fill="none" stroke="#2A211B" stroke-width="8"/>
+  <path d="M500 104a121 121 0 0 0 0 242z" fill="#FFFFFF" opacity=".4"/>
+
+  <!-- пол -->
+  <rect y="620" width="1000" height="130" fill="#C7B4A0"/>
+  <g stroke="#B09B85" stroke-width="1.6" opacity=".6"><path d="M0 664h1000M0 708h1000M180 620v130M500 620v130M820 620v130"/></g>
+
+  <!-- тумба -->
+  <rect x="290" y="446" width="420" height="150" rx="6" fill="url(#ht)"/>
+  <g stroke="#6E4728" stroke-width="3" opacity=".55"><path d="M500 446v150"/></g>
+  <g fill="#EFE9E1" opacity=".8"><rect x="396" y="512" width="72" height="6" rx="3"/><rect x="534" y="512" width="72" height="6" rx="3"/></g>
+  <rect x="290" y="432" width="420" height="18" rx="4" fill="#EFE9E1"/>
+  <g stroke="#3A2C22" stroke-width="8" stroke-linecap="round"><path d="M318 596v34M682 596v34"/></g>
+
+  <!-- раковина и смеситель -->
+  <path d="M420 432a80 34 0 0 1 160 0z" fill="#FBF9F5"/>
+  <path d="M420 432a80 34 0 0 1 160 0z" fill="none" stroke="#D6CABA" stroke-width="3"/>
+  <path d="M500 398v-56h-40" stroke="#2A211B" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+  <!-- полотенцесушитель -->
+  <g stroke="#8593A0" stroke-width="7" stroke-linecap="round">
+    <path d="M800 200v260M880 200v260M800 232h80M800 292h80M800 352h80M800 412h80"/>
+  </g>
+  <path d="M818 292h44v130h-44z" fill="#EFE9E1" opacity=".9"/>
+
+  <!-- растение -->
+  <path d="M132 620c-6-60 12-100 46-124-14 44-14 84-8 124z" fill="#5E7355"/>
+  <path d="M150 620c-32-44-36-84-22-120 6 44 22 74 42 100z" fill="#6E8562"/>
+  <path d="M106 556h84l-10 64h-64z" fill="#2A211B"/>
+</svg>

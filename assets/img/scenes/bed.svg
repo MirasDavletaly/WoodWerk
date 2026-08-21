@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="1000" height="750" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1E9DE"/><stop offset="1" stop-color="#DFD2BE"/></linearGradient>
+  </defs>
+  <rect width="1000" height="750" fill="url(#bw)"/>
+  <rect y="640" width="1000" height="110" fill="#C6A47A"/>
+  <g stroke="#A8875F" stroke-width="1.5" opacity=".45"><path d="M0 678H1000M0 716H1000M260 640v110M600 640v110M900 640v110"/></g>
+
+  <rect x="212" y="150" width="576" height="290" rx="8" fill="#A9743F"/>
+  <rect x="212" y="150" width="576" height="290" rx="8" fill="none" stroke="#7A5132" stroke-width="6"/>
+  <g stroke="#8A5C36" stroke-width="5" opacity=".8">
+    <path d="M212 222h576M212 294h576M212 366h576"/>
+  </g>
+
+  <g stroke="#2A211B" stroke-width="3">
+    <path d="M132 210v70M868 210v70"/>
+  </g>
+  <path d="M102 280a30 20 0 0 0 60 0z" fill="#2A211B"/>
+  <path d="M838 280a30 20 0 0 0 60 0z" fill="#2A211B"/>
+  <circle cx="132" cy="304" r="7" fill="#E8B461"/><circle cx="868" cy="304" r="7" fill="#E8B461"/>
+
+  <rect x="180" y="440" width="640" height="26" rx="6" fill="#7A5132"/>
+  <rect x="196" y="466" width="608" height="96" rx="10" fill="#EFE7DB"/>
+  <rect x="196" y="466" width="608" height="34" rx="10" fill="#E4D9C6"/>
+  <rect x="240" y="500" width="520" height="62" rx="8" fill="#8C9B83" opacity=".85"/>
+  <g fill="#FBF7EF">
+    <rect x="272" y="452" width="140" height="46" rx="10"/>
+    <rect x="424" y="452" width="140" height="46" rx="10"/>
+  </g>
+  <rect x="180" y="562" width="640" height="16" rx="6" fill="#6E4A2E"/>
+  <g stroke="#3A2C22" stroke-width="10" stroke-linecap="round"><path d="M206 578v58M794 578v58"/></g>
+
+  <g fill="#8A5C36">
+    <rect x="72" y="470" width="104" height="130" rx="4"/>
+    <rect x="824" y="470" width="104" height="130" rx="4"/>
+  </g>
+  <g stroke="#EFE7DB" stroke-width="4" opacity=".7"><path d="M96 512h56M96 556h56M848 512h56M848 556h56"/></g>
+  <g stroke="#3A2C22" stroke-width="7"><path d="M88 600v40M160 600v40M840 600v40M912 600v40"/></g>
+  <path d="M108 470c0-24 6-38 18-38s18 14 18 38z" fill="#2A211B"/>
+  <path d="M126 432c-4-28 4-46 20-56" stroke="#5E7355" stroke-width="3" fill="none"/>
+  <circle cx="146" cy="376" r="7" fill="#6E8562"/>
+</svg>

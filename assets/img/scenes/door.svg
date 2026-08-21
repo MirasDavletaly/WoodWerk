@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="1000" height="750" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="dw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2EBE0"/><stop offset="1" stop-color="#E1D5C2"/></linearGradient>
+    <linearGradient id="dp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B07C4A"/><stop offset=".5" stop-color="#C99760"/><stop offset="1" stop-color="#8E5F35"/></linearGradient>
+  </defs>
+  <rect width="1000" height="750" fill="url(#dw)"/>
+  <rect y="646" width="1000" height="104" fill="#C6A47A"/>
+  <g stroke="#A8875F" stroke-width="1.5" opacity=".45"><path d="M0 682H1000M0 718H1000M230 646v104M540 646v104M850 646v104"/></g>
+  <rect y="632" width="1000" height="16" fill="#EDE4D6"/>
+
+  <!-- проём с дверью -->
+  <rect x="300" y="56" width="400" height="580" fill="#3A2C22"/>
+  <rect x="316" y="72" width="368" height="564" fill="url(#dp)"/>
+  <rect x="316" y="72" width="368" height="564" fill="none" stroke="#7A5132" stroke-width="4"/>
+  <g stroke="#8A5C36" stroke-width="3" opacity=".55">
+    <path d="M378 72v564M440 72v564M502 72v564M564 72v564M626 72v564"/>
+  </g>
+  <rect x="648" y="352" width="10" height="76" rx="5" fill="#2A211B"/>
+  <circle cx="653" cy="342" r="5" fill="#2A211B"/>
+
+  <!-- вторая, приоткрытая дверь слева -->
+  <rect x="86" y="120" width="150" height="516" fill="#8E5F35"/>
+  <path d="M86 120l60 26v464l-60 26z" fill="#5E3E24"/>
+  <g stroke="#7A5132" stroke-width="3" opacity=".6"><path d="M170 146v464M204 146v464"/></g>
+
+  <!-- бра -->
+  <path d="M792 236v56" stroke="#2A211B" stroke-width="3"/>
+  <path d="M762 292a30 20 0 0 0 60 0z" fill="#2A211B"/>
+  <circle cx="792" cy="316" r="7" fill="#E8B461"/>
+  <path d="M760 200h64v-72h-64z" fill="none" stroke="#3A2C22" stroke-width="5"/>
+  <path d="M770 190l18-30 14 20 12-14v24z" fill="#A9743F" opacity=".6"/>
+
+  <!-- растение и консоль -->
+  <rect x="750" y="470" width="180" height="12" rx="4" fill="#3A2C22"/>
+  <g stroke="#3A2C22" stroke-width="6"><path d="M772 482v164M908 482v164"/></g>
+  <path d="M812 470c0-32 8-50 26-50s26 18 26 50z" fill="#2A211B"/>
+  <g stroke="#5E7355" stroke-width="4" fill="none"><path d="M838 420c-6-44 6-72 34-92M838 420c4-36-6-58-26-74"/></g>
+  <circle cx="872" cy="328" r="8" fill="#6E8562"/><circle cx="812" cy="346" r="7" fill="#6E8562"/>
+</svg>

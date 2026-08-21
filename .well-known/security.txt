@@ -1,0 +1,6 @@
+# RFC 9116 — куда сообщать об уязвимостях сайта woodwerk.ru
+Contact: mailto:security@woodwerk.ru
+Expires: 2027-08-21T00:00:00.000Z
+Preferred-Languages: ru, en
+Canonical: https://woodwerk.ru/.well-known/security.txt
+Policy: https://woodwerk.ru/privacy.html

@@ -1,0 +1,18 @@
+# Системные файлы
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+*~
+
+# Временные и отладочные
+_debug.html
+_dbg_*.html
+_t*.html
+*.log
+*.bak
