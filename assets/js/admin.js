@@ -52,6 +52,47 @@
     return Math.round((Number(bytes) || 0) / (1024 * 1024)) + ' МБ';
   }
 
+  // Значки того же рисунка, что в боковом меню: один стиль на всю панель.
+  var ICONS = {
+    edit: 'M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z',
+    hide: 'M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8M9.4 5.4A9.7 9.7 0 0 1 12 5c5 0 9 4.5 9 7a12 12 0 0 1-2.4 3.4M6.5 6.6A12.3 12.3 0 0 0 3 12c0 2.5 4 7 9 7a9.9 9.9 0 0 0 3.4-.6',
+    show: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z',
+    trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6'
+  };
+
+  // iconButton собирает кнопку-значок с подписью для скринридера и подсказкой.
+  function iconButton(name, label, kind) {
+    var btn = el('button', 'icon-btn' + (kind ? ' icon-btn--' + kind : ''));
+    btn.type = 'button';
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
+
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '17');
+    svg.setAttribute('height', '17');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.7');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', ICONS[name]);
+    svg.appendChild(path);
+
+    if (name === 'show') {
+      var pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      pupil.setAttribute('cx', '12');
+      pupil.setAttribute('cy', '12');
+      pupil.setAttribute('r', '2.6');
+      svg.appendChild(pupil);
+    }
+
+    btn.appendChild(svg);
+    return btn;
+  }
+
   /* ------------------------------------------------------------------
      Уведомления
      ------------------------------------------------------------------ */
@@ -152,7 +193,9 @@
       init.body = JSON.stringify(opts.body);
     }
 
-    return fetch(API + path, init).then(function (res) {
+    return fetch(API + path, init).catch(function () {
+      throw new Error('Сервер не отвечает. Проверьте, что он запущен.');
+    }).then(function (res) {
       if (res.status === 401 && !opts.allow401) {
         goLogin();
         throw new Error('Требуется вход в админ-панель');
@@ -292,7 +335,7 @@
         tr.appendChild(el('td', null, p.category_name || 'Без категории'));
         tr.appendChild(el('td', 'num', formatPrice(p.price)));
         tr.appendChild(cellStatus(p));
-        tr.appendChild(el('td', null, formatDate(p.created_at)));
+        tr.appendChild(el('td', 'date', formatDate(p.created_at)));
         body.appendChild(tr);
       });
     }
@@ -392,16 +435,20 @@
       tr.appendChild(el('td', null, p.category_name || 'Без категории'));
       tr.appendChild(el('td', 'num', formatPrice(p.price)));
       tr.appendChild(cellStatus(p));
-      tr.appendChild(el('td', null, formatDate(p.created_at)));
+      tr.appendChild(el('td', 'date', formatDate(p.created_at)));
 
       var actions = el('td', 'actions');
       var active = p.status === 'active';
+      var group = el('div', 'row-actions');
 
-      var edit = el('a', 'btn btn--outline btn--sm', 'Редактировать');
+      var edit = el('a', 'icon-btn', null);
       edit.href = '/admin/products/' + p.id + '/edit';
+      edit.title = 'Редактировать';
+      edit.setAttribute('aria-label', 'Редактировать «' + p.title + '»');
+      edit.appendChild(iconButton('edit', 'Редактировать').firstChild);
 
-      var toggle = el('button', 'btn btn--outline btn--sm', active ? 'Скрыть' : 'Показать');
-      toggle.type = 'button';
+      var toggle = iconButton(active ? 'hide' : 'show',
+        active ? 'Скрыть с сайта' : 'Показать на сайте');
       toggle.addEventListener('click', function () {
         toggle.disabled = true;
         api('/admin/products/' + p.id + '/status', {
@@ -416,8 +463,7 @@
         });
       });
 
-      var del = el('button', 'btn btn--danger btn--sm', 'Удалить');
-      del.type = 'button';
+      var del = iconButton('trash', 'Удалить', 'danger');
       del.addEventListener('click', function () {
         confirmDialog('Удалить изделие?',
           'Изделие «' + p.title + '» будет удалено безвозвратно и пропадёт с сайта.')
@@ -430,9 +476,10 @@
           });
       });
 
-      actions.appendChild(edit);
-      actions.appendChild(toggle);
-      actions.appendChild(del);
+      group.appendChild(edit);
+      group.appendChild(toggle);
+      group.appendChild(del);
+      actions.appendChild(group);
       tr.appendChild(actions);
       return tr;
     }
@@ -793,16 +840,15 @@
       countCell.appendChild(el('span', 'badge badge--muted',
         c.products + ' ' + plural(c.products, 'изделие', 'изделия', 'изделий')));
       tr.appendChild(countCell);
-      tr.appendChild(el('td', null, formatDate(c.created_at)));
+      tr.appendChild(el('td', 'date', formatDate(c.created_at)));
 
       var actions = el('td', 'actions');
+      var group = el('div', 'row-actions');
 
-      var rename = el('button', 'btn btn--outline btn--sm', 'Переименовать');
-      rename.type = 'button';
+      var rename = iconButton('edit', 'Переименовать');
       rename.addEventListener('click', function () { startEdit(tr, c); });
 
-      var del = el('button', 'btn btn--danger btn--sm', 'Удалить');
-      del.type = 'button';
+      var del = iconButton('trash', 'Удалить', 'danger');
       del.addEventListener('click', function () {
         var note = c.products > 0
           ? 'В категории ' + c.products + ' ' + plural(c.products, 'изделие', 'изделия', 'изделий') +
@@ -817,8 +863,9 @@
         });
       });
 
-      actions.appendChild(rename);
-      actions.appendChild(del);
+      group.appendChild(rename);
+      group.appendChild(del);
+      actions.appendChild(group);
       tr.appendChild(actions);
       return tr;
     }
