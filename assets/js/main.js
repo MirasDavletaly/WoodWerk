@@ -351,21 +351,27 @@
   /* ------------------------------------------------------------------
      Появление блоков при прокрутке
      ------------------------------------------------------------------ */
-  var reveals = $$('.reveal');
-  if ('IntersectionObserver' in window && reveals.length) {
-    var io = new IntersectionObserver(function (entries) {
+  var revealIO = null;
+  if ('IntersectionObserver' in window) {
+    revealIO = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        var el = entry.target;
-        var delay = parseInt(el.dataset.delay || '0', 10);
-        setTimeout(function () { el.classList.add('is-in'); }, delay);
-        io.unobserve(el);
+        var node = entry.target;
+        var delay = parseInt(node.dataset.delay || '0', 10);
+        setTimeout(function () { node.classList.add('is-in'); }, delay);
+        revealIO.unobserve(node);
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    reveals.forEach(function (el) { io.observe(el); });
-  } else {
-    reveals.forEach(function (el) { el.classList.add('is-in'); });
   }
+
+  // observeReveal подключает к анимации и то, что появилось уже после загрузки,
+  // — например карточки каталога, пришедшие из базы.
+  function observeReveal(node) {
+    if (revealIO) revealIO.observe(node);
+    else node.classList.add('is-in');
+  }
+
+  $$('.reveal').forEach(function (node) { observeReveal(node); });
 
   /* ------------------------------------------------------------------
      Счётчики
@@ -394,14 +400,79 @@
   }
 
   /* ------------------------------------------------------------------
-     Фильтры каталога
+     Каталог: данные приходят из базы через /api/products
      ------------------------------------------------------------------ */
+  var API = (window.WOODWERK && window.WOODWERK.apiBase) || '/api';
+  var CURRENCY = '₸';
+  var NO_PHOTO = '/assets/img/scenes/workshop.svg';
+
+  var WOOD_NAMES = {
+    oak: 'Дуб',
+    ash: 'Ясень',
+    walnut: 'Орех',
+    thermo: 'Термоясень',
+    wenge: 'Венге',
+    larch: 'Лиственница'
+  };
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function clearNode(node) {
+    while (node && node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function formatPrice(value) {
+    return (Number(value) || 0).toLocaleString('ru-RU') + ' ' + CURRENCY;
+  }
+
+  // Короткая выжимка описания для карточки каталога.
+  function shorten(text, limit) {
+    var s = String(text || '').replace(/\s+/g, ' ').trim();
+    if (s.length <= limit) return s;
+    var cut = s.slice(0, limit);
+    var space = cut.lastIndexOf(' ');
+    return (space > limit * 0.6 ? cut.slice(0, space) : cut) + '…';
+  }
+
+  function getJSON(path) {
+    return fetch(API + path, { credentials: 'same-origin' }).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok || !data || data.ok === false) {
+          var err = new Error((data && data.error) || 'Ошибка загрузки');
+          err.status = res.status;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
   var catalog = $('[data-catalog]');
   if (catalog) {
-    var products = $$('.product', catalog);
+    var loadingEl = $('[data-catalog-loading]');
     var countEl = $('[data-count-products]');
     var emptyEl = $('[data-empty]');
     var sortSel = $('[data-sort]');
+    var catBox = $('[data-filter-categories]');
+    var fWrap = $('.filters');
+    var fToggle = $('[data-filters-toggle]');
+    var fCount = $('[data-filters-count]');
+
+    var products = [];   // всё, что пришло из базы
+    var cards = [];      // готовые карточки, по одной на изделие
+
+    // Фильтры на телефоне свёрнуты: иначе до товаров надо пролистать весь список.
+    if (fToggle && fWrap) {
+      fToggle.addEventListener('click', function () {
+        var open = fWrap.classList.toggle('is-open');
+        fToggle.setAttribute('aria-expanded', String(open));
+      });
+    }
 
     function activeValues(group) {
       return $$('input[data-filter="' + group + '"]:checked').map(function (i) { return i.value; });
@@ -412,11 +483,11 @@
       var woods = activeValues('wood');
       var visible = 0;
 
-      products.forEach(function (p) {
-        var okCat = !cats.length || cats.indexOf(p.dataset.cat) > -1;
-        var okWood = !woods.length || woods.indexOf(p.dataset.wood) > -1;
+      cards.forEach(function (card) {
+        var okCat = !cats.length || cats.indexOf(card.dataset.cat) > -1;
+        var okWood = !woods.length || woods.indexOf(card.dataset.wood) > -1;
         var show = okCat && okWood;
-        p.classList.toggle('is-hidden', !show);
+        card.classList.toggle('is-hidden', !show);
         if (show) visible++;
       });
 
@@ -427,24 +498,12 @@
     function sort() {
       if (!sortSel) return;
       var mode = sortSel.value;
-      var list = products.slice();
+      var list = cards.slice();
       if (mode === 'price-asc') list.sort(function (a, b) { return +a.dataset.price - +b.dataset.price; });
       if (mode === 'price-desc') list.sort(function (a, b) { return +b.dataset.price - +a.dataset.price; });
       if (mode === 'name') list.sort(function (a, b) { return a.dataset.name.localeCompare(b.dataset.name, 'ru'); });
-      list.forEach(function (p) { catalog.appendChild(p); });
+      list.forEach(function (card) { catalog.appendChild(card); });
       if (emptyEl) catalog.appendChild(emptyEl);
-    }
-
-    // Фильтры на телефоне свёрнуты: иначе до товаров надо пролистать весь список.
-    var fWrap = $('.filters');
-    var fToggle = $('[data-filters-toggle]');
-    var fCount = $('[data-filters-count]');
-
-    if (fToggle && fWrap) {
-      fToggle.addEventListener('click', function () {
-        var open = fWrap.classList.toggle('is-open');
-        fToggle.setAttribute('aria-expanded', String(open));
-      });
     }
 
     function refreshCount() {
@@ -454,36 +513,273 @@
       fCount.classList.toggle('is-visible', n > 0);
     }
 
-    $$('input[data-filter]').forEach(function (i) {
-      i.addEventListener('change', function () { apply(); refreshCount(); });
-    });
-    if (sortSel) sortSel.addEventListener('change', sort);
+    // Карточка изделия. Разметка та же, что была в вёрстке, но данные из базы.
+    function card(p) {
+      var article = el('article', 'product reveal');
+      article.dataset.cat = p.category_slug || '';
+      article.dataset.wood = p.wood || '';
+      article.dataset.price = String(p.price || 0);
+      article.dataset.name = p.title;
 
-    var reset = $('[data-reset-filters]');
-    if (reset) {
-      reset.addEventListener('click', function () {
-        $$('input[data-filter]').forEach(function (i) { i.checked = false; });
-        apply();
-        refreshCount();
+      var media = el('div', 'product__media');
+      var img = el('img');
+      img.src = p.image_url || NO_PHOTO;
+      img.alt = p.title;
+      img.loading = 'lazy';
+      media.appendChild(img);
+      if (p.badge) media.appendChild(el('span', 'product__badge', p.badge));
+      article.appendChild(media);
+
+      var body = el('div', 'product__body');
+      body.appendChild(el('span', 'product__cat', p.category_name || 'Мебель'));
+      body.appendChild(el('h3', null, p.title));
+      body.appendChild(el('p', 'product__spec', shorten(p.description, 110)));
+
+      var foot = el('div', 'product__foot');
+      var price = el('span', 'product__price', formatPrice(p.price));
+      price.appendChild(el('small', null, 'с монтажом'));
+      foot.appendChild(price);
+
+      var more = el('a', 'btn btn--outline btn--sm', 'Подробнее');
+      more.href = '/product/' + p.id;
+      foot.appendChild(more);
+
+      body.appendChild(foot);
+      article.appendChild(body);
+      return article;
+    }
+
+    // Список категорий строим по тому, что реально есть в каталоге:
+    // пустых фильтров, которые ничего не находят, быть не должно.
+    function renderCategoryFilters() {
+      if (!catBox) return;
+      var order = [];
+      var counts = {};
+      var names = {};
+
+      products.forEach(function (p) {
+        var slug = p.category_slug || '';
+        if (!slug) return;
+        if (counts[slug] === undefined) {
+          counts[slug] = 0;
+          names[slug] = p.category_name;
+          order.push(slug);
+        }
+        counts[slug]++;
+      });
+
+      clearNode(catBox);
+      order.forEach(function (slug) {
+        var label = el('label', 'filter-opt');
+        var input = el('input');
+        input.type = 'checkbox';
+        input.setAttribute('data-filter', 'cat');
+        input.value = slug;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(' ' + names[slug] + ' '));
+        label.appendChild(el('small', null, counts[slug]));
+        catBox.appendChild(label);
       });
     }
 
-    // Предустановка фильтров из адреса: catalog.html?cat=kitchen&wood=oak.
+    // У пород дерева список фиксированный — обновляем только счётчики
+    // и убираем то, чего в каталоге нет.
+    function renderWoodFilters() {
+      var counts = {};
+      products.forEach(function (p) {
+        if (!p.wood) return;
+        counts[p.wood] = (counts[p.wood] || 0) + 1;
+      });
+
+      $$('input[data-filter="wood"]').forEach(function (input) {
+        var label = input.closest('.filter-opt');
+        var n = counts[input.value] || 0;
+        if (!label) return;
+        if (!n) {
+          label.classList.add('u-hidden');
+          input.checked = false;
+          return;
+        }
+        label.classList.remove('u-hidden');
+        var small = label.querySelector('small');
+        if (small) small.textContent = n;
+      });
+    }
+
+    function bindFilters() {
+      $$('input[data-filter]').forEach(function (i) {
+        i.addEventListener('change', function () { apply(); refreshCount(); });
+      });
+
+      var reset = $('[data-reset-filters]');
+      if (reset) {
+        reset.addEventListener('click', function () {
+          $$('input[data-filter]').forEach(function (i) { i.checked = false; });
+          apply();
+          refreshCount();
+        });
+      }
+    }
+
+    // Предустановка фильтров из адреса: /catalog?cat=kitchen&wood=oak.
     // Значение из URL нельзя подставлять в селектор — сравниваем его
     // со списком уже существующих чекбоксов.
-    var params = new URLSearchParams(window.location.search);
-    ['cat', 'wood'].forEach(function (group) {
-      var preset = (params.get(group) || '').replace(/[^a-z]/gi, '').slice(0, 24).toLowerCase();
-      if (!preset) return;
-      $$('input[data-filter="' + group + '"]').forEach(function (input) {
-        if (input.value === preset) input.checked = true;
+    function presetFromURL() {
+      var params = new URLSearchParams(window.location.search);
+      ['cat', 'wood'].forEach(function (group) {
+        var preset = (params.get(group) || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40).toLowerCase();
+        if (!preset) return;
+        $$('input[data-filter="' + group + '"]').forEach(function (input) {
+          if (input.value === preset) input.checked = true;
+        });
       });
+    }
+
+    function fail(message) {
+      if (loadingEl) {
+        loadingEl.textContent = message;
+        loadingEl.classList.remove('u-hidden');
+      }
+    }
+
+    getJSON('/products').then(function (data) {
+      products = data.products || [];
+      if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+
+      cards = products.map(card);
+      cards.forEach(function (node) {
+        catalog.appendChild(node);
+        observeReveal(node);
+      });
+      if (emptyEl) catalog.appendChild(emptyEl);
+
+      renderCategoryFilters();
+      renderWoodFilters();
+      bindFilters();
+      presetFromURL();
+      apply();
+      refreshCount();
+      sort();
+
+      if (fWrap && $$('input[data-filter]:checked').length) {
+        fWrap.classList.add('is-open');
+        if (fToggle) fToggle.setAttribute('aria-expanded', 'true');
+      }
+    }).catch(function () {
+      fail('Не удалось загрузить каталог. Обновите страницу или позвоните нам: +7 (747) 902-44-01');
     });
-    apply();
-    refreshCount();
-    if (fWrap && $$('input[data-filter]:checked').length) {
-      fWrap.classList.add('is-open');
-      if (fToggle) fToggle.setAttribute('aria-expanded', 'true');
+
+    if (sortSel) sortSel.addEventListener('change', sort);
+  }
+
+  /* ------------------------------------------------------------------
+     Страница изделия: /product/12
+     ------------------------------------------------------------------ */
+  var pdp = $('[data-pdp]');
+  if (pdp) {
+    var pdpLoading = $('[data-pdp-loading]');
+    var pdpMissing = $('[data-pdp-missing]');
+    var match = /\/product\/(\d+)/.exec(window.location.pathname);
+    var productID = match ? match[1] : '';
+
+    function showMissing() {
+      if (pdpLoading) pdpLoading.classList.add('u-hidden');
+      if (pdpMissing) pdpMissing.classList.remove('u-hidden');
+      document.title = 'Изделие не найдено — WOODWERK';
+    }
+
+    function fillProduct(p) {
+      document.title = p.title + ' — WOODWERK';
+
+      var crumb = $('[data-pdp-crumb]');
+      if (crumb) crumb.textContent = p.title;
+      var heading = $('[data-pdp-heading]');
+      if (heading) heading.textContent = p.title;
+      var title = $('[data-pdp-title]');
+      if (title) title.textContent = p.title;
+
+      var cat = $('[data-pdp-category]');
+      if (cat) cat.textContent = p.category_name || 'Мебель';
+
+      var price = $('[data-pdp-price]');
+      if (price) {
+        clearNode(price);
+        price.appendChild(document.createTextNode(formatPrice(p.price)));
+        price.appendChild(el('small', null, 'с монтажом'));
+      }
+
+      var desc = $('[data-pdp-desc]');
+      if (desc) {
+        clearNode(desc);
+        String(p.description || '').split(/\n{1,}/).forEach(function (part) {
+          if (part.trim()) desc.appendChild(el('p', null, part.trim()));
+        });
+      }
+
+      var badge = $('[data-pdp-badge]');
+      if (badge && p.badge) {
+        badge.textContent = p.badge;
+        badge.classList.remove('u-hidden');
+      }
+
+      var meta = $('[data-pdp-meta]');
+      if (meta) {
+        clearNode(meta);
+        addMeta(meta, 'Категория', p.category_name || 'Без категории');
+        if (p.wood && WOOD_NAMES[p.wood]) addMeta(meta, 'Порода дерева', WOOD_NAMES[p.wood]);
+        addMeta(meta, 'Артикул', '№ ' + p.id);
+      }
+
+      // Основная фотография идёт первой, за ней — дополнительные.
+      var photos = [];
+      if (p.image_url) photos.push(p.image_url);
+      (p.images || []).forEach(function (im) {
+        if (im.image_url && photos.indexOf(im.image_url) < 0) photos.push(im.image_url);
+      });
+      if (!photos.length) photos.push(NO_PHOTO);
+
+      var mainImg = $('[data-pdp-main]');
+      if (mainImg) {
+        mainImg.src = photos[0];
+        mainImg.alt = p.title;
+      }
+
+      var thumbs = $('[data-pdp-thumbs]');
+      if (thumbs && photos.length > 1) {
+        clearNode(thumbs);
+        photos.forEach(function (url, index) {
+          var btn = el('button', 'pdp__thumb' + (index === 0 ? ' is-active' : ''));
+          btn.type = 'button';
+          var img = el('img');
+          img.src = url;
+          img.alt = p.title + ' — фотография ' + (index + 1);
+          img.loading = 'lazy';
+          btn.appendChild(img);
+          btn.addEventListener('click', function () {
+            if (mainImg) { mainImg.src = url; }
+            $$('.pdp__thumb', thumbs).forEach(function (b) { b.classList.remove('is-active'); });
+            btn.classList.add('is-active');
+          });
+          thumbs.appendChild(btn);
+        });
+        thumbs.classList.remove('u-hidden');
+      }
+
+      if (pdpLoading) pdpLoading.classList.add('u-hidden');
+      pdp.classList.remove('u-hidden');
+    }
+
+    function addMeta(list, label, value) {
+      list.appendChild(el('dt', null, label));
+      list.appendChild(el('dd', null, value));
+    }
+
+    if (!productID) {
+      showMissing();
+    } else {
+      getJSON('/products/' + productID).then(function (data) {
+        fillProduct(data.product);
+      }).catch(showMissing);
     }
   }
 

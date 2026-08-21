@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Вход в админ-панель — WOODWERK</title>
+<link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body data-page="login">
+
+<main class="login">
+  <div class="login__card">
+    <div class="login__logo">
+      <img src="/assets/img/logo.svg" alt="" width="40" height="40">
+      <span class="login__name">Woodwerk<span class="login__tag">панель управления</span></span>
+    </div>
+
+    <h1>Вход в админ-панель</h1>
+    <p class="login__lead">Введите логин и пароль администратора.</p>
+
+    <form data-login-form novalidate>
+      <p class="form-error" data-form-error role="alert"></p>
+
+      <div class="field">
+        <label for="login-user">Логин</label>
+        <input id="login-user" name="username" type="text" autocomplete="username"
+               maxlength="60" spellcheck="false" autofocus>
+      </div>
+
+      <div class="field">
+        <label for="login-pass">Пароль</label>
+        <input id="login-pass" name="password" type="password" autocomplete="current-password"
+               maxlength="200">
+      </div>
+
+      <button class="btn btn--primary btn--block" type="submit">Войти</button>
+    </form>
+
+    <a class="login__back" href="/">← Вернуться на сайт</a>
+  </div>
+</main>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/admin.js"></script>
+</body>
+</html>

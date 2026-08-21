@@ -11,7 +11,7 @@
 
 # ---------- заголовки ----------
 <IfModule mod_headers.c>
-  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
   Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
@@ -51,7 +51,7 @@ ServerSignature Off
 </IfModule>
 
 # ---------- то же самое для nginx ----------
-#   add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" always;
+#   add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" always;
 #   add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 #   add_header X-Content-Type-Options "nosniff" always;
 #   add_header X-Frame-Options "DENY" always;

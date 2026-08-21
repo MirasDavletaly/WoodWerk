@@ -74,7 +74,7 @@
                   <li><a href="catalog.html?cat=wardrobe">Шкафы и гардеробные</a></li>
                   <li><a href="catalog.html?cat=table">Столы и обеденные группы</a></li>
                   <li><a href="catalog.html?cat=bed">Кровати и изголовья</a></li>
-                  <li><a href="catalog.html?cat=storage">Комоды и тумбы</a></li>
+                  <li><a href="catalog.html?cat=dresser">Комоды и тумбы</a></li>
                   <li><a href="catalog.html?cat=bath">Мебель для ванной</a></li>
                 </ul>
               </div>
@@ -202,15 +202,7 @@
           <div class="filters__panel">
             <div class="filters__group">
               <div class="filters__title">Категория</div>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="kitchen"> Кухни <small>2</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="wardrobe"> Шкафы и гардеробные <small>2</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="stairs"> Лестницы <small>2</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="doors"> Двери и порталы <small>2</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="panels"> Стеновые панели <small>2</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="table"> Столы и стулья <small>1</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="bed"> Кровати <small>1</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="bath"> Мебель для ванной <small>1</small></label>
-          <label class="filter-opt"><input type="checkbox" data-filter="cat" value="storage"> Комоды и тумбы <small>1</small></label>
+          <div data-filter-categories></div>
             </div>
             <div class="filters__group">
               <div class="filters__title">Порода дерева</div>
@@ -236,7 +228,7 @@
 
         <div>
           <div class="catalog-toolbar">
-            <span class="catalog-toolbar__count">Показано изделий: <b data-count-products>14</b></span>
+            <span class="catalog-toolbar__count">Показано изделий: <b data-count-products>0</b></span>
             <select data-sort aria-label="Сортировка">
               <option value="default">По популярности</option>
               <option value="price-asc">Сначала дешевле</option>
@@ -246,216 +238,7 @@
           </div>
 
           <div class="products" data-catalog>
-        <article class="product reveal" data-cat="kitchen" data-wood="oak" data-price="289000" data-name="Кухня «Dubrava Line»" data-delay="0">
-          <div class="product__media">
-            <img src="assets/img/scenes/kitchen.svg" alt="Кухня «Dubrava Line»" loading="lazy">
-            <span class="product__badge">Хит</span>
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Кухни</span>
-            <h3>Кухня «Dubrava Line»</h3>
-            <p class="product__spec">Фасады из ламелей дуба, интегрированная ручка, столешница из слэба 40 мм</p>
-            <div class="product__foot">
-              <span class="product__price">от 289 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="kitchen" data-wood="walnut" data-price="412000" data-name="Кухня «Noce Soft»" data-delay="60">
-          <div class="product__media">
-            <img src="assets/img/scenes/kitchen.svg" alt="Кухня «Noce Soft»" loading="lazy">
-            <span class="product__badge">Премиум</span>
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Кухни</span>
-            <h3>Кухня «Noce Soft»</h3>
-            <p class="product__spec">Орех американский, радиусные торцы, встроенная подсветка рабочей зоны</p>
-            <div class="product__foot">
-              <span class="product__price">от 412 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="wardrobe" data-wood="ash" data-price="168000" data-name="Гардеробная «Fraxa Open»" data-delay="120">
-          <div class="product__media">
-            <img src="assets/img/scenes/wardrobe.svg" alt="Гардеробная «Fraxa Open»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Гардеробные</span>
-            <h3>Гардеробная «Fraxa Open»</h3>
-            <p class="product__spec">Открытая система до потолка, ясень под тонировку, штанги и полки с подсветкой</p>
-            <div class="product__foot">
-              <span class="product__price">от 168 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="wardrobe" data-wood="larch" data-price="112000" data-name="Шкаф-купе «Larix»" data-delay="0">
-          <div class="product__media">
-            <img src="assets/img/scenes/wardrobe.svg" alt="Шкаф-купе «Larix»" loading="lazy">
-            <span class="product__badge">Выгодно</span>
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Гардеробные</span>
-            <h3>Шкаф-купе «Larix»</h3>
-            <p class="product__spec">Лиственница, реечные фасады, доводчики Blum, глубина 600 мм</p>
-            <div class="product__foot">
-              <span class="product__price">от 112 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="stairs" data-wood="oak" data-price="340000" data-name="Лестница «Turn 180»" data-delay="60">
-          <div class="product__media">
-            <img src="assets/img/scenes/stairs.svg" alt="Лестница «Turn 180»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Лестницы</span>
-            <h3>Лестница «Turn 180»</h3>
-            <p class="product__spec">Поворот на 180°, дуб на металлокаркасе, 16 ступеней, перила из массива</p>
-            <div class="product__foot">
-              <span class="product__price">от 340 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="stairs" data-wood="ash" data-price="268000" data-name="Лестница «Straight»" data-delay="120">
-          <div class="product__media">
-            <img src="assets/img/scenes/stairs.svg" alt="Лестница «Straight»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Лестницы</span>
-            <h3>Лестница «Straight»</h3>
-            <p class="product__spec">Прямой марш на косоуре, ясень, подступенок белого цвета, 14 ступеней</p>
-            <div class="product__foot">
-              <span class="product__price">от 268 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="doors" data-wood="walnut" data-price="46500" data-name="Дверь «Portal Slim»" data-delay="0">
-          <div class="product__media">
-            <img src="assets/img/scenes/door.svg" alt="Дверь «Portal Slim»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Двери</span>
-            <h3>Дверь «Portal Slim»</h3>
-            <p class="product__spec">Скрытый короб, шпон ореха в одну карту, высота до 3 200 мм</p>
-            <div class="product__foot">
-              <span class="product__price">от 46 500 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="doors" data-wood="oak" data-price="38900" data-name="Дверь «Flat Oak»" data-delay="60">
-          <div class="product__media">
-            <img src="assets/img/scenes/door.svg" alt="Дверь «Flat Oak»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Двери</span>
-            <h3>Дверь «Flat Oak»</h3>
-            <p class="product__spec">Гладкое полотно из массива дуба, магнитная защёлка, кромка алюминий</p>
-            <div class="product__foot">
-              <span class="product__price">от 38 900 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="panels" data-wood="larch" data-price="4900" data-name="Реечная панель «Larix Rib»" data-delay="120">
-          <div class="product__media">
-            <img src="assets/img/scenes/panels.svg" alt="Реечная панель «Larix Rib»" loading="lazy">
-            <span class="product__badge">Хит</span>
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Панели</span>
-            <h3>Реечная панель «Larix Rib»</h3>
-            <p class="product__spec">Рейка 40×20 мм на войлочной основе, монтаж на клипсы, шаг 15 мм</p>
-            <div class="product__foot">
-              <span class="product__price">от 4 900 ₽/м²<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="panels" data-wood="ash" data-price="7400" data-name="3D-панель «Wave»" data-delay="0">
-          <div class="product__media">
-            <img src="assets/img/scenes/panels.svg" alt="3D-панель «Wave»" loading="lazy">
-            <span class="product__badge">Новинка</span>
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Панели</span>
-            <h3>3D-панель «Wave»</h3>
-            <p class="product__spec">Волновая фрезеровка по ЧПУ, ясень, масло Rubio Monocoat</p>
-            <div class="product__foot">
-              <span class="product__price">от 7 400 ₽/м²<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="table" data-wood="oak" data-price="186000" data-name="Стол «Slab 2800»" data-delay="60">
-          <div class="product__media">
-            <img src="assets/img/scenes/table.svg" alt="Стол «Slab 2800»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Столы</span>
-            <h3>Стол «Slab 2800»</h3>
-            <p class="product__spec">Слэб дуба 2 800 × 1 100 мм, эпоксидная заливка трещин, опоры-лофт</p>
-            <div class="product__foot">
-              <span class="product__price">от 186 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="bed" data-wood="walnut" data-price="154000" data-name="Кровать «Noce Bed»" data-delay="120">
-          <div class="product__media">
-            <img src="assets/img/scenes/bed.svg" alt="Кровать «Noce Bed»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Кровати</span>
-            <h3>Кровать «Noce Bed»</h3>
-            <p class="product__spec">Массив ореха, парящее основание, изголовье 3,2 м, подъёмный механизм</p>
-            <div class="product__foot">
-              <span class="product__price">от 154 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="bath" data-wood="thermo" data-price="88000" data-name="Тумба «Terma Bath»" data-delay="0">
-          <div class="product__media">
-            <img src="assets/img/scenes/bath.svg" alt="Тумба «Terma Bath»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Ванная</span>
-            <h3>Тумба «Terma Bath»</h3>
-            <p class="product__spec">Термоясень, влагостойкое покрытие Osmo, накладная раковина</p>
-            <div class="product__foot">
-              <span class="product__price">от 88 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
-        <article class="product reveal" data-cat="storage" data-wood="wenge" data-price="96000" data-name="Комод «Wenge Line»" data-delay="60">
-          <div class="product__media">
-            <img src="assets/img/scenes/office.svg" alt="Комод «Wenge Line»" loading="lazy">
-            
-          </div>
-          <div class="product__body">
-            <span class="product__cat">Комоды</span>
-            <h3>Комод «Wenge Line»</h3>
-            <p class="product__spec">Венге, 4 ящика с доводчиками, фрезерованный профиль вместо ручек</p>
-            <div class="product__foot">
-              <span class="product__price">от 96 000 ₽<small>с монтажом</small></span>
-              <button class="btn btn--outline btn--sm" data-open-modal type="button">Рассчитать</button>
-            </div>
-          </div>
-        </article>
+            <div class="empty-state" data-catalog-loading>Загружаем каталог…</div>
             <div class="empty-state u-hidden" data-empty>
               По выбранным фильтрам ничего не найдено. Сбросьте параметры или напишите нам — сделаем на заказ.
             </div>
