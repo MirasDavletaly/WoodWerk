@@ -694,6 +694,10 @@
     var description = $('#p-description', form);
     var price = $('#p-price', form);
     var category = $('#p-category', form);
+    var titleKK = $('#p-title-kk', form);
+    var titleEN = $('#p-title-en', form);
+    var descKK = $('#p-description-kk', form);
+    var descEN = $('#p-description-en', form);
     var wood = $('#p-wood', form);
     var badge = $('#p-badge', form);
     var errBox = $('[data-form-error]', form);
@@ -714,6 +718,10 @@
         var p = data.product;
         title.value = p.title;
         description.value = p.description;
+        titleKK.value = p.title_kk || '';
+        titleEN.value = p.title_en || '';
+        descKK.value = p.description_kk || '';
+        descEN.value = p.description_en || '';
         price.value = p.price;
         category.value = p.category_id ? String(p.category_id) : '';
         if (wood) wood.value = p.wood || '';
@@ -762,6 +770,10 @@
       var payload = {
         title: title.value.trim(),
         description: description.value.trim(),
+        title_kk: titleKK.value.trim(),
+        title_en: titleEN.value.trim(),
+        description_kk: descKK.value.trim(),
+        description_en: descEN.value.trim(),
         price: Math.round(Number(price.value) || 0),
         image_url: mainPhoto.get(),
         category_id: category.value ? Number(category.value) : null,
@@ -808,6 +820,8 @@
     var empty = $('[data-categories-empty]');
     var form = $('[data-category-form]');
     var input = $('#c-name', form);
+    var inputKK = $('#c-name-kk', form);
+    var inputEN = $('#c-name-en', form);
     var submitBtn = $('button[type="submit"]', form);
 
     load();
@@ -898,7 +912,10 @@
           return;
         }
         save.disabled = true;
-        api('/admin/categories/' + c.id, { method: 'PUT', body: { name: name } })
+        api('/admin/categories/' + c.id, {
+          method: 'PUT',
+          body: { name: name, name_kk: c.name_kk || '', name_en: c.name_en || '' }
+        })
           .then(function (data) {
             toast(data.message || 'Изменения успешно сохранены', 'ok');
             load();
@@ -926,10 +943,19 @@
         return;
       }
       submitBtn.disabled = true;
-      api('/admin/categories', { method: 'POST', body: { name: name } })
+      api('/admin/categories', {
+        method: 'POST',
+        body: {
+          name: name,
+          name_kk: inputKK ? inputKK.value.trim() : '',
+          name_en: inputEN ? inputEN.value.trim() : ''
+        }
+      })
         .then(function (data) {
           toast(data.message || 'Категория успешно добавлена', 'ok');
           input.value = '';
+          if (inputKK) inputKK.value = '';
+          if (inputEN) inputEN.value = '';
           load();
         }).catch(function (err) {
           toast(err.message, 'err');

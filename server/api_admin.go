@@ -203,7 +203,11 @@ func (a *API) adminProduct(w http.ResponseWriter, r *http.Request) {
 // Клиентские проверки можно обойти, поэтому решает именно эта функция.
 func (a *API) validateProduct(in *ProductInput) string {
 	in.Title = cleanLine(in.Title, 120)
+	in.TitleKK = cleanLine(in.TitleKK, 120)
+	in.TitleEN = cleanLine(in.TitleEN, 120)
 	in.Description = clean(in.Description, 5000)
+	in.DescriptionKK = clean(in.DescriptionKK, 5000)
+	in.DescriptionEN = clean(in.DescriptionEN, 5000)
 	in.Badge = cleanLine(in.Badge, 24)
 	in.Wood = cleanLine(in.Wood, 20)
 	in.ImageURL = cleanLine(in.ImageURL, 300)
@@ -436,7 +440,9 @@ func (a *API) adminCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 type categoryInput struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	NameKK string `json:"name_kk"`
+	NameEN string `json:"name_en"`
 }
 
 func validCategoryName(name string) (string, string) {
@@ -458,7 +464,8 @@ func (a *API) createCategory(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, apiError(msg))
 		return
 	}
-	c, err := a.store.CreateCategory(name)
+	c, err := a.store.CreateCategoryTr(name,
+		cleanLine(in.NameKK, 60), cleanLine(in.NameEN, 60))
 	if errors.Is(err, ErrDuplicate) {
 		writeJSON(w, http.StatusBadRequest, apiError("Такая категория уже есть"))
 		return
@@ -489,7 +496,8 @@ func (a *API) updateCategory(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, apiError(msg))
 		return
 	}
-	c, err := a.store.UpdateCategory(id, name)
+	c, err := a.store.UpdateCategory(id, name,
+		cleanLine(in.NameKK, 60), cleanLine(in.NameEN, 60))
 	if errors.Is(err, ErrNotFound) {
 		writeJSON(w, http.StatusNotFound, apiError("Категория не найдена"))
 		return

@@ -917,3 +917,6 @@ table.data td.actions .btn { margin-left: 7px; }
 .icon-btn:hover:not(:disabled) { border-color: var(--ink); background: var(--ink); color: #fff; }
 .icon-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .icon-btn--danger:hover:not(:disabled) { border-color: var(--err); background: var(--err); color: #fff; }
+
+/* Пояснение над группой полей — отступ больше, чем у подписи под полем. */
+.field__hint--lead { margin: 0 0 20px; }

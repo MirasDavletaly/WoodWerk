@@ -29,6 +29,19 @@ func serverError(w http.ResponseWriter, err error) {
 	writeJSON(w, http.StatusInternalServerError, apiError("Произошла ошибка. Попробуйте ещё раз."))
 }
 
+// langOf читает язык из запроса. Неизвестное значение — русский:
+// подставлять пустоту или падать из-за параметра в адресе нельзя.
+func langOf(r *http.Request) string {
+	switch r.URL.Query().Get("lang") {
+	case "kk":
+		return "kk"
+	case "en":
+		return "en"
+	default:
+		return "ru"
+	}
+}
+
 // GET /api/products — каталог для публичного сайта.
 func (a *API) publicProducts(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
@@ -42,6 +55,11 @@ func (a *API) publicProducts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		serverError(w, err)
 		return
+	}
+
+	lang := langOf(r)
+	for i := range list {
+		list[i].Localize(lang)
 	}
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{"products": list}))
 }
@@ -62,6 +80,8 @@ func (a *API) publicProduct(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
+
+	p.Localize(langOf(r))
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{"product": p}))
 }
 
@@ -71,6 +91,11 @@ func (a *API) publicCategories(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		serverError(w, err)
 		return
+	}
+
+	lang := langOf(r)
+	for i := range list {
+		list[i].Localize(lang)
 	}
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{"categories": list}))
 }

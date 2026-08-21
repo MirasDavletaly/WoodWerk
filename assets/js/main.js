@@ -439,8 +439,16 @@
     return (space > limit * 0.6 ? cut.slice(0, space) : cut) + '…';
   }
 
+  // Язык подставляем в каждый запрос: названия и описания мебели
+  // хранятся в базе и переводятся на стороне сервера.
+  function currentLang() {
+    return (window.WWLang && window.WWLang.current()) || 'ru';
+  }
+
   function getJSON(path) {
-    return fetch(API + path, { credentials: 'same-origin' }).then(function (res) {
+    var sep = path.indexOf('?') > -1 ? '&' : '?';
+    var url = API + path + sep + 'lang=' + encodeURIComponent(currentLang());
+    return fetch(url, { credentials: 'same-origin' }).then(function (res) {
       return res.json().then(function (data) {
         if (!res.ok || !data || data.ok === false) {
           var err = new Error((data && data.error) || 'Ошибка загрузки');
@@ -455,7 +463,6 @@
   var catalog = $('[data-catalog]');
   if (catalog) {
     var loadingEl = $('[data-catalog-loading]');
-    var countEl = $('[data-count-products]');
     var emptyEl = $('[data-empty]');
     var sortSel = $('[data-sort]');
     var catBox = $('[data-filter-categories]');
@@ -491,6 +498,9 @@
         if (show) visible++;
       });
 
+      // Счётчик ищем заново каждый раз: при смене языка перевод подменяет
+      // содержимое всего блока, и прежняя ссылка указывает в никуда.
+      var countEl = $('[data-count-products]');
       if (countEl) countEl.textContent = visible;
       if (emptyEl) emptyEl.classList.toggle('u-hidden', visible > 0);
     }
@@ -606,10 +616,17 @@
       });
     }
 
+    // Список категорий пересоздаётся при каждой смене языка, поэтому слушаем
+    // не сами галочки, а панель фильтров — обработчик вешается ровно один раз.
     function bindFilters() {
-      $$('input[data-filter]').forEach(function (i) {
-        i.addEventListener('change', function () { apply(); refreshCount(); });
-      });
+      if (fWrap) {
+        fWrap.addEventListener('change', function (e) {
+          if (e.target && e.target.matches('input[data-filter]')) {
+            apply();
+            refreshCount();
+          }
+        });
+      }
 
       var reset = $('[data-reset-filters]');
       if (reset) {
@@ -642,7 +659,8 @@
       }
     }
 
-    getJSON('/products').then(function (data) {
+    function load() {
+      return getJSON('/products').then(function (data) {
       products = data.products || [];
       if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
 
@@ -655,18 +673,44 @@
 
       renderCategoryFilters();
       renderWoodFilters();
-      bindFilters();
-      presetFromURL();
       apply();
       refreshCount();
       sort();
 
+      }).catch(function () {
+        fail('Не удалось загрузить каталог. Обновите страницу или позвоните нам: +7 (747) 902-44-01');
+      });
+    }
+
+    bindFilters();
+    load().then(function () {
+      presetFromURL();
+      apply();
+      refreshCount();
       if (fWrap && $$('input[data-filter]:checked').length) {
         fWrap.classList.add('is-open');
         if (fToggle) fToggle.setAttribute('aria-expanded', 'true');
       }
-    }).catch(function () {
-      fail('Не удалось загрузить каталог. Обновите страницу или позвоните нам: +7 (747) 902-44-01');
+    });
+
+    // При смене языка перезапрашиваем каталог: перевод названий живёт в базе.
+    document.addEventListener('ww:lang', function () {
+      var checked = $$('input[data-filter]:checked').map(function (i) {
+        return i.getAttribute('data-filter') + ':' + i.value;
+      });
+      cards.forEach(function (node) {
+        if (node.parentNode) node.parentNode.removeChild(node);
+      });
+      cards = [];
+      load().then(function () {
+        $$('input[data-filter]').forEach(function (i) {
+          if (checked.indexOf(i.getAttribute('data-filter') + ':' + i.value) > -1) {
+            i.checked = true;
+          }
+        });
+        apply();
+        refreshCount();
+      });
     });
 
     if (sortSel) sortSel.addEventListener('change', sort);
@@ -777,9 +821,13 @@
     if (!productID) {
       showMissing();
     } else {
-      getJSON('/products/' + productID).then(function (data) {
-        fillProduct(data.product);
-      }).catch(showMissing);
+      var loadProduct = function () {
+        return getJSON('/products/' + productID).then(function (data) {
+          fillProduct(data.product);
+        }).catch(showMissing);
+      };
+      loadProduct();
+      document.addEventListener('ww:lang', loadProduct);
     }
   }
 

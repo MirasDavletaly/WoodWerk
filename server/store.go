@@ -14,6 +14,8 @@ import (
 type Category struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
+	NameKK    string `json:"name_kk"`
+	NameEN    string `json:"name_en"`
 	Slug      string `json:"slug"`
 	SortOrder int    `json:"sort_order"`
 	CreatedAt string `json:"created_at"`
@@ -31,20 +33,26 @@ type ProductImage struct {
 
 // Product — мебельное изделие.
 type Product struct {
-	ID           int64          `json:"id"`
-	Title        string         `json:"title"`
-	Description  string         `json:"description"`
-	Price        int64          `json:"price"`
-	ImageURL     string         `json:"image_url"`
-	CategoryID   *int64         `json:"category_id"`
-	CategoryName string         `json:"category_name"`
-	CategorySlug string         `json:"category_slug"`
-	Status       string         `json:"status"` // active | hidden
-	Wood         string         `json:"wood"`
-	Badge        string         `json:"badge"`
-	CreatedAt    string         `json:"created_at"`
-	UpdatedAt    string         `json:"updated_at"`
-	Images       []ProductImage `json:"images"`
+	ID             int64          `json:"id"`
+	Title          string         `json:"title"`
+	TitleKK        string         `json:"title_kk"`
+	TitleEN        string         `json:"title_en"`
+	Description    string         `json:"description"`
+	DescriptionKK  string         `json:"description_kk"`
+	DescriptionEN  string         `json:"description_en"`
+	Price          int64          `json:"price"`
+	ImageURL       string         `json:"image_url"`
+	CategoryID     *int64         `json:"category_id"`
+	CategoryName   string         `json:"category_name"`
+	CategoryNameKK string         `json:"category_name_kk"`
+	CategoryNameEN string         `json:"category_name_en"`
+	CategorySlug   string         `json:"category_slug"`
+	Status         string         `json:"status"` // active | hidden
+	Wood           string         `json:"wood"`
+	Badge          string         `json:"badge"`
+	CreatedAt      string         `json:"created_at"`
+	UpdatedAt      string         `json:"updated_at"`
+	Images         []ProductImage `json:"images"`
 }
 
 // Stats — цифры для главной страницы админки.
@@ -102,7 +110,7 @@ func isUnique(err error) bool {
 
 func (s *Store) ListCategories() ([]Category, error) {
 	rows, err := s.db.Query(`
-        SELECT c.id, c.name, c.slug, c.sort_order, c.created_at,
+        SELECT c.id, c.name, c.name_kk, c.name_en, c.slug, c.sort_order, c.created_at,
                (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id)
         FROM categories c
         ORDER BY c.sort_order, c.name`)
@@ -114,7 +122,8 @@ func (s *Store) ListCategories() ([]Category, error) {
 	list := []Category{}
 	for rows.Next() {
 		var c Category
-		if err := rows.Scan(&c.ID, &c.Name, &c.Slug, &c.SortOrder, &c.CreatedAt, &c.Products); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.NameKK, &c.NameEN, &c.Slug,
+			&c.SortOrder, &c.CreatedAt, &c.Products); err != nil {
 			return nil, err
 		}
 		list = append(list, c)
@@ -125,9 +134,9 @@ func (s *Store) ListCategories() ([]Category, error) {
 func (s *Store) GetCategory(id int64) (*Category, error) {
 	var c Category
 	err := s.db.QueryRow(`
-        SELECT id, name, slug, sort_order, created_at
+        SELECT id, name, name_kk, name_en, slug, sort_order, created_at
         FROM categories WHERE id = ?`, id).
-		Scan(&c.ID, &c.Name, &c.Slug, &c.SortOrder, &c.CreatedAt)
+		Scan(&c.ID, &c.Name, &c.NameKK, &c.NameEN, &c.Slug, &c.SortOrder, &c.CreatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -135,13 +144,19 @@ func (s *Store) GetCategory(id int64) (*Category, error) {
 }
 
 func (s *Store) CreateCategory(name string) (*Category, error) {
+	return s.CreateCategoryTr(name, "", "")
+}
+
+// CreateCategoryTr заводит раздел сразу с переводами названия.
+func (s *Store) CreateCategoryTr(name, nameKK, nameEN string) (*Category, error) {
 	slug, err := s.freeSlug(slugify(name), 0)
 	if err != nil {
 		return nil, err
 	}
 	res, err := s.db.Exec(
-		`INSERT INTO categories (name, slug, sort_order, created_at) VALUES (?, ?, ?, ?)`,
-		name, slug, 100, now())
+		`INSERT INTO categories (name, name_kk, name_en, slug, sort_order, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+		name, nameKK, nameEN, slug, 100, now())
 	if isUnique(err) {
 		return nil, ErrDuplicate
 	}
@@ -155,7 +170,7 @@ func (s *Store) CreateCategory(name string) (*Category, error) {
 	return s.GetCategory(id)
 }
 
-func (s *Store) UpdateCategory(id int64, name string) (*Category, error) {
+func (s *Store) UpdateCategory(id int64, name, nameKK, nameEN string) (*Category, error) {
 	if _, err := s.GetCategory(id); err != nil {
 		return nil, err
 	}
@@ -163,7 +178,9 @@ func (s *Store) UpdateCategory(id int64, name string) (*Category, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.db.Exec(`UPDATE categories SET name = ?, slug = ? WHERE id = ?`, name, slug, id)
+	_, err = s.db.Exec(
+		`UPDATE categories SET name = ?, name_kk = ?, name_en = ?, slug = ? WHERE id = ?`,
+		name, nameKK, nameEN, slug, id)
 	if isUnique(err) {
 		return nil, ErrDuplicate
 	}
@@ -209,8 +226,11 @@ func (s *Store) freeSlug(base string, exceptID int64) (string, error) {
 // ------------------------------------------------------------------ изделия
 
 const productColumns = `
-    p.id, p.title, p.description, p.price, p.image_url, p.category_id,
-    COALESCE(c.name, ''), COALESCE(c.slug, ''),
+    p.id, p.title, p.title_kk, p.title_en,
+    p.description, p.description_kk, p.description_en,
+    p.price, p.image_url, p.category_id,
+    COALESCE(c.name, ''), COALESCE(c.name_kk, ''), COALESCE(c.name_en, ''),
+    COALESCE(c.slug, ''),
     p.status, p.wood, p.badge, p.created_at, p.updated_at`
 
 type scanner interface{ Scan(dest ...any) error }
@@ -218,9 +238,11 @@ type scanner interface{ Scan(dest ...any) error }
 func scanProduct(sc scanner) (Product, error) {
 	var p Product
 	var catID sql.NullInt64
-	err := sc.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.ImageURL, &catID,
-		&p.CategoryName, &p.CategorySlug, &p.Status, &p.Wood, &p.Badge,
-		&p.CreatedAt, &p.UpdatedAt)
+	err := sc.Scan(&p.ID, &p.Title, &p.TitleKK, &p.TitleEN,
+		&p.Description, &p.DescriptionKK, &p.DescriptionEN,
+		&p.Price, &p.ImageURL, &catID,
+		&p.CategoryName, &p.CategoryNameKK, &p.CategoryNameEN, &p.CategorySlug,
+		&p.Status, &p.Wood, &p.Badge, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {
 		return p, err
 	}
@@ -346,24 +368,32 @@ func (s *Store) productImages(productID int64) ([]ProductImage, error) {
 
 // ProductInput — то, что приходит из формы админки.
 type ProductInput struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Price       int64    `json:"price"`
-	ImageURL    string   `json:"image_url"`
-	CategoryID  *int64   `json:"category_id"`
-	Status      string   `json:"status"`
-	Wood        string   `json:"wood"`
-	Badge       string   `json:"badge"`
-	Gallery     []string `json:"gallery"` // дополнительные фотографии
+	Title         string   `json:"title"`
+	TitleKK       string   `json:"title_kk"`
+	TitleEN       string   `json:"title_en"`
+	Description   string   `json:"description"`
+	DescriptionKK string   `json:"description_kk"`
+	DescriptionEN string   `json:"description_en"`
+	Price         int64    `json:"price"`
+	ImageURL      string   `json:"image_url"`
+	CategoryID    *int64   `json:"category_id"`
+	Status        string   `json:"status"`
+	Wood          string   `json:"wood"`
+	Badge         string   `json:"badge"`
+	Gallery       []string `json:"gallery"` // дополнительные фотографии
 }
 
 func (s *Store) CreateProduct(in ProductInput) (*Product, error) {
 	ts := now()
 	res, err := s.db.Exec(`
-        INSERT INTO products (title, description, price, image_url, category_id,
+        INSERT INTO products (title, title_kk, title_en,
+                              description, description_kk, description_en,
+                              price, image_url, category_id,
                               status, wood, badge, search_text, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		in.Title, in.Description, in.Price, in.ImageURL, catArg(in.CategoryID),
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		in.Title, in.TitleKK, in.TitleEN,
+		in.Description, in.DescriptionKK, in.DescriptionEN,
+		in.Price, in.ImageURL, catArg(in.CategoryID),
 		in.Status, in.Wood, in.Badge, searchText(in.Title, in.Description), ts, ts)
 	if err != nil {
 		return nil, err
@@ -381,10 +411,14 @@ func (s *Store) CreateProduct(in ProductInput) (*Product, error) {
 func (s *Store) UpdateProduct(id int64, in ProductInput) (*Product, error) {
 	res, err := s.db.Exec(`
         UPDATE products
-        SET title = ?, description = ?, price = ?, image_url = ?, category_id = ?,
+        SET title = ?, title_kk = ?, title_en = ?,
+            description = ?, description_kk = ?, description_en = ?,
+            price = ?, image_url = ?, category_id = ?,
             status = ?, wood = ?, badge = ?, search_text = ?, updated_at = ?
         WHERE id = ?`,
-		in.Title, in.Description, in.Price, in.ImageURL, catArg(in.CategoryID),
+		in.Title, in.TitleKK, in.TitleEN,
+		in.Description, in.DescriptionKK, in.DescriptionEN,
+		in.Price, in.ImageURL, catArg(in.CategoryID),
 		in.Status, in.Wood, in.Badge, searchText(in.Title, in.Description), now(), id)
 	if err != nil {
 		return nil, err
@@ -463,6 +497,39 @@ func (s *Store) UsedImage(url string) (bool, error) {
                (SELECT COUNT(*) FROM product_images WHERE image_url = ?)`,
 		url, url).Scan(&n)
 	return n > 0, err
+}
+
+// ------------------------------------------------------------------ языки
+
+// Localize подставляет перевод там, где он заполнен, и оставляет русский там,
+// где администратор перевод не вносил. Так сайт никогда не показывает пустоту.
+func (p *Product) Localize(lang string) {
+	switch lang {
+	case "kk":
+		p.Title = pick(p.TitleKK, p.Title)
+		p.Description = pick(p.DescriptionKK, p.Description)
+		p.CategoryName = pick(p.CategoryNameKK, p.CategoryName)
+	case "en":
+		p.Title = pick(p.TitleEN, p.Title)
+		p.Description = pick(p.DescriptionEN, p.Description)
+		p.CategoryName = pick(p.CategoryNameEN, p.CategoryName)
+	}
+}
+
+func (c *Category) Localize(lang string) {
+	switch lang {
+	case "kk":
+		c.Name = pick(c.NameKK, c.Name)
+	case "en":
+		c.Name = pick(c.NameEN, c.Name)
+	}
+}
+
+func pick(translated, fallback string) string {
+	if strings.TrimSpace(translated) != "" {
+		return translated
+	}
+	return fallback
 }
 
 // ------------------------------------------------------------------ сводка

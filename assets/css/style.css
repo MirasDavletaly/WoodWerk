@@ -2167,3 +2167,52 @@ form.is-hidden { display: none; }
   .pdp__thumbs { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
   .pdp__actions .btn { width: 100%; }
 }
+
+/* --------------------------------------------------------------------------
+   Переключатель языка в верхней строке
+   -------------------------------------------------------------------------- */
+.lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.lang__btn {
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  line-height: 1.4;
+}
+.lang__btn:hover { color: var(--ink); }
+.lang__btn.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+.lang__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* В мобильном меню — тот же переключатель: верхняя строка на планшетах
+   и телефонах скрыта целиком, и кнопка в ней недоступна. */
+.lang--mobile {
+  justify-self: start;
+  margin-bottom: 4px;
+}
+.lang--mobile .lang__btn {
+  padding: 9px 14px;   /* палец должен попадать уверенно */
+  font-size: 12px;
+}

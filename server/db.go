@@ -18,6 +18,8 @@ const schema = `
 CREATE TABLE IF NOT EXISTS categories (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT    NOT NULL UNIQUE,
+    name_kk    TEXT    NOT NULL DEFAULT '',
+    name_en    TEXT    NOT NULL DEFAULT '',
     slug       TEXT    NOT NULL UNIQUE,
     sort_order INTEGER NOT NULL DEFAULT 0,
     created_at TEXT    NOT NULL
@@ -33,6 +35,11 @@ CREATE TABLE IF NOT EXISTS products (
     status      TEXT    NOT NULL DEFAULT 'active',
     wood        TEXT    NOT NULL DEFAULT '',
     badge       TEXT    NOT NULL DEFAULT '',
+    -- Переводы необязательны: пустое поле означает «показывать русский».
+    title_kk       TEXT NOT NULL DEFAULT '',
+    title_en       TEXT NOT NULL DEFAULT '',
+    description_kk TEXT NOT NULL DEFAULT '',
+    description_en TEXT NOT NULL DEFAULT '',
     -- Название и описание в нижнем регистре: LOWER() в SQLite знает только
     -- латиницу, поэтому регистр русских букв приводим в Go и храним готовым.
     search_text TEXT    NOT NULL DEFAULT '',
@@ -110,6 +117,32 @@ func openDB(path string) (*sql.DB, error) {
 // migrate дополняет таблицы колонками, появившимися позже схемы.
 // Нужна для баз, созданных прошлыми версиями сервера.
 func migrate(db *sql.DB) error {
+	// Колонки переводов появились позже — дозаводим их на старых базах.
+	translated := []struct {
+		table  string
+		column string
+	}{
+		{"products", "title_kk"},
+		{"products", "title_en"},
+		{"products", "description_kk"},
+		{"products", "description_en"},
+		{"categories", "name_kk"},
+		{"categories", "name_en"},
+	}
+	for _, c := range translated {
+		has, err := hasColumn(db, c.table, c.column)
+		if err != nil {
+			return err
+		}
+		if !has {
+			stmt := "ALTER TABLE " + c.table + " ADD COLUMN " + c.column +
+				" TEXT NOT NULL DEFAULT ''"
+			if _, err := db.Exec(stmt); err != nil {
+				return err
+			}
+		}
+	}
+
 	has, err := hasColumn(db, "products", "search_text")
 	if err != nil {
 		return err

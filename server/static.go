@@ -64,6 +64,10 @@ func (s *Site) cacheHeaders(w http.ResponseWriter, clean string) {
 	switch {
 	case strings.HasSuffix(clean, ".html"), clean == "/":
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	case strings.HasPrefix(clean, "/assets/i18n/"):
+		// Словари переводов правятся без переименования файла, поэтому
+		// вечный кэш здесь означал бы, что правка не дойдёт до посетителя.
+		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 	case strings.HasPrefix(clean, "/assets/"):
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	}
