@@ -16,9 +16,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -41,28 +43,31 @@ func main() {
 	adminPass := flag.String("admin-pass", "", "пароль администратора; на уже созданной учётной записи меняет пароль")
 	flag.Parse()
 
-	root, err := filepath.Abs(*dir)
+	root, err := resolveSiteDir(*dir)
 	if err != nil {
-		log.Fatalf("некорректный каталог: %v", err)
+		fatal("%v", err)
 	}
-	if _, err := os.Stat(filepath.Join(root, "index.html")); err != nil {
-		log.Fatalf("в каталоге %s нет index.html", root)
+
+	// Дальше все относительные пути считаем от каталога сайта, а не от того,
+	// откуда программу запустили: при двойном щелчке это разные места.
+	if err := os.Chdir(root); err != nil {
+		fatal("не перейти в каталог сайта: %v", err)
 	}
 
 	// ---------------------------------------------------------------- база
 
 	db, err := openDB(*dbPath)
 	if err != nil {
-		log.Fatalf("не открыть базу данных: %v", err)
+		fatal("не открыть базу данных: %v", err)
 	}
 	defer db.Close()
 
 	store := NewStore(db)
 	if err := store.Seed(); err != nil {
-		log.Fatalf("не заполнить базу: %v", err)
+		fatal("не заполнить базу: %v", err)
 	}
 	if err := ensureAdmin(store, *adminUser, *adminPass); err != nil {
-		log.Fatalf("не создать администратора: %v", err)
+		fatal("не создать администратора: %v", err)
 	}
 	if err := store.CleanExpiredSessions(); err != nil {
 		logError(err)
@@ -70,12 +75,12 @@ func main() {
 
 	uploads, err := NewUploads(*uploadsDir, *maxUpload)
 	if err != nil {
-		log.Fatalf("не создать каталог загрузок: %v", err)
+		fatal("не создать каталог загрузок: %v", err)
 	}
 
 	leads, err := newLeadStore(*leadsPath)
 	if err != nil {
-		log.Fatalf("не открыть файл заявок: %v", err)
+		fatal("не открыть файл заявок: %v", err)
 	}
 	defer leads.Close()
 
@@ -169,7 +174,7 @@ func main() {
 		log.Printf("заявки пишутся в %s", *leadsPath)
 		log.Printf("админ-панель: /admin")
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("сервер упал: %v", err)
+			fatal("сервер упал: %v", err)
 		}
 	}()
 
@@ -184,6 +189,78 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("принудительная остановка: %v", err)
 	}
+}
+
+// resolveSiteDir находит каталог сайта — тот, где лежит index.html.
+//
+// Если каталог задали флагом -dir, берём только его. Иначе смотрим текущую
+// папку, а потом поднимаемся вверх от самой программы: при запуске двойным
+// щелчком рабочей папкой оказывается server/build, и сайт надо ещё найти.
+func resolveSiteDir(dir string) (string, error) {
+	explicit := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "dir" {
+			explicit = true
+		}
+	})
+
+	var tried []string
+	look := func(path string) (string, bool) {
+		abs, err := filepath.Abs(path)
+		if err != nil {
+			return "", false
+		}
+		tried = append(tried, abs)
+		if _, err := os.Stat(filepath.Join(abs, "index.html")); err == nil {
+			return abs, true
+		}
+		return "", false
+	}
+
+	if found, ok := look(dir); ok {
+		return found, nil
+	}
+	if explicit {
+		return "", fmt.Errorf("в каталоге %s нет index.html — это не папка сайта", tried[0])
+	}
+
+	// Поднимаемся от программы вверх: build -> server -> корень проекта.
+	if exe, err := os.Executable(); err == nil {
+		d := filepath.Dir(exe)
+		for i := 0; i < 6; i++ {
+			if found, ok := look(d); ok {
+				return found, nil
+			}
+			parent := filepath.Dir(d)
+			if parent == d {
+				break
+			}
+			d = parent
+		}
+	}
+
+	return "", fmt.Errorf("не нашёл файлы сайта — папку с index.html.\nИскал здесь:\n  %s\n"+
+		"Положите программу внутрь папки сайта или укажите её флагом -dir",
+		strings.Join(tried, "\n  "))
+}
+
+// fatal печатает ошибку и не даёт окну закрыться, пока её не прочитают:
+// при запуске двойным щелчком иначе видно только вспышку.
+func fatal(format string, args ...any) {
+	log.Printf(format, args...)
+	waitForEnter()
+	os.Exit(1)
+}
+
+// waitForEnter ждёт Enter, только если программа работает в живой консоли.
+// Под systemd и при перенаправлении вывода ждать нельзя — сервис зависнет.
+func waitForEnter() {
+	info, err := os.Stdin.Stat()
+	if err != nil || info.Mode()&os.ModeCharDevice == 0 {
+		return
+	}
+	fmt.Fprint(os.Stderr, "\nНажмите Enter, чтобы закрыть окно.\n")
+	_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 }
 
 // ensureAdmin создаёт учётную запись при первом запуске. Пароль берётся
