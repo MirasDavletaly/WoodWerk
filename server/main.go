@@ -21,7 +21,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -173,6 +175,7 @@ func main() {
 		log.Printf("фотографии: %s", *uploadsDir)
 		log.Printf("заявки пишутся в %s", *leadsPath)
 		log.Printf("админ-панель: /admin")
+		go warnIfPortHijacked(*addr)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			fatal("сервер упал: %v", err)
 		}
@@ -242,6 +245,46 @@ func resolveSiteDir(dir string) (string, error) {
 	return "", fmt.Errorf("не нашёл файлы сайта — папку с index.html.\nИскал здесь:\n  %s\n"+
 		"Положите программу внутрь папки сайта или укажите её флагом -dir",
 		strings.Join(tried, "\n  "))
+}
+
+// warnIfPortHijacked проверяет, что по нашему адресу отвечаем действительно мы.
+//
+// Windows разрешает занять один порт дважды, если адреса привязки разные:
+// например Apache слушает 127.0.0.1:8080, а мы — все интерфейсы. Привязка
+// проходит без ошибки, но запросы из браузера достаются чужой программе,
+// и человек видит её страницу «404 Not Found», не понимая, что случилось.
+func warnIfPortHijacked(addr string) {
+	time.Sleep(700 * time.Millisecond)
+
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return
+	}
+	if host == "" || host == "0.0.0.0" || host == "[::]" {
+		host = "127.0.0.1"
+	}
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("http://" + net.JoinHostPort(host, port) + "/api/categories")
+	if err != nil {
+		return // сеть недоступна — молчим, это не наш случай
+	}
+	defer resp.Body.Close()
+
+	// Читаем ответ целиком: ключи в JSON идут по алфавиту, поэтому "ok"
+	// стоит после списка категорий — в первые сотни байт он не попадает.
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err == nil && resp.StatusCode == http.StatusOK && strings.Contains(string(body), `"ok":true`) {
+		return // отвечаем мы, всё в порядке
+	}
+
+	log.Printf("")
+	log.Printf("ВНИМАНИЕ: порт %s занят другой программой — она и отвечает браузеру.", port)
+	log.Printf("Обычно это Apache из XAMPP, OpenServer или PostgreSQL.")
+	log.Printf("Запустите сервер на свободном порту, например:")
+	log.Printf("    woodwerk-windows-amd64.exe -addr :8090")
+	log.Printf("и откройте http://127.0.0.1:8090/admin")
+	log.Printf("")
 }
 
 // fatal печатает ошибку и не даёт окну закрыться, пока её не прочитают:
