@@ -105,9 +105,10 @@ func (a *API) session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{
-		"user":       user,
-		"csrf":       sess.CSRF,
-		"max_upload": a.uploads.MaxBytes(),
+		"user":             user,
+		"csrf":             sess.CSRF,
+		"max_upload":       a.uploads.MaxBytes(),
+		"default_password": a.usesDefaultPassword(),
 	}))
 }
 
@@ -144,6 +145,7 @@ func (a *API) changePassword(w http.ResponseWriter, r *http.Request) {
 	if err := a.store.DeleteUserSessions(user.ID, tokenFrom(r)); err != nil {
 		logError(err)
 	}
+	a.setDefaultPassword(in.Next == defaultAdminPassword)
 	logInfo("пароль администратора %s изменён", user.Username)
 	writeJSON(w, http.StatusOK, apiOK(nil))
 }
@@ -601,6 +603,14 @@ func (a *API) deleteUpload(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &in) {
 		return
 	}
-	a.removeIfUnused(cleanLine(in.URL, 300))
+	// Тот же фильтр, что и при записи адреса в базу: путь обязан быть
+	// внутри сайта. Дальше Uploads.Delete проверит принадлежность каталогу.
+	url := cleanLine(in.URL, 300)
+	if url == "" || !isLocalPath(url) {
+		writeJSON(w, http.StatusBadRequest, apiError("Некорректный адрес фотографии"))
+		return
+	}
+
+	a.removeIfUnused(url)
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{"message": "Фотография удалена"}))
 }

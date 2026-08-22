@@ -13,7 +13,8 @@
   var state = {
     csrf: '',
     user: null,
-    maxUpload: 5 * 1024 * 1024
+    maxUpload: 5 * 1024 * 1024,
+    defaultPassword: false
   };
 
   /* ------------------------------------------------------------------
@@ -239,6 +240,32 @@
           .catch(function () { /* всё равно уходим на форму входа */ })
           .then(goLogin);
       });
+    }
+  }
+
+  // Пока стоит стандартный пароль, панель открыта всем, кто знает адрес.
+  // Полоса висит на каждой странице и не закрывается — это не уведомление,
+  // а состояние, которое надо исправить.
+  function warnDefaultPassword() {
+    if (!state.defaultPassword) return;
+    if ($('.pwd-warning')) return;
+
+    var bar = el('div', 'pwd-warning');
+    bar.setAttribute('role', 'alert');
+    bar.appendChild(el('strong', null, 'Стандартный пароль admin / admin.'));
+    bar.appendChild(document.createTextNode(
+      ' Пока он не изменён, войти в панель может любой, кто знает адрес сайта. '));
+
+    var link = el('a', null, 'Сменить пароль');
+    link.href = '/admin/settings';
+    bar.appendChild(link);
+
+    var main = $('.main');
+    var topbar = $('.topbar');
+    if (main && topbar && topbar.nextSibling) {
+      main.insertBefore(bar, topbar.nextSibling);
+    } else if (main) {
+      main.appendChild(bar);
     }
   }
 
@@ -1015,6 +1042,9 @@
         body: { current: current.value, next: next.value }
       }).then(function () {
         form.reset();
+        state.defaultPassword = false;
+        var bar = $('.pwd-warning');
+        if (bar && bar.parentNode) bar.parentNode.removeChild(bar);
         toast('Пароль успешно изменён', 'ok');
       }).catch(function (err) {
         fail(err.message);
@@ -1055,8 +1085,10 @@
     api('/admin/session').then(function (data) {
       state.csrf = data.csrf || '';
       state.user = data.user || null;
+      state.defaultPassword = data.default_password === true;
       if (data.max_upload) state.maxUpload = data.max_upload;
       fillUser();
+      warnDefaultPassword();
       run();
     }).catch(function () { /* api уже отправил на форму входа */ });
   }

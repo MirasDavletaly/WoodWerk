@@ -1,0 +1,55 @@
+[Unit]
+Description=WOODWERK — сайт и админ-панель
+Documentation=file:///var/www/woodwerk/DEPLOY.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=woodwerk
+Group=woodwerk
+WorkingDirectory=/var/www/woodwerk
+
+# Слушаем только локальный адрес: наружу сайт отдаёт nginx, он же держит HTTPS.
+# Флаг -hsts включаем только после того, как сертификат реально работает.
+ExecStart=/var/www/woodwerk/server/build/woodwerk-linux-amd64 \
+    -addr 127.0.0.1:8090 \
+    -dir /var/www/woodwerk \
+    -db /var/www/woodwerk/data/woodwerk.db \
+    -uploads /var/www/woodwerk/uploads \
+    -leads /var/www/woodwerk/leads.jsonl \
+    -hsts
+
+Restart=always
+RestartSec=3
+
+# Журнал уходит в journalctl.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=woodwerk
+
+# --- ограничения прав ---
+# Сервису нужно писать только в свой каталог; остальная система для него
+# доступна только на чтение. Если его когда-нибудь взломают через загрузку
+# файлов, повредить он сможет заметно меньше.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+# Единственные каталоги, куда разрешена запись.
+ReadWritePaths=/var/www/woodwerk/data /var/www/woodwerk/uploads
+ReadWritePaths=/var/www/woodwerk/leads.jsonl
+
+[Install]
+WantedBy=multi-user.target

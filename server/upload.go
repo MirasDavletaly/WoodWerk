@@ -134,11 +134,25 @@ func (u *Uploads) Delete(url string) error {
 }
 
 // relative проверяет адрес и превращает его в путь внутри папки загрузок.
+//
+// Проверка синтаксиса тут не единственная: в конце мы раскрываем путь
+// целиком и убеждаемся, что он действительно лежит внутри каталога.
+// Одной проверке символов доверять нельзя — Windows считает разделителем
+// и обратный слэш, поэтому «a\..\..\secret» выглядит как имя одного файла,
+// а filepath.Join раскрывает его наружу.
 func (u *Uploads) relative(url string) (string, bool) {
 	if !strings.HasPrefix(url, uploadPrefix) {
 		return "", false
 	}
-	rel := path.Clean(strings.TrimPrefix(url, uploadPrefix))
+
+	rest := strings.TrimPrefix(url, uploadPrefix)
+
+	// В адресе картинки обратному слэшу и управляющим символам делать нечего.
+	if strings.ContainsAny(rest, "\\\x00") {
+		return "", false
+	}
+
+	rel := path.Clean(rest)
 	if rel == "." || rel == "/" || strings.HasPrefix(rel, "..") || path.IsAbs(rel) {
 		return "", false
 	}
@@ -147,6 +161,15 @@ func (u *Uploads) relative(url string) (string, bool) {
 			return "", false
 		}
 	}
+
+	// Последнее слово за файловой системой: раскрываем путь и сверяем,
+	// что он не вышел за пределы каталога загрузок.
+	full := filepath.Join(u.dir, filepath.FromSlash(rel))
+	inside, err := filepath.Rel(u.dir, full)
+	if err != nil || inside == ".." || strings.HasPrefix(inside, ".."+string(filepath.Separator)) {
+		return "", false
+	}
+
 	return rel, true
 }
 

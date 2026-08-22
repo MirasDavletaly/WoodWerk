@@ -45,6 +45,7 @@ func main() {
 	hsts := flag.Bool("hsts", false, "слать Strict-Transport-Security (только когда сайт реально за HTTPS)")
 	adminUser := flag.String("admin-user", "", "логин администратора (по умолчанию admin)")
 	adminPass := flag.String("admin-pass", "", "пароль администратора; на уже созданной учётной записи меняет пароль")
+	resetAdmin := flag.Bool("reset-admin", false, "вернуть пароль администратора к admin (если забыли свой)")
 	flag.Parse()
 
 	root, err := resolveSiteDir(*dir)
@@ -70,7 +71,8 @@ func main() {
 	if err := store.Seed(); err != nil {
 		fatal("не заполнить базу: %v", err)
 	}
-	if err := ensureAdmin(store, *adminUser, *adminPass); err != nil {
+	usingDefault, err := ensureAdmin(store, *adminUser, *adminPass, *resetAdmin)
+	if err != nil {
 		fatal("не создать администратора: %v", err)
 	}
 	if err := store.CleanExpiredSessions(); err != nil {
@@ -92,6 +94,7 @@ func main() {
 
 	auth := NewAuth(store, *hsts)
 	api := &API{store: store, uploads: uploads, auth: auth, logins: newLimiter()}
+	api.setDefaultPassword(usingDefault)
 	site := NewSite(root, auth)
 
 	mux := http.NewServeMux()
@@ -149,7 +152,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              *addr,
-		Handler:           securityHeaders(*hsts, logRequests(mux)),
+		Handler:           securityHeaders(*hsts, logRequests(gzipResponses(mux))),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       120 * time.Second, // загрузка фотографий бывает долгой
 		WriteTimeout:      120 * time.Second,
@@ -308,10 +311,18 @@ func waitForEnter() {
 	_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 }
 
-// ensureAdmin создаёт учётную запись при первом запуске. Пароль берётся
-// из флага или переменной окружения, иначе генерируется и печатается в журнал.
-// В коде фронтенда пароля нет и быть не может.
-func ensureAdmin(store *Store, username, password string) error {
+// defaultAdminLogin и defaultAdminPassword — то, с чем панель открывается
+// сразу после установки. Пароль умышленно простой, чтобы владелец не искал
+// его в журнале; панель будет напоминать, что его надо сменить.
+const (
+	defaultAdminLogin    = "admin"
+	defaultAdminPassword = "admin"
+)
+
+// ensureAdmin создаёт учётную запись при первом запуске и сообщает,
+// стоит ли на ней пароль по умолчанию. Пароля нет и не может быть
+// в коде фронтенда — он живёт только в базе, и только в виде хеша.
+func ensureAdmin(store *Store, username, password string, reset bool) (bool, error) {
 	if username == "" {
 		username = os.Getenv("ADMIN_USER")
 	}
@@ -320,44 +331,68 @@ func ensureAdmin(store *Store, username, password string) error {
 	}
 	username = strings.TrimSpace(username)
 	if username == "" {
-		username = "admin"
+		username = defaultAdminLogin
+	}
+
+	// Пароль задали явно — он и главнее, и требования к нему строже.
+	if password != "" && len([]rune(password)) < 8 {
+		return false, errors.New("пароль администратора должен быть не короче 8 символов")
 	}
 
 	user, _, err := store.UserByName(username)
 	switch {
 	case errors.Is(err, ErrNotFound):
-		generated := false
-		if password == "" {
-			if password, err = randomToken(9); err != nil {
-				return err
-			}
-			generated = true
+		pass := password
+		if pass == "" {
+			pass = defaultAdminPassword
 		}
-		if len([]rune(password)) < 8 {
-			return errors.New("пароль администратора должен быть не короче 8 символов")
+		if _, err := store.CreateUser(username, pass); err != nil {
+			return false, err
 		}
-		if _, err := store.CreateUser(username, password); err != nil {
-			return err
+		log.Printf("создана учётная запись администратора: логин %q, пароль %q", username, pass)
+		if pass == defaultAdminPassword {
+			warnDefaultPassword()
 		}
-		log.Printf("создана учётная запись администратора: логин %q", username)
-		if generated {
-			log.Printf("ПАРОЛЬ (показывается один раз, сохраните его): %s", password)
-		}
-		return nil
+		return pass == defaultAdminPassword, nil
 
 	case err != nil:
-		return err
+		return false, err
 	}
 
-	// Учётная запись уже есть: пароль меняем, только если его задали явно.
-	if password != "" {
-		if len([]rune(password)) < 8 {
-			return errors.New("пароль администратора должен быть не короче 8 символов")
-		}
+	// Учётная запись уже есть.
+	switch {
+	case password != "":
 		if err := store.SetPassword(user.ID, password); err != nil {
-			return err
+			return false, err
 		}
 		log.Printf("пароль администратора %q обновлён из настроек запуска", username)
+		return false, nil
+
+	case reset:
+		if err := store.SetPassword(user.ID, defaultAdminPassword); err != nil {
+			return false, err
+		}
+		log.Printf("пароль администратора %q сброшен к %q", username, defaultAdminPassword)
+		warnDefaultPassword()
+		return true, nil
 	}
-	return nil
+
+	// Пароль не трогаем, но проверяем, не остался ли он стандартным.
+	_, hash, err := store.UserByName(username)
+	if err != nil {
+		return false, err
+	}
+	if verifyPassword(defaultAdminPassword, hash) {
+		warnDefaultPassword()
+		return true, nil
+	}
+	return false, nil
+}
+
+func warnDefaultPassword() {
+	log.Printf("")
+	log.Printf("ВНИМАНИЕ: у админ-панели стандартный пароль admin/admin.")
+	log.Printf("Пока он не изменён, войти может кто угодно, кто знает адрес /admin.")
+	log.Printf("Смените его в панели: Настройки -> Смена пароля.")
+	log.Printf("")
 }

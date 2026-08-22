@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sync"
 )
 
 // API — общий контекст обработчиков.
@@ -14,6 +15,24 @@ type API struct {
 	uploads *Uploads
 	auth    *Auth
 	logins  *limiter // защита формы входа от перебора паролей
+
+	// Стоит ли на учётной записи пароль по умолчанию. Считаем один раз
+	// при запуске: проверка пароля намеренно медленная, гонять её на
+	// каждый запрос панели не стоит.
+	defaultMu       sync.RWMutex
+	defaultPassword bool
+}
+
+func (a *API) setDefaultPassword(v bool) {
+	a.defaultMu.Lock()
+	a.defaultPassword = v
+	a.defaultMu.Unlock()
+}
+
+func (a *API) usesDefaultPassword() bool {
+	a.defaultMu.RLock()
+	defer a.defaultMu.RUnlock()
+	return a.defaultPassword
 }
 
 func writeJSON(w http.ResponseWriter, code int, body any) {
