@@ -150,6 +150,81 @@ func (a *API) changePassword(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, apiOK(nil))
 }
 
+// POST /api/admin/username — смена логина в разделе «Настройки».
+//
+// Текущий пароль спрашиваем не для проформы: если чужой доберётся
+// до открытой вкладки, он не должен суметь сменить логин и запереть
+// владельца снаружи.
+type usernameInput struct {
+	Current  string `json:"current"`
+	Username string `json:"username"`
+}
+
+func (a *API) changeUsername(w http.ResponseWriter, r *http.Request) {
+	var in usernameInput
+	if !decodeJSON(w, r, &in) {
+		return
+	}
+
+	user := userFrom(r)
+	_, hash, err := a.store.UserByID(user.ID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	if !verifyPassword(in.Current, hash) {
+		writeJSON(w, http.StatusBadRequest, apiError("Текущий пароль указан неверно"))
+		return
+	}
+
+	name := cleanLine(in.Username, 60)
+	if msg := validUsername(name); msg != "" {
+		writeJSON(w, http.StatusBadRequest, apiError(msg))
+		return
+	}
+	if name == user.Username {
+		writeJSON(w, http.StatusOK, apiOK(map[string]any{
+			"username": name,
+			"message":  "Логин не изменился",
+		}))
+		return
+	}
+
+	if err := a.store.SetUsername(user.ID, name); errors.Is(err, ErrDuplicate) {
+		writeJSON(w, http.StatusBadRequest, apiError("Такой логин уже занят"))
+		return
+	} else if err != nil {
+		serverError(w, err)
+		return
+	}
+
+	logInfo("логин администратора изменён: %s -> %s", user.Username, name)
+	writeJSON(w, http.StatusOK, apiOK(map[string]any{
+		"username": name,
+		"message":  "Логин успешно изменён",
+	}))
+}
+
+// validUsername держит логин в рамках, при которых им можно пользоваться:
+// без пробелов, чтобы не путаться при вводе, и из символов, одинаково
+// набираемых на любой раскладке.
+func validUsername(name string) string {
+	if len([]rune(name)) < 3 {
+		return "Логин должен быть не короче 3 символов"
+	}
+	if len([]rune(name)) > 60 {
+		return "Логин слишком длинный"
+	}
+	for _, r := range name {
+		ok := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') ||
+			(r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-'
+		if !ok {
+			return "В логине можно использовать латинские буквы, цифры, точку, дефис и подчёркивание"
+		}
+	}
+	return ""
+}
+
 // ------------------------------------------------------------------ сводка
 
 // GET /api/admin/stats

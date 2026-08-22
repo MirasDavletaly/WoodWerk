@@ -74,16 +74,30 @@
         <section class="card">
           <div class="card__head"><h2>Учётная запись</h2></div>
           <div class="card__body">
-            <div class="field-row">
-              <div class="field">
-                <span class="field__label">Логин</span>
-                <p data-login-value>…</p>
+            <form data-username-form novalidate>
+              <p class="form-error" data-form-error role="alert"></p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="s-username">Логин</label>
+                  <input id="s-username" type="text" maxlength="60"
+                         autocomplete="username" spellcheck="false" placeholder="admin">
+                  <span class="field__hint">Латинские буквы, цифры, точка, дефис и подчёркивание.</span>
+                </div>
+                <div class="field">
+                  <span class="field__label">Создана</span>
+                  <p data-created-value>…</p>
+                </div>
               </div>
+
               <div class="field">
-                <span class="field__label">Создана</span>
-                <p data-created-value>…</p>
+                <label for="s-username-pass">Текущий пароль</label>
+                <input id="s-username-pass" type="password" autocomplete="current-password" maxlength="200">
+                <span class="field__hint">Нужен, чтобы логин не сменил посторонний с вашей открытой вкладки.</span>
               </div>
-            </div>
+
+              <button class="btn btn--primary" type="submit">Сохранить логин</button>
+            </form>
           </div>
         </section>
 

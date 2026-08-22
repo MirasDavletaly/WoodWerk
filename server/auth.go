@@ -184,6 +184,17 @@ func (s *Store) SetPassword(userID int64, password string) error {
 	return err
 }
 
+// SetUsername меняет логин. Логин уникален, поэтому занятое имя
+// возвращает ErrDuplicate, а не молча ничего не делает.
+func (s *Store) SetUsername(userID int64, username string) error {
+	_, err := s.db.Exec(`UPDATE admin_users SET username = ?, updated_at = ? WHERE id = ?`,
+		username, now(), userID)
+	if isUnique(err) {
+		return ErrDuplicate
+	}
+	return err
+}
+
 // ------------------------------------------------------------------ сессии
 
 func randomToken(n int) (string, error) {

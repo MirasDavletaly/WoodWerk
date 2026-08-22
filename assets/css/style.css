@@ -424,12 +424,19 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   display: none;
   width: 46px;
   height: 46px;
-  margin-left: -8px;
   border-radius: var(--radius);
-  place-items: center;
+  /* Именно flex-центрирование по обеим осям: place-items — свойство grid,
+     и по главной оси оно не работало, полоски висели у верхнего края. */
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
   flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
 .burger span {
   display: block;
@@ -2215,4 +2222,114 @@ form.is-hidden { display: none; }
 .lang--mobile .lang__btn {
   padding: 9px 14px;   /* палец должен попадать уверенно */
   font-size: 12px;
+}
+
+/* ==========================================================================
+   Сенсорный экран
+   ==========================================================================
+
+   На телефоне нет наведения: касание включает :hover, и карточка не только
+   дёргается, но и остаётся в этом состоянии, пока не тронешь другое место.
+   Поэтому все эффекты с движением включаем только там, где есть настоящий
+   указатель. Проверяем возможность ввода, а не ширину экрана: у планшета
+   в альбомной ориентации экран широкий, а палец всё тот же.
+   -------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  /* Карточки не приподнимаются и не масштабируются от касания */
+  .product:hover,
+  .info-card:hover,
+  .review:hover,
+  .pdp__thumb:hover,
+  .btn:hover,
+  .btn--primary:hover,
+  .btn--dark:hover,
+  .btn--light:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+
+  .collection:hover .collection__img img,
+  .product:hover .product__media img,
+  .gallery__item:hover img {
+    transform: none;
+  }
+
+  .link-more:hover svg { transform: none; }
+  .cat:hover::before { transform: none; }
+  .species__item:hover .species__swatch { transform: none; }
+
+  /* Затемнение поверх карточки коллекции меняться от касания не должно */
+  .collection:hover::after { background: inherit; }
+
+  /* Подпись к фото на телефоне видна сразу, а не по наведению */
+  .gallery__item .gallery__cap { transform: none; opacity: 1; }
+  .gallery__item .gallery__zoom { display: none; }
+
+  /* Тень у карточки — постоянная, а не появляющаяся */
+  .product, .info-card, .review { box-shadow: var(--shadow-sm); }
+}
+
+/* --------------------------------------------------------------------------
+   Свайп по каруселям
+   -------------------------------------------------------------------------- */
+
+.collections__grid,
+.cats__grid,
+.reviews__track,
+.products--swipe {
+  /* Палец, доехавший до края ленты, не должен тянуть за собой страницу
+     и не должен срабатывать как жест «назад» в браузере. */
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Картинку внутри ссылки браузер норовит «взять и потащить» — при свайпе
+   это срывает прокрутку. */
+.collection img,
+.cat img,
+.product__media img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   Категории на телефоне — лента, а не столбик из восьми экранов
+   -------------------------------------------------------------------------- */
+
+.swipe-hint--dark { color: var(--muted); }
+
+@media (max-width: 720px) {
+  .cats__grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* Лента идёт от края до края экрана, но первая и последняя карточка
+       не липнут к нему вплотную. */
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 2px var(--gutter) 8px;
+    scroll-padding-inline: var(--gutter);
+  }
+  .cats__grid::-webkit-scrollbar { display: none; }
+
+  .cat {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+    min-height: 0;
+    padding: 28px 22px 26px;
+    border-radius: var(--radius);
+  }
+  /* В ленте карточки разделяет промежуток, рамки между ними лишние. */
+  .cat { border-right: 0 !important; border-bottom: 0 !important; }
+
+  .swipe-hint--dark {
+    display: block;
+    margin: 0 0 14px;
+    text-align: right;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
 }

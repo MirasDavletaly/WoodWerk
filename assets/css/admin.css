@@ -945,3 +945,106 @@ table.data td.actions .btn { margin-left: 7px; }
 @media (max-width: 900px) {
   .pwd-warning { padding: 12px 18px; }
 }
+
+/* ==========================================================================
+   Телефон: таблица превращается в карточки
+   ==========================================================================
+
+   Семь колонок в 390 пикселей не помещаются: таблица уезжала на 916px,
+   и до кнопок действий надо было листать вбок. На узком экране показываем
+   каждую строку отдельной карточкой, а подписи берём из data-label —
+   шапки таблицы там нет, и «22.08.2026» без подписи ни о чём не говорит.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .table-wrap { overflow-x: visible; }
+
+  table.data,
+  table.data tbody,
+  table.data tr,
+  table.data td { display: block; width: 100%; }
+
+  table.data thead { display: none; }
+
+  table.data tr {
+    position: relative;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  table.data tbody tr:last-child { border-bottom: 0; }
+  table.data tbody tr:hover { background: transparent; }
+
+  table.data td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 5px 0;
+    border: 0;
+    text-align: right;
+  }
+
+  /* Подпись слева, значение справа — как в списке характеристик. */
+  table.data td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: var(--tr-micro);
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+  }
+
+  /* Фото и название — шапка карточки, им подпись не нужна. */
+  table.data td.cell-photo,
+  table.data td.title {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  table.data td.cell-photo::before,
+  table.data td.title::before { content: none; }
+
+  table.data td.cell-photo { padding-bottom: 12px; }
+  table.data td.cell-photo .thumb { width: 100%; height: 150px; }
+
+  table.data td.title {
+    font-size: 16px;
+    font-weight: 600;
+    padding-bottom: 10px;
+  }
+
+  /* Действия — в ряд под содержимым, крупными кнопками. */
+  table.data td.actions {
+    justify-content: flex-start;
+    padding-top: 14px;
+    margin-top: 10px;
+    border-top: 1px solid var(--line-soft);
+  }
+  table.data td.actions::before { content: none; }
+  table.data td.actions .btn { margin-left: 0; }
+
+  .row-actions { gap: 10px; width: 100%; }
+  .row-actions .icon-btn { flex: 1; }
+
+  /* Поиск и фильтры каждый на своей строке — иначе они сжимаются в кашу. */
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar .input,
+  .toolbar select { width: 100%; min-width: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Пальцу нужна цель крупнее, чем указателю мыши
+   -------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .icon-btn { width: 46px; height: 46px; }
+  .btn--sm { padding: 13px 18px; font-size: 11px; }
+  .btn { min-height: 46px; }
+  .sidebar__link { padding: 14px; }
+  .radio { padding: 14px 20px; }
+
+  /* Наведение на сенсорном экране залипает — движения выключаем. */
+  .btn--primary:hover:not(:disabled) { transform: none; }
+  .preview__actions { opacity: 1; transform: none; }
+}

@@ -32,6 +32,13 @@
     return node;
   }
 
+  // labelled помечает ячейку подписью: на телефоне таблица превращается
+  // в карточки, шапки там нет, и без подписи «22.08.2026» ни о чём не говорит.
+  function labelled(td, label) {
+    td.dataset.label = label;
+    return td;
+  }
+
   function clear(node) {
     while (node && node.firstChild) node.removeChild(node.firstChild);
   }
@@ -358,18 +365,19 @@
       list.forEach(function (p) {
         var tr = el('tr');
         tr.appendChild(cellPhoto(p));
-        tr.appendChild(el('td', 'title', p.title));
-        tr.appendChild(el('td', null, p.category_name || 'Без категории'));
-        tr.appendChild(el('td', 'num', formatPrice(p.price)));
+        tr.appendChild(labelled(el('td', 'title', p.title), 'Название'));
+        tr.appendChild(labelled(el('td', null, p.category_name || 'Без категории'), 'Категория'));
+        tr.appendChild(labelled(el('td', 'num', formatPrice(p.price)), 'Цена'));
         tr.appendChild(cellStatus(p));
-        tr.appendChild(el('td', 'date', formatDate(p.created_at)));
+        tr.appendChild(labelled(el('td', 'date', formatDate(p.created_at)), 'Добавлено'));
         body.appendChild(tr);
       });
     }
   }
 
   function cellPhoto(p) {
-    var td = el('td');
+    var td = el('td', 'cell-photo');
+    td.dataset.label = 'Фото';
     if (p.image_url) {
       var img = el('img', 'thumb');
       img.src = p.image_url;
@@ -384,6 +392,7 @@
 
   function cellStatus(p) {
     var td = el('td');
+    td.dataset.label = 'Статус';
     var active = p.status === 'active';
     td.appendChild(el('span', 'badge ' + (active ? 'badge--active' : 'badge--hidden'),
       active ? 'Активен' : 'Скрыт'));
@@ -458,11 +467,11 @@
     function row(p) {
       var tr = el('tr');
       tr.appendChild(cellPhoto(p));
-      tr.appendChild(el('td', 'title', p.title));
-      tr.appendChild(el('td', null, p.category_name || 'Без категории'));
-      tr.appendChild(el('td', 'num', formatPrice(p.price)));
+      tr.appendChild(labelled(el('td', 'title', p.title), 'Название'));
+      tr.appendChild(labelled(el('td', null, p.category_name || 'Без категории'), 'Категория'));
+      tr.appendChild(labelled(el('td', 'num', formatPrice(p.price)), 'Цена'));
       tr.appendChild(cellStatus(p));
-      tr.appendChild(el('td', 'date', formatDate(p.created_at)));
+      tr.appendChild(labelled(el('td', 'date', formatDate(p.created_at)), 'Добавлено'));
 
       var actions = el('td', 'actions');
       var active = p.status === 'active';
@@ -873,11 +882,12 @@
 
     function row(c) {
       var tr = el('tr');
-      var nameCell = el('td', 'title', c.name);
+      var nameCell = labelled(el('td', 'title', c.name), 'Название');
       tr.appendChild(nameCell);
-      tr.appendChild(el('td', null, c.slug));
+      tr.appendChild(labelled(el('td', null, c.slug), 'Адрес'));
 
       var countCell = el('td');
+      countCell.dataset.label = 'Изделий';
       countCell.appendChild(el('span', 'badge badge--muted',
         c.products + ' ' + plural(c.products, 'изделие', 'изделия', 'изделий')));
       tr.appendChild(countCell);
@@ -1003,6 +1013,60 @@
      Настройки
      ------------------------------------------------------------------ */
 
+  // Смена логина. Пароль спрашиваем и здесь: иначе логин сменит любой,
+  // кто добрался до открытой вкладки, и владелец останется снаружи.
+  function bindUsernameForm() {
+    var form = $('[data-username-form]');
+    if (!form) return;
+
+    var input = $('#s-username', form);
+    var pass = $('#s-username-pass', form);
+    var errBox = $('[data-form-error]', form);
+    var btn = $('button[type="submit"]', form);
+
+    if (state.user) input.value = state.user.username;
+
+    function fail(message) {
+      if (errBox) {
+        errBox.textContent = message;
+        errBox.classList.add('is-visible');
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (errBox) errBox.classList.remove('is-visible');
+
+      var name = input.value.trim();
+      if (name.length < 3) { fail('Логин должен быть не короче 3 символов'); return; }
+      if (!/^[A-Za-z0-9._-]+$/.test(name)) {
+        fail('В логине можно использовать латинские буквы, цифры, точку, дефис и подчёркивание');
+        return;
+      }
+      if (!pass.value) { fail('Введите текущий пароль'); return; }
+
+      btn.disabled = true;
+      var label = btn.textContent;
+      btn.textContent = 'Сохраняем…';
+
+      api('/admin/username', {
+        method: 'POST',
+        body: { current: pass.value, username: name }
+      }).then(function (data) {
+        pass.value = '';
+        if (state.user) state.user.username = data.username;
+        input.value = data.username;
+        fillUser();
+        toast(data.message || 'Логин успешно изменён', 'ok');
+      }).catch(function (err) {
+        fail(err.message);
+      }).then(function () {
+        btn.disabled = false;
+        btn.textContent = label;
+      });
+    });
+  }
+
   function pageSettings() {
     var form = $('[data-password-form]');
     if (!form) return;
@@ -1013,10 +1077,10 @@
     var errBox = $('[data-form-error]', form);
     var btn = $('button[type="submit"]', form);
 
-    var login = $('[data-login-value]');
-    if (login && state.user) login.textContent = state.user.username;
     var since = $('[data-created-value]');
     if (since && state.user) since.textContent = formatDate(state.user.created_at);
+
+    bindUsernameForm();
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();

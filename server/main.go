@@ -128,6 +128,7 @@ func main() {
 	admin.HandleFunc("POST /api/admin/upload", api.upload)
 	admin.HandleFunc("POST /api/admin/upload/delete", api.deleteUpload)
 	admin.HandleFunc("POST /api/admin/password", api.changePassword)
+	admin.HandleFunc("POST /api/admin/username", api.changeUsername)
 	mux.Handle("/api/admin/", auth.Protect(admin))
 
 	// Загруженные фотографии.
