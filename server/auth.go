@@ -276,7 +276,7 @@ func (a *Auth) setCookie(w http.ResponseWriter, r *http.Request, token string) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true, // JavaScript до токена не добирается
-		Secure:   a.secure || r.TLS != nil,
+		Secure:   a.secure || r.TLS != nil || forwardedHTTPS(r),
 		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(sessionTTL),
 		MaxAge:   int(sessionTTL / time.Second),
@@ -289,7 +289,7 @@ func (a *Auth) clearCookie(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   a.secure || r.TLS != nil,
+		Secure:   a.secure || r.TLS != nil || forwardedHTTPS(r),
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
 	})

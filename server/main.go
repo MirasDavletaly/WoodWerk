@@ -349,9 +349,14 @@ func ensureAdmin(store *Store, username, password string, reset bool) (bool, err
 		if _, err := store.CreateUser(username, pass); err != nil {
 			return false, err
 		}
-		log.Printf("создана учётная запись администратора: логин %q, пароль %q", username, pass)
 		if pass == defaultAdminPassword {
+			log.Printf("создана учётная запись администратора: логин %q, пароль %q",
+				username, pass)
 			warnDefaultPassword()
+		} else {
+			// Свой пароль в журнал не пишем: journalctl читают не только вы.
+			log.Printf("создана учётная запись администратора: логин %q, пароль задан при запуске",
+				username)
 		}
 		return pass == defaultAdminPassword, nil
 

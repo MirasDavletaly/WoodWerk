@@ -15,6 +15,32 @@ const configJS = `/* Подставлено Go-сервером woodwerk. */
 window.WOODWERK = { leadEndpoint: "/api/lead", apiBase: "/api" };
 `
 
+// internalDirs — каталоги, в которых нет ничего для посетителя: исходники,
+// данные, инструменты и файлы развёртывания. Последние особенно неприятны:
+// они рассказывают, где что лежит на сервере и как устроена служба.
+var internalDirs = []string{
+	"/server/", "/data/", "/deploy/", "/tools/", "/node_modules/",
+}
+
+// internalExts — расширения, которых на публичном сайте быть не должно.
+var internalExts = map[string]bool{
+	".md": true, ".py": true, ".go": true, ".mod": true, ".sum": true,
+	".log": true, ".bak": true, ".db": true, ".jsonl": true,
+	".sh": true, ".bat": true, ".ps1": true, ".conf": true, ".service": true,
+	".env": true, ".ini": true, ".yml": true, ".yaml": true, ".sql": true,
+}
+
+// publicPath решает, можно ли отдавать файл наружу.
+func publicPath(clean string) bool {
+	lower := strings.ToLower(clean)
+	for _, dir := range internalDirs {
+		if strings.HasPrefix(lower, dir) {
+			return false
+		}
+	}
+	return !internalExts[strings.ToLower(filepath.Ext(clean))]
+}
+
 // Site отдаёт статику из каталога сайта.
 type Site struct {
 	root  string
@@ -45,13 +71,7 @@ func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	switch strings.ToLower(filepath.Ext(clean)) {
-	case ".md", ".py", ".go", ".mod", ".sum", ".log", ".bak", ".db", ".jsonl":
-		http.NotFound(w, r)
-		return
-	}
-	// Каталоги с данными наружу не отдаём ни при каких обстоятельствах.
-	if strings.HasPrefix(clean, "/server/") || strings.HasPrefix(clean, "/data/") {
+	if !publicPath(clean) {
 		http.NotFound(w, r)
 		return
 	}

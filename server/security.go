@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -68,12 +69,64 @@ func logError(err error) {
 	}
 }
 
+// clientIP определяет адрес посетителя.
+//
+// За обратным прокси соединение всегда приходит с 127.0.0.1, и если верить
+// только ему, лимит попыток входа станет общим на всех: десять неудач от
+// кого угодно — и владелец сайта тоже получает отказ.
+//
+// Заголовкам верим ровно в одном случае: когда соединение пришло с петлевого
+// адреса, то есть от нашего же nginx на этой машине. Заголовок от постороннего
+// — это подсказка злоумышленника, как обойти лимит, и мы её игнорируем.
 func clientIP(r *http.Request) string {
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		return r.RemoteAddr
+		host = r.RemoteAddr
 	}
+
+	if !isLoopback(host) {
+		return host
+	}
+
+	// X-Real-IP наш прокси перезаписывает сам, подделать его нельзя.
+	if real := strings.TrimSpace(r.Header.Get("X-Real-IP")); validIP(real) {
+		return real
+	}
+
+	// В X-Forwarded-For прокси дописывает адрес в конец, поэтому настоящий
+	// клиент — последний в списке; всё, что левее, прислал сам клиент.
+	if chain := r.Header.Get("X-Forwarded-For"); chain != "" {
+		parts := strings.Split(chain, ",")
+		last := strings.TrimSpace(parts[len(parts)-1])
+		if validIP(last) {
+			return last
+		}
+	}
+
 	return host
+}
+
+func isLoopback(host string) bool {
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func validIP(s string) bool {
+	return s != "" && net.ParseIP(s) != nil
+}
+
+// forwardedHTTPS сообщает, что посетитель пришёл по HTTPS, а расшифровал
+// соединение прокси. Заголовку верим по тому же правилу, что и адресу.
+func forwardedHTTPS(r *http.Request) bool {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+	if !isLoopback(host) {
+		return false
+	}
+	proto := r.Header.Get("X-Forwarded-Proto")
+	return strings.EqualFold(strings.TrimSpace(proto), "https")
 }
 
 // ---------------------------------------------------------------- лимит частоты
