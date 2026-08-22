@@ -365,8 +365,8 @@ body.is-locked { overflow: hidden; }
 
 .burger-admin {
   display: none;
-  width: 42px;
-  height: 42px;
+  width: 44px;   /* минимальная уверенная тач-цель */
+  height: 44px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--card);
@@ -944,6 +944,16 @@ table.data td.actions .btn { margin-left: 7px; }
 
 @media (max-width: 900px) {
   .pwd-warning { padding: 12px 18px; }
+
+  /* «Сменить пароль» — единственное действие в этом предупреждении, а на
+     телефоне оно шло строчной ссылкой высотой 16px. Отдельной строкой
+     и в полный рост по пальцу. */
+  .pwd-warning a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 2px;
+  }
 }
 
 /* ==========================================================================
@@ -1048,3 +1058,25 @@ table.data td.actions .btn { margin-left: 7px; }
   .btn--primary:hover:not(:disabled) { transform: none; }
   .preview__actions { opacity: 1; transform: none; }
 }
+
+/* Ссылка «к содержимому»: с клавиатуры до таблицы приходилось проходить всё
+   боковое меню на каждой странице. Видна только когда на ней фокус. */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px rgba(26, 21, 18, 0.24);
+  transform: translateY(-160%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus-visible { transform: translateY(0); }
+.content:focus { outline: none; }

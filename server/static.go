@@ -4,6 +4,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -67,17 +68,52 @@ func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Прячем то, что не должно быть доступно снаружи.
 	for _, part := range strings.Split(clean, "/") {
 		if strings.HasPrefix(part, ".") && part != "." && part != ".well-known" {
-			http.NotFound(w, r)
+			s.NotFound(w, r)
 			return
 		}
 	}
 	if !publicPath(clean) {
-		http.NotFound(w, r)
+		s.NotFound(w, r)
+		return
+	}
+
+	// Существует ли файл, надо знать заранее: http.FileServer на отсутствие
+	// отвечает своей страницей, и подменить её потом уже нельзя.
+	if !s.exists(clean) {
+		s.NotFound(w, r)
 		return
 	}
 
 	s.cacheHeaders(w, clean)
 	s.files.ServeHTTP(w, r)
+}
+
+// exists проверяет, что по адресу лежит именно файл. Каталог не в счёт:
+// листинг папок наружу не отдаём.
+func (s *Site) exists(clean string) bool {
+	if clean == "/" {
+		clean = "/index.html"
+	}
+	info, err := os.Stat(filepath.Join(s.root, filepath.FromSlash(clean)))
+	return err == nil && !info.IsDir()
+}
+
+// NotFound отдаёт страницу сайта вместо строчки «404 page not found».
+// Посетитель, набравший адрес с опечаткой, должен увидеть меню и дорогу
+// в каталог, а не голый текст на белом фоне.
+func (s *Site) NotFound(w http.ResponseWriter, r *http.Request) {
+	page := filepath.Join(s.root, "404.html")
+	body, err := os.ReadFile(page)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusNotFound)
+	if r.Method != http.MethodHead {
+		_, _ = w.Write(body)
+	}
 }
 
 func (s *Site) cacheHeaders(w http.ResponseWriter, clean string) {

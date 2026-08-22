@@ -147,6 +147,15 @@ func main() {
 	mux.HandleFunc("GET /catalog", site.Page("catalog.html"))
 	mux.HandleFunc("GET /product/{id}", site.Page("product.html"))
 
+	// Остальные страницы тоже без .html. Раньше красивый адрес был только
+	// у каталога и карточки: /about отдавал 404, хотя /catalog работал.
+	// Ссылка из письма или визитки чаще выглядит как /contacts.
+	for _, name := range []string{
+		"about", "delivery", "contacts", "partnership", "privacy", "sitemap",
+	} {
+		mux.HandleFunc("GET /"+name, site.Page(name+".html"))
+	}
+
 	mux.Handle("/", site)
 
 	// ---------------------------------------------------------------- запуск

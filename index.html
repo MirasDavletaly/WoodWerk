@@ -18,8 +18,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/boot.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="t2b0acf6fbd">Перейти к содержимому</a>
 
 <!-- ====================== ВЕРХНЯЯ СТРОКА ====================== -->
 <div class="topbar">
@@ -59,6 +61,7 @@
         <a href="#" aria-label="Telegram" title="Telegram" data-i18n-aria-label="tedbea9ff1a" data-i18n-title="tedbea9ff1a"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
         <a href="#" aria-label="Instagram" title="Instagram" data-i18n-aria-label="t5721bbef40" data-i18n-title="t5721bbef40"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
         </span>
+        <a href="tel:+77479024401" class="header__call" aria-label="Позвонить" title="Позвонить" data-i18n-aria-label="t24e917a9a0" data-i18n-title="t24e917a9a0"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2.2 2A17 17 0 0 1 3 5.2 2 2 0 0 1 5 3z"/></svg></a>
         <a href="tel:+77479024401" class="header__phone">+7 (747) 902-44-01</a>
         <button class="btn btn--primary btn--sm header__cta" data-open-modal type="button" data-i18n="t64f982b22f">Оставить заявку</button>
       </div>
@@ -193,7 +196,7 @@
   </div>
 </div>
 
-<main>
+<main id="main" tabindex="-1">
 
   <!-- ====================== ГЛАВНЫЙ ЭКРАН ====================== -->
   <section class="hero">
@@ -221,13 +224,14 @@
   <!-- ====================== ПРЕИМУЩЕСТВА ====================== -->
   <section class="usp" id="usp">
     <div class="container">
-      <div class="usp__grid">
+      <h2 class="u-sr" data-i18n="t6e340cf31e">Почему WOODWERK</h2>
+        <div class="usp__grid">
         <div class="usp__item reveal">
           <span class="usp__icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg>
           </span>
           <div>
-            <h4 data-i18n="t9346cb3277">Свой цех, не посредники</h4>
+            <h3 data-i18n="t9346cb3277">Свой цех, не посредники</h3>
             <p data-i18n="te25f8a7c99">5 500 м², ЧПУ-центры Homag и Biesse, сушильные камеры и покрасочный участок.</p>
           </div>
         </div>
@@ -236,7 +240,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3 4 6v6c0 4.6 3.4 8.4 8 9 4.6-.6 8-4.4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
           </span>
           <div>
-            <h4 data-i18n="t4fa46832d1">Гарантия 7 лет</h4>
+            <h3 data-i18n="t4fa46832d1">Гарантия 7 лет</h3>
             <p data-i18n="td1e511e45c">На изделие, фурнитуру и покрытие. Сервисное обслуживание — бессрочно.</p>
           </div>
         </div>
@@ -245,7 +249,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h13v10H3z"/><path d="M16 10h3.5L21 13v4h-5"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg>
           </span>
           <div>
-            <h4 data-i18n="t5efe2b6159">Бесплатный замер</h4>
+            <h3 data-i18n="t5efe2b6159">Бесплатный замер</h3>
             <p data-i18n="ta46e9e59ea">Инженер выезжает в течение суток по Астане и пригороду — с образцами пород.</p>
           </div>
         </div>
@@ -254,7 +258,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg>
           </span>
           <div>
-            <h4 data-i18n="tf2ac9d03c8">Срок от 21 дня</h4>
+            <h3 data-i18n="tf2ac9d03c8">Срок от 21 дня</h3>
             <p data-i18n="td480ab43de">Фиксируем дату в договоре. За просрочку — 0,5% от суммы за каждый день.</p>
           </div>
         </div>
@@ -614,32 +618,32 @@
       <div class="species">
         <div class="species__item reveal">
           <div class="species__swatch"><img src="assets/img/wood/oak.svg" alt="Дуб" data-i18n-alt="tfb77d4c997" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="tfb77d4c997">Дуб</h4>
+          <h3 data-i18n="tfb77d4c997">Дуб</h3>
           <p data-i18n="tb9b9f35344">Твёрдость 3,7 · сорт А/В</p>
         </div>
         <div class="species__item reveal" data-delay="60">
           <div class="species__swatch"><img src="assets/img/wood/ash.svg" alt="Ясень" data-i18n-alt="tf849a7ba33" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="tf849a7ba33">Ясень</h4>
+          <h3 data-i18n="tf849a7ba33">Ясень</h3>
           <p data-i18n="tdc3af1c6f9">Твёрдость 4,0 · под тонировку</p>
         </div>
         <div class="species__item reveal" data-delay="120">
           <div class="species__swatch"><img src="assets/img/wood/walnut.svg" alt="Орех" data-i18n-alt="t39071b899c" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="t39071b899c">Орех</h4>
+          <h3 data-i18n="t39071b899c">Орех</h3>
           <p data-i18n="t775667ed29">Твёрдость 3,4 · премиум</p>
         </div>
         <div class="species__item reveal" data-delay="180">
           <div class="species__swatch"><img src="assets/img/wood/thermo.svg" alt="Термоясень" data-i18n-alt="td97ece8232" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="td97ece8232">Термоясень</h4>
+          <h3 data-i18n="td97ece8232">Термоясень</h3>
           <p data-i18n="t8e91d9479e">Влагостойкий · для ванных</p>
         </div>
         <div class="species__item reveal" data-delay="240">
           <div class="species__swatch"><img src="assets/img/wood/wenge.svg" alt="Венге" data-i18n-alt="tc00d1344b9" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="tc00d1344b9">Венге</h4>
+          <h3 data-i18n="tc00d1344b9">Венге</h3>
           <p data-i18n="t7493ec4725">Твёрдость 4,2 · графит</p>
         </div>
         <div class="species__item reveal" data-delay="300">
           <div class="species__swatch"><img src="assets/img/wood/larch.svg" alt="Лиственница" data-i18n-alt="t45dc5018df" width="900" height="1200" loading="lazy" decoding="async"></div>
-          <h4 data-i18n="t45dc5018df">Лиственница</h4>
+          <h3 data-i18n="t45dc5018df">Лиственница</h3>
           <p data-i18n="tb9b00a0ab7">Твёрдость 2,6 · экономично</p>
         </div>
       </div>
@@ -1071,7 +1075,7 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 6 6 6-6 6"/></svg>
   </button>
   <div>
-    <img class="lightbox__img" src="" alt="" loading="lazy" decoding="async">
+    <img class="lightbox__img" alt="" loading="lazy" decoding="async">
     <div class="lightbox__cap"></div>
   </div>
 </div>

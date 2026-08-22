@@ -16,8 +16,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/boot.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#main" data-i18n="t2b0acf6fbd">Перейти к содержимому</a>
 <!-- ====================== ВЕРХНЯЯ СТРОКА ====================== -->
 <div class="topbar">
   <div class="container topbar__inner">
@@ -56,6 +58,7 @@
         <a href="#" aria-label="Telegram" title="Telegram" data-i18n-aria-label="tedbea9ff1a" data-i18n-title="tedbea9ff1a"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
         <a href="#" aria-label="Instagram" title="Instagram" data-i18n-aria-label="t5721bbef40" data-i18n-title="t5721bbef40"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
         </span>
+        <a href="tel:+77479024401" class="header__call" aria-label="Позвонить" title="Позвонить" data-i18n-aria-label="t24e917a9a0" data-i18n-title="t24e917a9a0"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2.2 2A17 17 0 0 1 3 5.2 2 2 0 0 1 5 3z"/></svg></a>
         <a href="tel:+77479024401" class="header__phone">+7 (747) 902-44-01</a>
         <button class="btn btn--primary btn--sm header__cta" data-open-modal type="button" data-i18n="t64f982b22f">Оставить заявку</button>
       </div>
@@ -190,7 +193,7 @@
   </div>
 </div>
 
-<main>
+<main id="main" tabindex="-1">
   <section class="page-hero">
     <div class="page-hero__bg"><img src="assets/img/wood/thermo.svg" alt="" aria-hidden="true" width="900" height="1200"></div>
     <div class="container page-hero__inner">
@@ -202,12 +205,13 @@
 
   <section class="section">
     <div class="container">
+      <h2 class="u-sr" data-i18n="t6b017fbaa9">Как с нами связаться</h2>
       <div class="contact-grid">
         <div class="contact-block reveal">
           <div class="contact-item">
             <span class="contact-item__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2.2 2A17 17 0 0 1 3 5.2 2 2 0 0 1 5 3z"/></svg></span>
             <div>
-              <h4 data-i18n="t87ec4b495b">Телефон</h4>
+              <h3 data-i18n="t87ec4b495b">Телефон</h3>
               <b><a href="tel:+77479024401">+7 (747) 902-44-01</a></b>
               <p data-i18n="t94dc7d613a">Пн–Пт 9:00–20:00, Сб 10:00–18:00 (Астана). Вс — выходной.</p>
             </div>
@@ -215,7 +219,7 @@
           <div class="contact-item">
             <span class="contact-item__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
             <div>
-              <h4 data-i18n="t108aa2199f">Почта</h4>
+              <h3 data-i18n="t108aa2199f">Почта</h3>
               <b><a href="mailto:info@woodwerk.ru" data-i18n="t844a1eadf4">info@woodwerk.ru</a></b>
               <p data-i18n="t7cd2aeaacb">Отдел продаж — ответ в течение 2 часов.<br>Партнёрам: <a class="u-accent" href="mailto:partners@woodwerk.ru">partners@woodwerk.ru</a></p>
             </div>
@@ -223,7 +227,7 @@
           <div class="contact-item">
             <span class="contact-item__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
             <div>
-              <h4 data-i18n="t4e4b87a315">Цех и шоурум</h4>
+              <h3 data-i18n="t4e4b87a315">Цех и шоурум</h3>
               <b data-i18n="t383e005db9">Астана, ул. Сыганак, 34</b>
               <p data-i18n="t0c5b23a348">Рядом с остановкой «Сыганак», парковка у входа. Въезд на территорию по пропуску — закажите его при записи.</p>
             </div>
@@ -231,7 +235,7 @@
           <div class="contact-item">
             <span class="contact-item__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></span>
             <div>
-              <h4 data-i18n="t7344e4b179">Реквизиты</h4>
+              <h3 data-i18n="t7344e4b179">Реквизиты</h3>
               <b class="u-small-15" data-i18n="t4dcf3a65ed">ТОО «ВУДВЕРК»</b>
               <p data-i18n="t869fd99e7f">БИН 000000000000 — укажите реальный<br>Полные реквизиты — на странице <a class="u-accent" href="privacy.html#requisites">документов</a>.</p>
             </div>
@@ -501,7 +505,7 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 6 6 6-6 6"/></svg>
   </button>
   <div>
-    <img class="lightbox__img" src="" alt="" loading="lazy" decoding="async">
+    <img class="lightbox__img" alt="" loading="lazy" decoding="async">
     <div class="lightbox__cap"></div>
   </div>
 </div>

@@ -20,10 +20,16 @@
   --accent-h: #734a25;
   --accent-soft: #f0e2d0;    /* только заливки, не текст */
   --accent-on-dark: #d9ab72; /* 9.2:1 на чёрном */
+  /* Второстепенный текст на тёмном. Раньше в каждом месте стояла своя
+     прозрачность от 0.38 до 0.5; всё, что ниже 0.45, не добирало до нормы. */
+  --on-dark: rgba(255, 255, 255, 0.58);      /* 6.7:1 на --dark и --black */
+  --on-dark-quiet: rgba(255, 255, 255, 0.5); /* 5.3:1, для самого мелкого */
   --dark: #171310;
   --black: #0f0d0b;
   --nav: #b39a7c;            /* полоса меню, как у референса */
-  --nav-active: #8f7758;
+  --nav-ink: #1a1512;        /* текст на полосе: 6.75:1, белый давал 2.68:1 */
+  --nav-active: #987e5d;     /* пункт «Каталог»: тёмный текст даёт 4.72:1 */
+  --nav-active-h: #a48d70;   /* при наведении светлеет, а не темнеет */
   --green: #5e7355;
 
   /* Типографика */
@@ -104,6 +110,29 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   outline-offset: 3px;
   border-radius: 2px;
 }
+
+/* Первое, что получает фокус на странице: позволяет с клавиатуры перескочить
+   верхнюю строку, шапку и всё меню — иначе до содержимого нужно два десятка
+   нажатий Tab на каждой странице. Видна только когда на ней фокус. */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-160%);
+  transition: transform 0.2s var(--ease);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+main:focus { outline: none; }
 .section--dark :focus-visible,
 .section--black :focus-visible,
 .hero :focus-visible,
@@ -135,8 +164,7 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
 .section--tight { padding: clamp(48px, 5vw, 84px) 0; }
 .section--dark { background: var(--dark); color: rgba(255, 255, 255, 0.7); }
 .section--dark h2,
-.section--dark h3,
-.section--dark h4 { color: #fff; }
+.section--dark h3 { color: #fff; }
 .section--alt { background: var(--bg-alt); }
 
 .section--dark .section-title b { font-weight: 600; }
@@ -282,6 +310,10 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   align-items: center;
   gap: 20px;
 }
+
+/* Кнопка звонка. На широком экране не нужна: рядом стоит номер целиком
+   и кнопка заявки. Появляется там, где их прячут. */
+.header__call { display: none; }
 .header__socials { display: flex; gap: 8px; }
 .header__socials a {
   width: 36px;
@@ -323,17 +355,19 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: #fff;
+  color: var(--nav-ink);
   white-space: nowrap;
   transition: background 0.25s var(--ease);
 }
-.navbar__link:hover { background: rgba(0, 0, 0, 0.14); color: #fff; }
+.navbar__link:hover { background: rgba(0, 0, 0, 0.14); color: var(--nav-ink); }
 .navbar__item--catalog .navbar__link {
   background: var(--nav-active);
   font-weight: 600;
   padding-right: 24px;
 }
-.navbar__item--catalog .navbar__link:hover { background: var(--accent); }
+/* Пункт «Каталог» утоплен в полосу, поэтому при наведении он светлеет.
+   Затемнение здесь увело бы тёмный текст ниже нормы контраста. */
+.navbar__item--catalog .navbar__link:hover { background: var(--nav-active-h); }
 .navbar__item.is-active .navbar__link { background: rgba(0, 0, 0, 0.18); }
 
 /* --- мегаменю --- */
@@ -382,15 +416,19 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   align-items: center;
   gap: 8px;
 }
+/* Растёт через scaleX, а не через width: ширина пересчитывает макет
+   на каждом кадре. Тот же приём, что у полоски на карточке категории. */
 .mega__links a::before {
   content: "";
-  width: 0;
+  width: 14px;
   height: 1px;
   background: var(--accent);
-  transition: width 0.25s var(--ease);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s var(--ease);
 }
 .mega__links a:hover { color: var(--accent); }
-.mega__links a:hover::before { width: 14px; }
+.mega__links a:hover::before { transform: scaleX(1); }
 
 .mega__promo {
   position: relative;
@@ -496,9 +534,21 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
 }
 .m-item__link svg { transition: transform 0.3s var(--ease); color: var(--accent); }
 .m-item.is-open .m-item__link svg { transform: rotate(180deg); }
-.m-item__sub { max-height: 0; overflow: hidden; transition: max-height 0.4s var(--ease); }
-.m-item.is-open .m-item__sub { max-height: 760px; }
-.m-item__sub ul { padding: 2px 0 16px 14px; }
+/* Раскрывается ровно на высоту содержимого: числа, до которого «должно
+   хватить», в CSS нет. Список категорий приходит из базы и может вырасти. */
+.m-item__sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.4s var(--ease);
+}
+.m-item__sub > * { min-height: 0; }
+.m-item.is-open .m-item__sub { grid-template-rows: 1fr; }
+.m-item__sub ul {
+  padding: 0 0 0 14px;
+  transition: padding 0.4s var(--ease);
+}
+.m-item.is-open .m-item__sub ul { padding: 2px 0 16px 14px; }
 .m-item__sub a {
   display: flex;
   align-items: center;
@@ -640,7 +690,7 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   background: var(--accent-soft);
   color: var(--accent);
 }
-.usp__item h4 {
+.usp__item h3 {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -923,7 +973,7 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--on-dark);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 40px;
   padding: 5px 12px;
@@ -1050,7 +1100,7 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   transform: translateY(-8px) scale(1.03);
   box-shadow: var(--shadow-md);
 }
-.species__item h4 {
+.species__item h3 {
   margin-top: 18px;
   font-size: 13px;
   font-weight: 600;
@@ -1142,12 +1192,20 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
 }
 .faq__item.is-open .faq__ic { background: var(--accent); color: #fff; border-color: var(--accent); transform: rotate(45deg); }
 .faq__a {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  transition: max-height 0.42s var(--ease);
+  transition: grid-template-rows 0.42s var(--ease);
 }
-.faq__item.is-open .faq__a { max-height: 460px; }
-.faq__a p { padding: 0 60px 28px 0; color: var(--muted); font-size: 15px; }
+.faq__a > * { min-height: 0; }
+.faq__item.is-open .faq__a { grid-template-rows: 1fr; }
+.faq__a p {
+  padding: 0 60px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  transition: padding-bottom 0.42s var(--ease);
+}
+.faq__item.is-open .faq__a p { padding-bottom: 28px; }
 
 /* --------------------------------------------------------------------------
    15. Форма заявки / CTA
@@ -1176,6 +1234,15 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
 .cta h2 { color: #fff; }
 .cta .cta__contact b { display: block; color: #fff; font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
 .cta__contact span { font-size: 12.5px; color: rgba(255, 255, 255, 0.5); }
+
+/* Телефон и почта в блоке контактов — главные ссылки страницы, а по высоте
+   были 22px. Ниже нормы на размер цели и просто неудобно пальцем. */
+.cta__contact b a,
+.contact-item b a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+}
 
 .form-card {
   background: var(--white);
@@ -1302,7 +1369,7 @@ form.is-hidden { display: none; }
   padding: clamp(52px, 6vw, 84px) 0 56px;
 }
 .footer .logo__name { color: #fff; }
-.footer .logo__tag { color: rgba(255, 255, 255, 0.4); }
+.footer .logo__tag { color: var(--on-dark); }
 .footer__about { margin-top: 22px; max-width: 320px; line-height: 1.7; font-size: 13.5px; }
 .footer__socials { margin-top: 26px; display: flex; gap: 12px; }
 .footer__socials a {
@@ -1327,7 +1394,7 @@ form.is-hidden { display: none; }
 .footer__links a:hover { color: #d9ab72; }
 .footer__contact { display: grid; gap: 16px; }
 .footer__contact b { display: block; color: #fff; font-size: 17px; font-weight: 500; }
-.footer__contact small { font-size: 12.5px; color: rgba(255, 255, 255, 0.4); }
+.footer__contact small { font-size: 12.5px; color: var(--on-dark); }
 .footer__pay { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
 .footer__pay span {
   padding: 6px 12px;
@@ -1345,7 +1412,7 @@ form.is-hidden { display: none; }
   gap: 20px;
   flex-wrap: wrap;
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.38);
+  color: var(--on-dark);
 }
 .footer__bottom a:hover { color: #fff; }
 .footer__legal { display: flex; gap: 22px; flex-wrap: wrap; }
@@ -1428,6 +1495,14 @@ form.is-hidden { display: none; }
   flex-wrap: wrap;
 }
 .crumbs a:hover { color: #fff; }
+
+/* Крошки шли строкой в 20px — ниже нормы WCAG 2.2 на размер цели (24x24).
+   Растягиваем только по вертикали: строка на месте, попасть можно. */
+.crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+}
 .crumbs span { opacity: 0.5; }
 
 /* Каталог */
@@ -1629,7 +1704,7 @@ form.is-hidden { display: none; }
   color: var(--accent);
   display: grid; place-items: center;
 }
-.contact-item h4 { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.contact-item h3 { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
 .contact-item b { font-size: 18px; color: var(--ink); font-weight: 500; }
 .contact-item p { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
 
@@ -1699,19 +1774,32 @@ form.is-hidden { display: none; }
 /* --------------------------------------------------------------------------
    20. Анимации появления
    -------------------------------------------------------------------------- */
-.reveal {
+/* Появление блоков при прокрутке.
+
+   Прячем содержимое только под классом .js, который ставит boot.js в <head>.
+   Если скрипт не загрузился или упал, класса нет — и страница видна целиком,
+   а не остаётся пустой. Раньше opacity: 0 стоял безусловно, и любая осечка
+   в JS прятала 75 блоков главной.
+
+   will-change здесь не нужен: прозрачность и сдвиг браузер и так отдаёт
+   композитору, а подсказка висела на всех блоках навсегда, включая давно
+   показанные, и держала лишние слои. */
+.js .reveal {
   opacity: 0;
   transform: translateY(28px);
   transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
-  will-change: opacity, transform;
 }
-.reveal.is-in { opacity: 1; transform: none; }
+.js .reveal.is-in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Блоки показываем сразу, без въезда: содержимое на месте с первого кадра. */
+  .js .reveal { opacity: 1 !important; transform: none !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    /* Не 0.01ms: полностью мгновенная смена состояния лишает кнопки и поля
+       отклика на действие. 80мс — это не движение, но отклик заметен. */
+    transition-duration: 0.08s !important;
     scroll-behavior: auto !important;
   }
   .reveal { opacity: 1; transform: none; }
@@ -1754,6 +1842,22 @@ form.is-hidden { display: none; }
   .header { position: sticky; top: 0; }
   .header__socials, .header__cta { display: none; }
   .burger { display: flex; }
+
+  /* Единственное действие, доступное в шапке телефона, не открывая меню.
+     Для цеха звонок — главный способ связи, прятать его в меню нельзя. */
+  .header__call {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--accent);
+    background: var(--white);
+    transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .header__call:active { background: var(--accent-soft); border-color: var(--accent); }
   .header__inner { gap: 14px; }
   .logo { margin-right: auto; }
 
@@ -1829,7 +1933,7 @@ form.is-hidden { display: none; }
     font-size: 12px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--on-dark);
   }
 
   .cats__grid { grid-template-columns: 1fr; }
@@ -1885,6 +1989,21 @@ form.is-hidden { display: none; }
 .u-mb-16 { margin-bottom: 16px; }
 .u-mb-24 { margin-bottom: 24px; }
 .u-hidden { display: none !important; }
+
+/* Заголовок раздела для читалок: на экране его нет, в оглавлении страницы есть.
+   Нужен там, где раздел узнаётся по виду, но текстового заголовка не имеет.
+   display: none не годится — такой заголовок читалка тоже пропустит. */
+.u-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 .u-actions { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 6px; }
 .steps--4 { grid-template-columns: repeat(4, 1fr); }
 .crumbs b { font-weight: 500; color: rgba(255, 255, 255, 0.9); }
@@ -1926,8 +2045,7 @@ form.is-hidden { display: none; }
   overflow: hidden;
 }
 .section--black h2,
-.section--black h3,
-.section--black h4 { color: #fff; }
+.section--black h3 { color: #fff; }
 .section--black .section-lead { color: rgba(255, 255, 255, 0.58); }
 
 .section-foot { margin-top: clamp(32px, 4vw, 52px); text-align: center; }
@@ -2034,19 +2152,23 @@ form.is-hidden { display: none; }
   .filters { padding: 0; border: 0; background: transparent; }
   .filters__toggle { display: flex; }
   .filters__panel {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     overflow: hidden;
-    transition: max-height 0.4s var(--ease);
+    transition: grid-template-rows 0.4s var(--ease);
     background: var(--white);
     border-radius: var(--radius);
   }
+  /* Отступы живут на внутренней обёртке: на самой панели они не дали бы
+     ей схлопнуться в ноль и оставили бы белую полосу в закрытом виде. */
+  .filters__panel > * { min-height: 0; }
   .filters.is-open .filters__panel {
-    max-height: 1400px;
+    grid-template-rows: 1fr;
     border: 1px solid var(--line);
     border-top: 0;
-    padding: 22px 18px;
     margin-top: -1px;
   }
+  .filters.is-open .filters__inner { padding: 22px 18px; }
   .filters__group:first-child { margin-top: 0; }
 }
 
@@ -2220,7 +2342,11 @@ form.is-hidden { display: none; }
   margin-bottom: 4px;
 }
 .lang--mobile .lang__btn {
-  padding: 9px 14px;   /* палец должен попадать уверенно */
+  /* Полноценная тач-цель: было 35px по высоте, палец промахивался мимо
+     соседнего языка. 44px — минимум, ниже которого попадание становится
+     делом удачи. */
+  min-height: 44px;
+  padding: 0 16px;
   font-size: 12px;
 }
 
@@ -2371,4 +2497,36 @@ form.is-hidden { display: none; }
    и почти сталкивались — опускаем заголовок ниже плашки. */
 @media (max-width: 720px) {
   .collection { padding-top: 64px; }
+}
+
+/* --------------------------------------------------------------------------
+   СТРАНИЦА НЕ НАЙДЕНА
+   -------------------------------------------------------------------------- */
+
+/* Содержимого на странице немного: обычные отступы раздела оставляли
+   между заголовком и кнопками полтора пустых экрана. */
+.section--nf { padding-top: 56px; padding-bottom: 72px; }
+.nf { text-align: center; }
+.nf__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.nf__note {
+  margin: 30px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.nf__note a {
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.nf__note a:hover { color: var(--accent-h); }
+
+@media (max-width: 560px) {
+  /* В столбик кнопки шире и попадать по ним проще, чем по половинкам строки */
+  .nf__actions { flex-direction: column; }
+  .nf__actions .btn { width: 100%; }
 }
