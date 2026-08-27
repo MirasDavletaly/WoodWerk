@@ -13,14 +13,11 @@ import (
 // maxJSONBody — тело запроса от админки заведомо небольшое.
 const maxJSONBody = 128 << 10
 
-// allowedWoods — породы дерева для фильтра каталога. Пустая строка = не указана.
-var allowedWoods = map[string]string{
-	"oak":    "Дуб",
-	"ash":    "Ясень",
-	"walnut": "Орех",
-	"thermo": "Термоясень",
-	"wenge":  "Венге",
-	"larch":  "Лиственница",
+// allowedSizes — размеры панели для фильтра каталога. Пустая строка = не указан.
+var allowedSizes = map[string]string{
+	"2800x1220": "2800×1220×5 мм",
+	"3000x1220": "3000×1220×5 мм",
+	"3000x1200": "3000×1200×5 мм",
 }
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
@@ -286,7 +283,7 @@ func (a *API) validateProduct(in *ProductInput) string {
 	in.DescriptionKK = clean(in.DescriptionKK, 5000)
 	in.DescriptionEN = clean(in.DescriptionEN, 5000)
 	in.Badge = cleanLine(in.Badge, 24)
-	in.Wood = cleanLine(in.Wood, 20)
+	in.Size = cleanLine(in.Size, 20)
 	in.ImageURL = cleanLine(in.ImageURL, 300)
 
 	if len([]rune(in.Title)) < 2 {
@@ -298,9 +295,9 @@ func (a *API) validateProduct(in *ProductInput) string {
 	if in.Status != StatusActive && in.Status != StatusHidden {
 		in.Status = StatusActive
 	}
-	if in.Wood != "" {
-		if _, ok := allowedWoods[in.Wood]; !ok {
-			in.Wood = ""
+	if in.Size != "" {
+		if _, ok := allowedSizes[in.Size]; !ok {
+			in.Size = ""
 		}
 	}
 	if in.ImageURL != "" && !isLocalPath(in.ImageURL) {
@@ -360,7 +357,7 @@ func (a *API) createProduct(w http.ResponseWriter, r *http.Request) {
 	logInfo("добавлено изделие #%d «%s»", p.ID, p.Title)
 	writeJSON(w, http.StatusOK, apiOK(map[string]any{
 		"product": p,
-		"message": "Мебель успешно добавлена",
+		"message": "Панель добавлена",
 	}))
 }
 
@@ -465,7 +462,7 @@ func (a *API) deleteProduct(w http.ResponseWriter, r *http.Request) {
 		a.removeIfUnused(u)
 	}
 	logInfo("удалено изделие #%d", id)
-	writeJSON(w, http.StatusOK, apiOK(map[string]any{"message": "Мебель успешно удалена"}))
+	writeJSON(w, http.StatusOK, apiOK(map[string]any{"message": "Панель удалена"}))
 }
 
 // dropUnusedImages сравнивает старый и новый набор картинок изделия

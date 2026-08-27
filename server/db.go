@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS products (
     image_url   TEXT    NOT NULL DEFAULT '',
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
     status      TEXT    NOT NULL DEFAULT 'active',
-    wood        TEXT    NOT NULL DEFAULT '',
+    size        TEXT    NOT NULL DEFAULT '',
     badge       TEXT    NOT NULL DEFAULT '',
     -- Переводы необязательны: пустое поле означает «показывать русский».
     title_kk       TEXT NOT NULL DEFAULT '',
@@ -117,6 +117,23 @@ func openDB(path string) (*sql.DB, error) {
 // migrate дополняет таблицы колонками, появившимися позже схемы.
 // Нужна для баз, созданных прошлыми версиями сервера.
 func migrate(db *sql.DB) error {
+	// Каталог переехал с мебели на отделочные панели: колонка «порода дерева»
+	// стала «размером панели». На старых базах переименовываем её на месте,
+	// чтобы значения и индексы остались прежними.
+	hasWood, err := hasColumn(db, "products", "wood")
+	if err != nil {
+		return err
+	}
+	hasSize, err := hasColumn(db, "products", "size")
+	if err != nil {
+		return err
+	}
+	if hasWood && !hasSize {
+		if _, err := db.Exec(`ALTER TABLE products RENAME COLUMN wood TO size`); err != nil {
+			return err
+		}
+	}
+
 	// Колонки переводов появились позже — дозаводим их на старых базах.
 	translated := []struct {
 		table  string

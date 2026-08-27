@@ -17,8 +17,11 @@ import tr_part1
 import tr_part2
 import tr_part3
 import tr_part4
+import tr_part5
+import tr_part6
 
-ROWS = tr_part1.ROWS + tr_part2.ROWS + tr_part3.ROWS + tr_part4.ROWS
+ROWS = (tr_part1.ROWS + tr_part2.ROWS + tr_part3.ROWS +
+        tr_part4.ROWS + tr_part5.ROWS + tr_part6.ROWS)
 
 
 def norm(text):
@@ -29,10 +32,12 @@ def norm(text):
 def main():
     ru = json.load(io.open('assets/i18n/ru.json', encoding='utf-8'))
 
-    # русский текст -> ключ
+    # русский текст -> все ключи с этим текстом. Одна и та же фраза может
+    # встретиться на страницах с разной разбивкой по строкам: ключ считается
+    # от исходного текста, поэтому ключей будет несколько, а перевод — один.
     by_text = {}
     for key, value in ru.items():
-        by_text.setdefault(norm(value), key)
+        by_text.setdefault(norm(value), []).append(key)
 
     kk, en = {}, {}
     unmatched = []
@@ -46,12 +51,13 @@ def main():
             duplicates.append(source[:60])
         seen.add(n)
 
-        key = by_text.get(n)
-        if not key:
+        keys = by_text.get(n)
+        if not keys:
             unmatched.append(source[:70])
             continue
-        kk[key] = kaz
-        en[key] = eng
+        for key in keys:
+            kk[key] = kaz
+            en[key] = eng
 
     missing = [(k, ru[k]) for k in ru if k not in kk]
 

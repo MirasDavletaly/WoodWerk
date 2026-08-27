@@ -20,12 +20,12 @@ func newTestStore(t *testing.T) *Store {
 
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{
-		"Кухонная мебель":   "kuhonnaya-mebel",
-		"Диваны":            "divany",
-		"Мебель для ванной": "mebel-dlya-vannoy",
-		"Office Chairs 2":   "office-chairs-2",
-		"   ":               "",
-		"!!!":               "",
+		"Декоративные рейки": "dekorativnye-reyki",
+		"Матовые":            "matovye",
+		"Бюджетная серия":    "byudzhetnaya-seriya",
+		"Office Chairs 2":    "office-chairs-2",
+		"   ":                "",
+		"!!!":                "",
 	}
 	for in, want := range cases {
 		if got := slugify(in); got != want {

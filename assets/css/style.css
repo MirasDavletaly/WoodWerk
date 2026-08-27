@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WOODWERK — мебель и интерьерные решения из массива дерева
+   WOODWERK — стеновые панели, прямые поставки с заводов Китая
    Основная таблица стилей
    ========================================================================== */
 
@@ -394,7 +394,7 @@ main:focus { outline: none; }
 }
 .mega__inner {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) 290px;
+  grid-template-columns: repeat(3, 1fr) 290px;
   gap: 36px;
   padding: 40px var(--gutter) 44px;
   max-width: var(--container);
@@ -819,14 +819,14 @@ main:focus { outline: none; }
    -------------------------------------------------------------------------- */
 .cats__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 2px;
   background: var(--line);
   border: 1px solid var(--line);
 }
 .cat {
   background: var(--white);
-  padding: 42px 30px 38px;
+  padding: 34px 24px 30px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -945,6 +945,9 @@ main:focus { outline: none; }
   gap: 0;
   counter-reset: step;
 }
+/* Вариант на четыре шага. Объявлен здесь, а не в конце файла: иначе он
+   перебивал бы медиазапросы ниже и держал четыре колонки на телефоне. */
+.steps--4 { grid-template-columns: repeat(4, 1fr); }
 .step {
   position: relative;
   padding: 0 26px;
@@ -1805,6 +1808,23 @@ form.is-hidden { display: none; }
   .reveal { opacity: 1; transform: none; }
 }
 
+/* Нижняя панель действий на телефоне. Объявлена до адаптива: ниже
+   медиазапрос включает её на узких экранах, и правило с той же
+   специфичностью, стоящее после него, снова бы её погасило. */
+.action-bar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* --------------------------------------------------------------------------
    21. Адаптив
    Ноутбук 1280-1440, планшет, телефон. Точки выбраны там, где ломается макет.
@@ -1813,7 +1833,7 @@ form.is-hidden { display: none; }
 /* --- Ноутбук: 1366x768 и подобные. Контейнер уже, воздуха меньше --- */
 @media (max-width: 1440px) {
   :root { --container: 1180px; --gutter: 22px; }
-  .mega__inner { grid-template-columns: repeat(4, 1fr) 240px; gap: 28px; }
+  .mega__inner { grid-template-columns: repeat(3, 1fr) 240px; gap: 28px; }
 }
 
 @media (max-width: 1280px) {
@@ -1832,7 +1852,7 @@ form.is-hidden { display: none; }
 @media (max-width: 1180px) {
   .navbar__item--optional { display: none; }
   .mega__promo { display: none; }
-  .mega__inner { grid-template-columns: repeat(4, 1fr); }
+  .mega__inner { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* --- Планшет --- */
@@ -2005,7 +2025,6 @@ form.is-hidden { display: none; }
   border: 0;
 }
 .u-actions { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 6px; }
-.steps--4 { grid-template-columns: repeat(4, 1fr); }
 .crumbs b { font-weight: 500; color: rgba(255, 255, 255, 0.9); }
 
 /* Ловушка для ботов: настоящий пользователь этого поля не видит */
@@ -2082,20 +2101,6 @@ form.is-hidden { display: none; }
 .section-lead, .prose p, .split__body p { max-width: var(--measure); }
 .section-head--center .section-lead { margin-left: auto; margin-right: auto; }
 
-/* Нижняя панель действий на телефоне */
-.action-bar {
-  display: none;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 60;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 1px;
-  background: var(--line);
-  border-top: 1px solid var(--line);
-  padding-bottom: env(safe-area-inset-bottom);
-}
 .action-bar__btn {
   display: flex;
   align-items: center;

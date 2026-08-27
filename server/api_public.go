@@ -67,7 +67,7 @@ func (a *API) publicProducts(w http.ResponseWriter, r *http.Request) {
 	list, err := a.store.ListProducts(ProductFilter{
 		OnlyActive:   true,
 		CategorySlug: cleanLine(q.Get("category"), 60),
-		Wood:         cleanLine(q.Get("wood"), 40),
+		Size:         cleanLine(q.Get("size"), 40),
 		Search:       cleanLine(q.Get("search"), 80),
 		Sort:         cleanLine(q.Get("sort"), 20),
 	})

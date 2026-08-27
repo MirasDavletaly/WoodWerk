@@ -343,7 +343,7 @@
         done();
       }).catch(function () {
         if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
-        fail('Не удалось отправить заявку. Позвоните нам: +7 (747) 902-44-01');
+        fail('Не удалось отправить заявку. Позвоните нам: +7 (707) 139-49-09');
       });
     });
   });
@@ -406,13 +406,10 @@
   var CURRENCY = '₸';
   var NO_PHOTO = '/assets/img/scenes/workshop.svg';
 
-  var WOOD_NAMES = {
-    oak: 'Дуб',
-    ash: 'Ясень',
-    walnut: 'Орех',
-    thermo: 'Термоясень',
-    wenge: 'Венге',
-    larch: 'Лиственница'
+  var SIZE_NAMES = {
+    '2800x1220': '2800×1220×5 мм',
+    '3000x1220': '3000×1220×5 мм',
+    '3000x1200': '3000×1200×5 мм'
   };
 
   function el(tag, className, text) {
@@ -439,7 +436,7 @@
     return (space > limit * 0.6 ? cut.slice(0, space) : cut) + '…';
   }
 
-  // Язык подставляем в каждый запрос: названия и описания мебели
+  // Язык подставляем в каждый запрос: названия и описания панелей
   // хранятся в базе и переводятся на стороне сервера.
   function currentLang() {
     return (window.WWLang && window.WWLang.current()) || 'ru';
@@ -487,13 +484,13 @@
 
     function apply() {
       var cats = activeValues('cat');
-      var woods = activeValues('wood');
+      var sizes = activeValues('size');
       var visible = 0;
 
       cards.forEach(function (card) {
         var okCat = !cats.length || cats.indexOf(card.dataset.cat) > -1;
-        var okWood = !woods.length || woods.indexOf(card.dataset.wood) > -1;
-        var show = okCat && okWood;
+        var okSize = !sizes.length || sizes.indexOf(card.dataset.size) > -1;
+        var show = okCat && okSize;
         card.classList.toggle('is-hidden', !show);
         if (show) visible++;
       });
@@ -527,7 +524,7 @@
     function card(p) {
       var article = el('article', 'product reveal');
       article.dataset.cat = p.category_slug || '';
-      article.dataset.wood = p.wood || '';
+      article.dataset.size = p.size || '';
       article.dataset.price = String(p.price || 0);
       article.dataset.name = p.title;
 
@@ -541,13 +538,13 @@
       article.appendChild(media);
 
       var body = el('div', 'product__body');
-      body.appendChild(el('span', 'product__cat', p.category_name || 'Мебель'));
+      body.appendChild(el('span', 'product__cat', p.category_name || 'Без раздела'));
       body.appendChild(el('h3', null, p.title));
       body.appendChild(el('p', 'product__spec', shorten(p.description, 110)));
 
       var foot = el('div', 'product__foot');
       var price = el('span', 'product__price', formatPrice(p.price));
-      price.appendChild(el('small', null, 'с монтажом'));
+      price.appendChild(el('small', null, 'за панель'));
       foot.appendChild(price);
 
       var more = el('a', 'btn btn--outline btn--sm', 'Подробнее');
@@ -592,16 +589,16 @@
       });
     }
 
-    // У пород дерева список фиксированный — обновляем только счётчики
+    // У размеров панели список фиксированный — обновляем только счётчики
     // и убираем то, чего в каталоге нет.
-    function renderWoodFilters() {
+    function renderSizeFilters() {
       var counts = {};
       products.forEach(function (p) {
-        if (!p.wood) return;
-        counts[p.wood] = (counts[p.wood] || 0) + 1;
+        if (!p.size) return;
+        counts[p.size] = (counts[p.size] || 0) + 1;
       });
 
-      $$('input[data-filter="wood"]').forEach(function (input) {
+      $$('input[data-filter="size"]').forEach(function (input) {
         var label = input.closest('.filter-opt');
         var n = counts[input.value] || 0;
         if (!label) return;
@@ -638,12 +635,12 @@
       }
     }
 
-    // Предустановка фильтров из адреса: /catalog?cat=kitchen&wood=oak.
+    // Предустановка фильтров из адреса: /catalog?cat=wood&size=3000x1220.
     // Значение из URL нельзя подставлять в селектор — сравниваем его
     // со списком уже существующих чекбоксов.
     function presetFromURL() {
       var params = new URLSearchParams(window.location.search);
-      ['cat', 'wood'].forEach(function (group) {
+      ['cat', 'size'].forEach(function (group) {
         var preset = (params.get(group) || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40).toLowerCase();
         if (!preset) return;
         $$('input[data-filter="' + group + '"]').forEach(function (input) {
@@ -672,13 +669,13 @@
       if (emptyEl) catalog.appendChild(emptyEl);
 
       renderCategoryFilters();
-      renderWoodFilters();
+      renderSizeFilters();
       apply();
       refreshCount();
       sort();
 
       }).catch(function () {
-        fail('Не удалось загрузить каталог. Обновите страницу или позвоните нам: +7 (747) 902-44-01');
+        fail('Не удалось загрузить каталог. Обновите страницу или позвоните нам: +7 (707) 139-49-09');
       });
     }
 
@@ -729,7 +726,7 @@
     function showMissing() {
       if (pdpLoading) pdpLoading.classList.add('u-hidden');
       if (pdpMissing) pdpMissing.classList.remove('u-hidden');
-      document.title = 'Изделие не найдено — WOODWERK';
+      document.title = 'Панель не найдена — WOODWERK';
     }
 
     function fillProduct(p) {
@@ -743,13 +740,13 @@
       if (title) title.textContent = p.title;
 
       var cat = $('[data-pdp-category]');
-      if (cat) cat.textContent = p.category_name || 'Мебель';
+      if (cat) cat.textContent = p.category_name || 'Без раздела';
 
       var price = $('[data-pdp-price]');
       if (price) {
         clearNode(price);
         price.appendChild(document.createTextNode(formatPrice(p.price)));
-        price.appendChild(el('small', null, 'с монтажом'));
+        price.appendChild(el('small', null, 'за панель'));
       }
 
       var desc = $('[data-pdp-desc]');
@@ -769,9 +766,9 @@
       var meta = $('[data-pdp-meta]');
       if (meta) {
         clearNode(meta);
-        addMeta(meta, 'Категория', p.category_name || 'Без категории');
-        if (p.wood && WOOD_NAMES[p.wood]) addMeta(meta, 'Порода дерева', WOOD_NAMES[p.wood]);
-        addMeta(meta, 'Артикул', '№ ' + p.id);
+        addMeta(meta, 'Раздел', p.category_name || 'Без раздела');
+        if (p.size && SIZE_NAMES[p.size]) addMeta(meta, 'Размер панели', SIZE_NAMES[p.size]);
+        addMeta(meta, 'Позиция в каталоге', '№ ' + p.id);
       }
 
       // Основная фотография идёт первой, за ней — дополнительные.

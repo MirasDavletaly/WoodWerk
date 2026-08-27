@@ -59,7 +59,7 @@ var translit = map[rune]string{
 	'ъ': "", 'ы': "y", 'ь': "", 'э': "e", 'ю': "yu", 'я': "ya",
 }
 
-// slugify делает из «Кухонная мебель» адресную строку kuhonnaya-mebel.
+// slugify делает из «Декоративные рейки» адресную строку dekorativnye-reyki.
 func slugify(name string) string {
 	var b strings.Builder
 	for _, r := range strings.ToLower(strings.TrimSpace(name)) {

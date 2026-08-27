@@ -400,7 +400,7 @@
   }
 
   /* ------------------------------------------------------------------
-     Список мебели
+     Список панелей
      ------------------------------------------------------------------ */
 
   function pageProducts() {
@@ -506,7 +506,7 @@
           .then(function (yes) {
             if (!yes) return;
             api('/admin/products/' + p.id, { method: 'DELETE' }).then(function (data) {
-              toast(data.message || 'Мебель успешно удалена', 'ok');
+              toast(data.message || 'Панель удалена', 'ok');
               load();
             }).catch(function (err) { toast(err.message, 'err'); });
           });
@@ -710,7 +710,7 @@
   }
 
   /* ------------------------------------------------------------------
-     Добавление и редактирование мебели
+     Добавление и редактирование панели
      ------------------------------------------------------------------ */
 
   function pageProductForm() {
@@ -723,8 +723,8 @@
     var isEdit = productID !== '';
 
     var heading = $('[data-form-title]');
-    if (heading) heading.textContent = isEdit ? 'Редактирование мебели' : 'Добавить мебель';
-    document.title = (isEdit ? 'Редактирование мебели' : 'Добавить мебель') + ' — WOODWERK';
+    if (heading) heading.textContent = isEdit ? 'Редактирование панели' : 'Добавить панель';
+    document.title = (isEdit ? 'Редактирование панели' : 'Добавить панель') + ' — WOODWERK';
 
     var title = $('#p-title', form);
     var description = $('#p-description', form);
@@ -734,7 +734,7 @@
     var titleEN = $('#p-title-en', form);
     var descKK = $('#p-description-kk', form);
     var descEN = $('#p-description-en', form);
-    var wood = $('#p-wood', form);
+    var size = $('#p-size', form);
     var badge = $('#p-badge', form);
     var errBox = $('[data-form-error]', form);
     var submitBtn = $('button[type="submit"]', form);
@@ -760,7 +760,7 @@
         descEN.value = p.description_en || '';
         price.value = p.price;
         category.value = p.category_id ? String(p.category_id) : '';
-        if (wood) wood.value = p.wood || '';
+        if (size) size.value = p.size || '';
         if (badge) badge.value = p.badge || '';
         mainPhoto.set(p.image_url);
         gallery.set((p.images || []).map(function (im) { return im.image_url; }));
@@ -814,7 +814,7 @@
         image_url: mainPhoto.get(),
         category_id: category.value ? Number(category.value) : null,
         status: statusInput ? statusInput.value : 'active',
-        wood: wood ? wood.value : '',
+        size: size ? size.value : '',
         badge: badge ? badge.value.trim() : '',
         gallery: gallery.get()
       };

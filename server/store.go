@@ -31,7 +31,7 @@ type ProductImage struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// Product — мебельное изделие.
+// Product — позиция каталога: стеновая панель.
 type Product struct {
 	ID             int64          `json:"id"`
 	Title          string         `json:"title"`
@@ -48,7 +48,7 @@ type Product struct {
 	CategoryNameEN string         `json:"category_name_en"`
 	CategorySlug   string         `json:"category_slug"`
 	Status         string         `json:"status"` // active | hidden
-	Wood           string         `json:"wood"`
+	Size           string         `json:"size"`
 	Badge          string         `json:"badge"`
 	CreatedAt      string         `json:"created_at"`
 	UpdatedAt      string         `json:"updated_at"`
@@ -70,7 +70,7 @@ type ProductFilter struct {
 	CategoryID   int64  // 0 = любая
 	CategorySlug string // альтернатива CategoryID, используется публичным API
 	Status       string // active | hidden | "" = любой
-	Wood         string
+	Size         string
 	Sort         string // new | old | price-asc | price-desc | name
 	OnlyActive   bool   // публичный каталог не видит скрытые
 }
@@ -231,7 +231,7 @@ const productColumns = `
     p.price, p.image_url, p.category_id,
     COALESCE(c.name, ''), COALESCE(c.name_kk, ''), COALESCE(c.name_en, ''),
     COALESCE(c.slug, ''),
-    p.status, p.wood, p.badge, p.created_at, p.updated_at`
+    p.status, p.size, p.badge, p.created_at, p.updated_at`
 
 type scanner interface{ Scan(dest ...any) error }
 
@@ -242,7 +242,7 @@ func scanProduct(sc scanner) (Product, error) {
 		&p.Description, &p.DescriptionKK, &p.DescriptionEN,
 		&p.Price, &p.ImageURL, &catID,
 		&p.CategoryName, &p.CategoryNameKK, &p.CategoryNameEN, &p.CategorySlug,
-		&p.Status, &p.Wood, &p.Badge, &p.CreatedAt, &p.UpdatedAt)
+		&p.Status, &p.Size, &p.Badge, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {
 		return p, err
 	}
@@ -275,9 +275,9 @@ func (s *Store) ListProducts(f ProductFilter) ([]Product, error) {
 		q += ` AND c.slug = ?`
 		args = append(args, f.CategorySlug)
 	}
-	if f.Wood != "" {
-		q += ` AND p.wood = ?`
-		args = append(args, f.Wood)
+	if f.Size != "" {
+		q += ` AND p.size = ?`
+		args = append(args, f.Size)
 	}
 	if f.Search != "" {
 		// Регистр приводим здесь: LOWER() в SQLite не знает про кириллицу,
@@ -378,7 +378,7 @@ type ProductInput struct {
 	ImageURL      string   `json:"image_url"`
 	CategoryID    *int64   `json:"category_id"`
 	Status        string   `json:"status"`
-	Wood          string   `json:"wood"`
+	Size          string   `json:"size"`
 	Badge         string   `json:"badge"`
 	Gallery       []string `json:"gallery"` // дополнительные фотографии
 }
@@ -389,12 +389,12 @@ func (s *Store) CreateProduct(in ProductInput) (*Product, error) {
         INSERT INTO products (title, title_kk, title_en,
                               description, description_kk, description_en,
                               price, image_url, category_id,
-                              status, wood, badge, search_text, created_at, updated_at)
+                              status, size, badge, search_text, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		in.Title, in.TitleKK, in.TitleEN,
 		in.Description, in.DescriptionKK, in.DescriptionEN,
 		in.Price, in.ImageURL, catArg(in.CategoryID),
-		in.Status, in.Wood, in.Badge, searchText(in.Title, in.Description), ts, ts)
+		in.Status, in.Size, in.Badge, searchText(in.Title, in.Description), ts, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -414,12 +414,12 @@ func (s *Store) UpdateProduct(id int64, in ProductInput) (*Product, error) {
         SET title = ?, title_kk = ?, title_en = ?,
             description = ?, description_kk = ?, description_en = ?,
             price = ?, image_url = ?, category_id = ?,
-            status = ?, wood = ?, badge = ?, search_text = ?, updated_at = ?
+            status = ?, size = ?, badge = ?, search_text = ?, updated_at = ?
         WHERE id = ?`,
 		in.Title, in.TitleKK, in.TitleEN,
 		in.Description, in.DescriptionKK, in.DescriptionEN,
 		in.Price, in.ImageURL, catArg(in.CategoryID),
-		in.Status, in.Wood, in.Badge, searchText(in.Title, in.Description), now(), id)
+		in.Status, in.Size, in.Badge, searchText(in.Title, in.Description), now(), id)
 	if err != nil {
 		return nil, err
 	}
