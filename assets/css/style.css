@@ -7,49 +7,57 @@
    1. Переменные и базовые сбросы
    -------------------------------------------------------------------------- */
 :root {
-  /* Палитра. Значения проверены на контраст: текст на своих фонах даёт >= 4.5:1 */
-  --ink: #1a1512;
-  --ink-soft: #55493f;
-  --muted: #6f6259;          /* 5.5:1 на --bg, 4.9:1 на --bg-alt */
-  --bg: #faf7f2;
-  --bg-alt: #f1eae0;
-  --sand: #e8dcc8;
-  --line: #e3d9cc;
+  /* Палитра. Строго нейтральная: единственный источник цвета на сайте —
+     фотографии панелей. Контраст пересчитан заново, каждая пара
+     текст/фон даёт >= 4.5:1. */
+  --ink: #0f0f0f;            /* заголовки, 19.2:1 на --bg */
+  --ink-soft: #3b3b3b;       /* основной текст, 11.2:1 на --bg */
+  --muted: #6b6b6b;          /* 5.3:1 на --bg, 4.85:1 на --bg-alt */
+  --bg: #ffffff;
+  --bg-alt: #f5f4f2;
+  --sand: #ebe9e6;           /* служебные поверхности: скроллбар, плашки */
+  --line: #e4e2df;
   --white: #ffffff;
-  --accent: #8c5d30;         /* белый текст на нём — 5.6:1 */
-  --accent-h: #734a25;
-  --accent-soft: #f0e2d0;    /* только заливки, не текст */
-  --accent-on-dark: #d9ab72; /* 9.2:1 на чёрном */
-  /* Второстепенный текст на тёмном. Раньше в каждом месте стояла своя
-     прозрачность от 0.38 до 0.5; всё, что ниже 0.45, не добирало до нормы. */
-  --on-dark: rgba(255, 255, 255, 0.58);      /* 6.7:1 на --dark и --black */
-  --on-dark-quiet: rgba(255, 255, 255, 0.5); /* 5.3:1, для самого мелкого */
-  --dark: #171310;
-  --black: #0f0d0b;
-  --nav: #b39a7c;            /* полоса меню, как у референса */
-  --nav-ink: #1a1512;        /* текст на полосе: 6.75:1, белый давал 2.68:1 */
-  --nav-active: #987e5d;     /* пункт «Каталог»: тёмный текст даёт 4.72:1 */
-  --nav-active-h: #a48d70;   /* при наведении светлеет, а не темнеет */
-  --green: #5e7355;
+  --accent: #111111;         /* белый текст на нём — 19:1 */
+  --accent-h: #383838;
+  --accent-soft: #f0efed;    /* только заливки, не текст */
+  --accent-on-dark: #ffffff;
+  /* Второстепенный текст на тёмном. Одна прозрачность на весь сайт вместо
+     россыпи значений от 0.38 до 0.5, половина которых не добирала до нормы. */
+  --on-dark: rgba(255, 255, 255, 0.62);       /* 7.5:1 на --dark и --black */
+  --on-dark-quiet: rgba(255, 255, 255, 0.52); /* 5.6:1, для самого мелкого */
+  --dark: #161616;
+  --black: #0b0b0b;
+  --nav: #ffffff;            /* полоса меню больше не цветная */
+  --nav-ink: #0f0f0f;
+  --nav-active: #111111;
+  --nav-active-h: #383838;
 
   /* Типографика */
   --font: "Montserrat", "Segoe UI", Arial, sans-serif;
-  --tr-title: 0.05em;
-  --measure: 68ch;
+  --tr-title: 0.03em;        /* разрядка крупных заголовков */
+  --tr-micro: 0.18em;        /* разрядка мелких надписей в капсе */
+  --measure: 66ch;
+  --fs-h1: clamp(34px, 5vw, 68px);
+  --fs-h2: clamp(26px, 3.4vw, 44px);
+  --fs-h3: clamp(18px, 1.8vw, 22px);
+  --fs-micro: 11px;
 
   /* Сетка */
   --container: 1320px;
   --gutter: 24px;
-  --radius: 4px;
-  --radius-lg: 8px;
+  /* Скруглений нет: форму держат волосяные линии, а не радиусы. */
+  --radius: 0px;
+  --radius-lg: 2px;
 
   /* Прочее */
   --header-h: 76px;
   --nav-h: 50px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --shadow-sm: 0 2px 12px rgba(26, 21, 18, 0.06);
-  --shadow-md: 0 14px 40px rgba(26, 21, 18, 0.1);
-  --shadow-lg: 0 30px 70px rgba(26, 21, 18, 0.16);
+  /* Тени ослаблены почти до нуля: воздух и линии вместо подложек. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.10);
 }
 
 *,
@@ -64,9 +72,9 @@ html {
 body {
   margin: 0;
   font-family: var(--font);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 400;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--ink-soft);
   background: var(--bg);
   overflow-x: hidden;
@@ -83,6 +91,18 @@ h1, h2, h3, h4, h5 {
   line-height: 1.2;
   text-wrap: balance;
 }
+
+/* Крупные заголовки — светлое начертание вразрядку. Разрядку вешаем именно
+   на h1/h2, а не на всю группу: у мелких h3 в капсе своя, куда шире.
+   До этого у h1/h2 не было ни размера, ни веса — заголовки секций
+   держались на браузерном 1.5em и выходили в 24px на любом экране. */
+h1, h2 {
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: var(--tr-title);
+}
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
 
 p { margin: 0 0 1em; }
 p:last-child { margin-bottom: 0; }
@@ -219,12 +239,12 @@ main:focus { outline: none; }
 .btn--primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 10px 26px rgba(169, 116, 63, 0.28);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
 }
 .btn--primary:hover {
   background: var(--accent-h);
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(169, 116, 63, 0.36);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.20);
 }
 
 .btn--dark { background: var(--ink); color: #fff; }
@@ -445,7 +465,7 @@ main:focus { outline: none; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(23, 19, 16, 0.15), rgba(23, 19, 16, 0.85));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.85));
 }
 .mega__promo > div { position: relative; z-index: 2; }
 .mega__promo strong {
@@ -606,13 +626,13 @@ main:focus { outline: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 50% 46%, rgba(15, 11, 8, 0.18) 0%, rgba(15, 11, 8, 0.62) 78%),
-    linear-gradient(180deg, rgba(15, 11, 8, 0.34), rgba(15, 11, 8, 0.12) 45%, rgba(15, 11, 8, 0.5));
+    radial-gradient(ellipse at 50% 46%, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.62) 78%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.12) 45%, rgba(0, 0, 0, 0.5));
 }
 .hero__inner { position: relative; z-index: 2; width: 100%; }
 .hero__content { max-width: 900px; margin: 0 auto; }
 .hero__title {
-  text-shadow: 0 2px 28px rgba(10, 7, 5, 0.55);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55);
   font-size: clamp(30px, 4.6vw, 60px);
   font-weight: 300;
   line-height: 1.14;
@@ -621,7 +641,7 @@ main:focus { outline: none; }
   text-wrap: balance;
 }
 .hero__text {
-  text-shadow: 0 1px 16px rgba(10, 7, 5, 0.6);
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.6);
   margin: 22px auto 0;
   max-width: 60ch;
   font-size: clamp(15px, 1.25vw, 17px);
@@ -749,12 +769,12 @@ main:focus { outline: none; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(16, 12, 9, 0.52) 0%, rgba(16, 12, 9, 0.2) 45%, rgba(16, 12, 9, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.2) 45%, rgba(0, 0, 0, 0.82) 100%);
   transition: background 0.5s var(--ease);
 }
 .collection:hover .collection__img img { transform: scale(1.07); }
 .collection:hover::after {
-  background: linear-gradient(180deg, rgba(16, 12, 9, 0.6) 0%, rgba(16, 12, 9, 0.34) 45%, rgba(16, 12, 9, 0.88) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.34) 45%, rgba(0, 0, 0, 0.88) 100%);
 }
 .collection__body { display: block; }
 .collection__name {
@@ -807,7 +827,7 @@ main:focus { outline: none; }
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  background: rgba(250, 247, 242, 0.94);
+  background: rgba(255, 255, 255, 0.94);
   color: var(--ink);
   border-radius: 40px;
 }
@@ -958,7 +978,7 @@ main:focus { outline: none; }
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: #d6a86e;
+  color: var(--accent-on-dark);
   margin-bottom: 22px;
   display: block;
 }
@@ -1009,7 +1029,7 @@ main:focus { outline: none; }
   position: absolute;
   inset: auto 0 0 0;
   padding: 22px;
-  background: linear-gradient(180deg, transparent, rgba(20, 15, 11, 0.82));
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.82));
   color: #fff;
   transform: translateY(10px);
   opacity: 0;
@@ -1028,7 +1048,7 @@ main:focus { outline: none; }
   top: 16px; right: 16px;
   width: 40px; height: 40px;
   border-radius: 50%;
-  background: rgba(250, 247, 242, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   display: grid; place-items: center;
   color: var(--ink);
   opacity: 0;
@@ -1042,7 +1062,7 @@ main:focus { outline: none; }
   position: fixed;
   inset: 0;
   z-index: 120;
-  background: rgba(12, 9, 7, 0.94);
+  background: rgba(0, 0, 0, 0.94);
   display: grid;
   place-items: center;
   padding: 40px 20px;
@@ -1139,7 +1159,7 @@ main:focus { outline: none; }
   transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
 }
 .review:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
-.review__stars { display: flex; gap: 4px; color: #d99b4a; }
+.review__stars { display: flex; gap: 4px; color: var(--ink); }
 .review__text { font-size: 15px; line-height: 1.75; color: var(--ink-soft); flex: 1; }
 .review__author { display: flex; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid var(--line); }
 .review__ava {
@@ -1224,7 +1244,7 @@ main:focus { outline: none; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, rgba(15, 11, 8, 0.92), rgba(15, 11, 8, 0.7));
+  background: linear-gradient(100deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.7));
 }
 .cta__inner {
   position: relative;
@@ -1292,7 +1312,7 @@ main:focus { outline: none; }
   outline: none;
   border-color: var(--accent);
   background: var(--white);
-  box-shadow: 0 0 0 3px rgba(169, 116, 63, 0.12);
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.10);
 }
 .field.has-error input,
 .field.has-error textarea { border-color: #c8553d; background: #fdf3f1; }
@@ -1394,7 +1414,7 @@ form.is-hidden { display: none; }
 }
 .footer__links li + li { margin-top: 12px; }
 .footer__links a { font-size: 13.5px; }
-.footer__links a:hover { color: #d9ab72; }
+.footer__links a:hover { color: #fff; }
 .footer__contact { display: grid; gap: 16px; }
 .footer__contact b { display: block; color: #fff; font-size: 17px; font-weight: 500; }
 .footer__contact small { font-size: 12.5px; color: var(--on-dark); }
@@ -1435,7 +1455,7 @@ form.is-hidden { display: none; }
   transition: opacity 0.3s var(--ease), visibility 0.3s;
 }
 .modal.is-open { opacity: 1; visibility: visible; }
-.modal__overlay { position: absolute; inset: 0; background: rgba(12, 9, 7, 0.72); backdrop-filter: blur(3px); }
+.modal__overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); }
 .modal__box {
   position: relative;
   z-index: 2;
@@ -1474,7 +1494,7 @@ form.is-hidden { display: none; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, rgba(15, 11, 8, 0.85), rgba(15, 11, 8, 0.45));
+  background: linear-gradient(100deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.45));
 }
 .page-hero__inner { position: relative; z-index: 3; }
 .page-hero h1 {
