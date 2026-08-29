@@ -1081,3 +1081,40 @@ table.data td.actions .btn { margin-left: 7px; }
 }
 .skip-link:focus-visible { transform: translateY(0); }
 .content:focus { outline: none; }
+
+/* --------------------------------------------------------------------------
+   Галерея главной страницы
+   -------------------------------------------------------------------------- */
+
+/* Пояснение под заголовком карточки — там, где одного названия мало. */
+.card__note {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Флажок с подписью в одну строку: отдельная колонка ради него избыточна. */
+.check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.check-inline input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+/* Строка, которую сейчас правят в форме выше: видно, что именно меняешь. */
+tr.is-editing { background: var(--bg-alt); }
+
+/* Подпись под названием карточки в таблице */
+.data td small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12.5px;
+}

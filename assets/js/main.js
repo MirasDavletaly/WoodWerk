@@ -155,10 +155,14 @@
   if (lb) {
     var lbImg = $('.lightbox__img', lb);
     var lbCap = $('.lightbox__cap', lb);
-    var items = $$('.gallery__item');
     var current = 0;
 
+    // Список карточек читаем в момент открытия, а не один раз при загрузке:
+    // галерея приходит из базы и перерисовывается уже после старта скрипта.
+    function lbItems() { return $$('.gallery__item'); }
+
     function show(i) {
+      var items = lbItems();
       if (!items.length) return;
       current = (i + items.length) % items.length;
       var el = items[current];
@@ -170,9 +174,17 @@
     function openLb(i) { show(i); lb.classList.add('is-open'); document.body.classList.add('is-locked'); }
     function closeLb() { lb.classList.remove('is-open'); document.body.classList.remove('is-locked'); }
 
-    items.forEach(function (el, i) {
-      el.addEventListener('click', function () { openLb(i); });
-    });
+    // Один обработчик на сетку вместо обработчика на каждой карточке:
+    // перерисовка галереи не оставляет его без дела.
+    var lbGrid = $('.gallery__grid');
+    if (lbGrid) {
+      lbGrid.addEventListener('click', function (e) {
+        var fig = e.target.closest ? e.target.closest('.gallery__item') : null;
+        if (!fig) return;
+        var items = lbItems();
+        openLb(Array.prototype.indexOf.call(items, fig));
+      });
+    }
     var lbClose = $('.lightbox__close', lb);
     if (lbClose) lbClose.addEventListener('click', closeLb);
     var lbPrev = $('.lightbox__nav--prev', lb);
@@ -826,6 +838,57 @@
       loadProduct();
       document.addEventListener('ww:lang', loadProduct);
     }
+  }
+
+  /* ------------------------------------------------------------------
+     Галерея «Панели в интерьере»: карточки ведёт администратор
+
+     Свёрстанная разметка остаётся в index.html и служит запасным видом:
+     если сервер не ответил или галерея пуста, посетитель видит её, а не
+     пустое место. Подменяем содержимое только при успешном ответе.
+     ------------------------------------------------------------------ */
+  var galleryGrid = $('.gallery__grid');
+  if (galleryGrid) {
+    getJSON('/gallery').then(function (data) {
+      var list = (data && data.gallery) || [];
+      if (!list.length) return;
+
+      clearNode(galleryGrid);
+      list.forEach(function (item, i) {
+        galleryGrid.appendChild(galleryCard(item, i));
+      });
+      $$('.reveal', galleryGrid).forEach(observeReveal);
+    }).catch(function () {
+      /* Молча оставляем свёрстанные карточки: галерея — не то, ради чего
+         стоит показывать посетителю сообщение об ошибке. */
+    });
+  }
+
+  // Разметка повторяет свёрстанную вручную, чтобы стили и лайтбокс
+  // работали с карточками из базы без единой правки.
+  function galleryCard(item, index) {
+    var fig = el('figure', 'gallery__item reveal');
+    if (index) fig.dataset.delay = String(Math.min(index, 4) * 60);
+
+    var img = el('img');
+    img.src = item.image_url;
+    img.alt = item.alt || item.title || '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    fig.appendChild(img);
+
+    var zoom = el('span', 'gallery__zoom');
+    zoom.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/>' +
+      '<path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>';
+    fig.appendChild(zoom);
+
+    var cap = el('figcaption', 'gallery__cap');
+    cap.appendChild(el('b', null, item.title || ''));
+    cap.appendChild(el('span', null, item.caption || ''));
+    fig.appendChild(cap);
+
+    return fig;
   }
 
   /* ------------------------------------------------------------------

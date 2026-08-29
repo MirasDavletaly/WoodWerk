@@ -765,6 +765,12 @@ var seedProducts = []seedProduct{
 
 // Seed заводит категории и демонстрационные изделия на пустой базе.
 func (s *Store) Seed() error {
+	// Галерея наполняется независимо от каталога: она пустует и на тех
+	// базах, где панели давно заведены администратором.
+	if err := s.SeedGallery(); err != nil {
+		return err
+	}
+
 	cats, err := s.ListCategories()
 	if err != nil {
 		return err

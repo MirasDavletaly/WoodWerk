@@ -492,10 +492,13 @@ func catArg(id *int64) any {
 // с диска надо убедиться, что на него больше никто не ссылается.
 func (s *Store) UsedImage(url string) (bool, error) {
 	var n int
+	// Галерея главной страницы ссылается на те же файлы, что и каталог:
+	// без этого слагаемого удаление изделия унесло бы снимок из галереи.
 	err := s.db.QueryRow(`
         SELECT (SELECT COUNT(*) FROM products WHERE image_url = ?) +
-               (SELECT COUNT(*) FROM product_images WHERE image_url = ?)`,
-		url, url).Scan(&n)
+               (SELECT COUNT(*) FROM product_images WHERE image_url = ?) +
+               (SELECT COUNT(*) FROM gallery WHERE image_url = ?)`,
+		url, url, url).Scan(&n)
 	return n > 0, err
 }
 

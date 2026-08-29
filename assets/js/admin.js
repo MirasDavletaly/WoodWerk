@@ -65,7 +65,9 @@
     edit: 'M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z',
     hide: 'M3 3l18 18M10.6 10.7a2 2 0 0 0 2.8 2.8M9.4 5.4A9.7 9.7 0 0 1 12 5c5 0 9 4.5 9 7a12 12 0 0 1-2.4 3.4M6.5 6.6A12.3 12.3 0 0 0 3 12c0 2.5 4 7 9 7a9.9 9.9 0 0 0 3.4-.6',
     show: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z',
-    trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6'
+    trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6',
+    up: 'M12 19V5M6 11l6-6 6 6',
+    down: 'M12 5v14M6 13l6 6 6-6'
   };
 
   // iconButton собирает кнопку-значок с подписью для скринридера и подсказкой.
@@ -1119,6 +1121,249 @@
     });
   }
 
+
+  /* ------------------------------------------------------------------
+     Галерея «Панели в интерьере»
+
+     Порядок карточек задаётся стрелками, а не перетаскиванием: мышью
+     это удобнее ровно до тех пор, пока не открываешь админку с телефона,
+     а сюда заходят именно так.
+     ------------------------------------------------------------------ */
+  function pageGallery() {
+    var rowsBox = $('[data-gallery-rows]');
+    var wrap = $('[data-gallery-wrap]');
+    var empty = $('[data-gallery-empty]');
+    var form = $('[data-gallery-form]');
+    var formTitle = $('[data-gallery-form-title]');
+    var submitBtn = $('[data-gallery-submit]');
+    var cancelBtn = $('[data-gallery-cancel]');
+    var photo = MainPhoto($('[data-gallery-form-card]'));
+
+    var fields = {
+      title: $('#g-title'),
+      alt: $('#g-alt'),
+      caption: $('#g-caption'),
+      titleKK: $('#g-title-kk'),
+      titleEN: $('#g-title-en'),
+      captionKK: $('#g-caption-kk'),
+      captionEN: $('#g-caption-en'),
+      visible: $('#g-visible')
+    };
+
+    var items = [];     // то, что сейчас показано в таблице
+    var editing = null; // id карточки в правке, null — режим добавления
+
+    load();
+
+    function load() {
+      return api('/admin/gallery').then(function (data) {
+        items = data.gallery || [];
+        render();
+      }).catch(function (err) { toast(err.message, 'err'); });
+    }
+
+    function render() {
+      clear(rowsBox);
+      if (!items.length) {
+        if (wrap) wrap.hidden = true;
+        if (empty) empty.hidden = false;
+        return;
+      }
+      if (wrap) wrap.hidden = false;
+      if (empty) empty.hidden = true;
+      items.forEach(function (item, i) { rowsBox.appendChild(row(item, i)); });
+    }
+
+    function row(item, index) {
+      var tr = el('tr');
+      if (editing === item.id) tr.className = 'is-editing';
+
+      var pic = el('td');
+      var img = el('img', 'thumb');
+      img.src = item.image_url;
+      img.alt = '';
+      img.loading = 'lazy';
+      pic.appendChild(img);
+      tr.appendChild(pic);
+
+      var text = el('td');
+      text.appendChild(el('b', null, item.title));
+      if (item.caption) text.appendChild(el('small', null, item.caption));
+      tr.appendChild(text);
+
+      var vis = el('td');
+      var badge = el('span', 'badge ' + (item.visible ? 'badge--active' : 'badge--hidden'),
+        item.visible ? 'Показывается' : 'Скрыта');
+      vis.appendChild(badge);
+      tr.appendChild(vis);
+
+      var order = el('td');
+      var moves = el('div', 'row-actions');
+      var up = iconButton('up', 'Поднять выше');
+      up.disabled = index === 0;
+      up.addEventListener('click', function () { move(index, index - 1); });
+      var down = iconButton('down', 'Опустить ниже');
+      down.disabled = index === items.length - 1;
+      down.addEventListener('click', function () { move(index, index + 1); });
+      moves.appendChild(up);
+      moves.appendChild(down);
+      order.appendChild(moves);
+      tr.appendChild(order);
+
+      var actions = el('td', 'actions');
+      var group = el('div', 'row-actions');
+
+      var edit = iconButton('edit', 'Изменить карточку');
+      edit.addEventListener('click', function () { startEdit(item); });
+
+      var toggle = iconButton(item.visible ? 'hide' : 'show',
+        item.visible ? 'Скрыть с сайта' : 'Показать на сайте');
+      toggle.addEventListener('click', function () {
+        save(item.id, payloadOf(item, { visible: !item.visible }), true);
+      });
+
+      var del = iconButton('trash', 'Удалить карточку', 'danger');
+      del.addEventListener('click', function () {
+        confirmDialog('Удалить карточку «' + item.title + '»?',
+          'Она исчезнет из блока «Панели в интерьере» на главной.').then(function (yes) {
+          if (!yes) return;
+          api('/admin/gallery/' + item.id, { method: 'DELETE' }).then(function (data) {
+            toast(data.message || 'Карточка удалена', 'ok');
+            if (editing === item.id) resetForm();
+            load();
+          }).catch(function (err) { toast(err.message, 'err'); });
+        });
+      });
+
+      group.appendChild(edit);
+      group.appendChild(toggle);
+      group.appendChild(del);
+      actions.appendChild(group);
+      tr.appendChild(actions);
+      return tr;
+    }
+
+    // payloadOf собирает тело запроса из карточки, подменяя часть полей.
+    function payloadOf(item, patch) {
+      var body = {
+        image_url: item.image_url,
+        alt: item.alt || '',
+        title: item.title,
+        title_kk: item.title_kk || '',
+        title_en: item.title_en || '',
+        caption: item.caption || '',
+        caption_kk: item.caption_kk || '',
+        caption_en: item.caption_en || '',
+        visible: item.visible
+      };
+      for (var k in patch) {
+        if (Object.prototype.hasOwnProperty.call(patch, k)) body[k] = patch[k];
+      }
+      return body;
+    }
+
+    function move(from, to) {
+      if (to < 0 || to >= items.length) return;
+      var moved = items.splice(from, 1)[0];
+      items.splice(to, 0, moved);
+      render();
+
+      var ids = items.map(function (it) { return it.id; });
+      api('/admin/gallery/reorder', { method: 'POST', body: { ids: ids } })
+        .catch(function (err) {
+          toast(err.message, 'err');
+          load();   // порядок на сервере остался прежним — показываем его
+        });
+    }
+
+    function startEdit(item) {
+      editing = item.id;
+      photo.set(item.image_url);
+      fields.title.value = item.title || '';
+      fields.alt.value = item.alt || '';
+      fields.caption.value = item.caption || '';
+      fields.titleKK.value = item.title_kk || '';
+      fields.titleEN.value = item.title_en || '';
+      fields.captionKK.value = item.caption_kk || '';
+      fields.captionEN.value = item.caption_en || '';
+      fields.visible.checked = !!item.visible;
+
+      if (formTitle) formTitle.textContent = 'Правка карточки';
+      if (submitBtn) submitBtn.textContent = 'Сохранить изменения';
+      if (cancelBtn) cancelBtn.hidden = false;
+      render();
+      fields.title.focus();
+      fields.title.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      editing = null;
+      photo.set('');
+      fields.title.value = '';
+      fields.alt.value = '';
+      fields.caption.value = '';
+      fields.titleKK.value = '';
+      fields.titleEN.value = '';
+      fields.captionKK.value = '';
+      fields.captionEN.value = '';
+      fields.visible.checked = true;
+
+      if (formTitle) formTitle.textContent = 'Новая карточка';
+      if (submitBtn) submitBtn.textContent = 'Добавить карточку';
+      if (cancelBtn) cancelBtn.hidden = true;
+      render();
+    }
+
+    // save обслуживает и форму, и переключатель видимости в строке.
+    function save(id, body, silentForm) {
+      var req = id
+        ? api('/admin/gallery/' + id, { method: 'PUT', body: body })
+        : api('/admin/gallery', { method: 'POST', body: body });
+
+      return req.then(function (data) {
+        toast(data.message || 'Изменения сохранены', 'ok');
+        if (!silentForm) resetForm();
+        load();
+      }).catch(function (err) { toast(err.message, 'err'); });
+    }
+
+    if (cancelBtn) cancelBtn.addEventListener('click', resetForm);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var url = photo.get();
+      if (!url) {
+        toast('Загрузите снимок для карточки', 'err');
+        return;
+      }
+      // Пока файл не долетел до сервера, в виджете лежит временный blob-адрес.
+      if (url.indexOf('blob:') === 0) {
+        toast('Подождите, фотография ещё загружается', 'err');
+        return;
+      }
+      var title = fields.title.value.trim();
+      if (title.length < 2) {
+        toast('Название карточки должно быть не короче 2 символов', 'err');
+        fields.title.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      save(editing, {
+        image_url: url,
+        alt: fields.alt.value.trim(),
+        title: title,
+        title_kk: fields.titleKK.value.trim(),
+        title_en: fields.titleEN.value.trim(),
+        caption: fields.caption.value.trim(),
+        caption_kk: fields.captionKK.value.trim(),
+        caption_en: fields.captionEN.value.trim(),
+        visible: fields.visible.checked
+      }).then(function () { submitBtn.disabled = false; });
+    });
+  }
+
   /* ------------------------------------------------------------------
      Запуск
      ------------------------------------------------------------------ */
@@ -1129,6 +1374,7 @@
     products: pageProducts,
     'product-form': pageProductForm,
     categories: pageCategories,
+    gallery: pageGallery,
     settings: pageSettings
   };
 

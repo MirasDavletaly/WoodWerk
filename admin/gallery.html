@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'">
 <meta name="robots" content="noindex, nofollow">
-<title>Категории — админ-панель WOODWERK</title>
+<title>Галерея — админ-панель WOODWERK</title>
 <link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
-<body data-page="categories">
+<body data-page="gallery">
 <a class="skip-link" href="#main">Перейти к содержимому</a>
 
 <div class="sidebar-backdrop"></div>
@@ -38,11 +38,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg>
         Добавить панель
       </a>
-      <a class="sidebar__link is-active" href="/admin/categories">
+      <a class="sidebar__link" href="/admin/categories">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
         Разделы
       </a>
-      <a class="sidebar__link" href="/admin/gallery">
+      <a class="sidebar__link is-active" href="/admin/gallery">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="m4 17 5-5 4 4 3-2 4 3"/></svg>
         Галерея
       </a>
@@ -70,61 +70,105 @@
       <button class="burger-admin" type="button" data-sidebar-toggle aria-label="Меню">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <h1>Категории</h1>
+      <h1>Галерея «Панели в интерьере»</h1>
       <div class="topbar__spacer"></div>
     </header>
 
     <main class="content" id="main" tabindex="-1">
       <div class="content--narrow">
-        <section class="card">
-          <div class="card__head"><h2>Новая категория</h2></div>
+        <section class="card" data-gallery-form-card>
+          <div class="card__head"><h2 data-gallery-form-title>Новая карточка</h2></div>
           <div class="card__body">
-            <form data-category-form novalidate>
+            <form data-gallery-form novalidate>
+              <div class="uploader">
+                <div class="drop">
+                  <button class="btn btn--outline" type="button" data-main-pick>Загрузить фото</button>
+                  <p data-upload-hint>JPG, PNG, WEBP или GIF</p>
+                  <p class="upload-progress" data-main-status></p>
+                </div>
+                <div class="preview" data-main-preview hidden></div>
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-main-input hidden>
+              </div>
+
               <div class="field-row">
                 <div class="field">
-                  <label for="c-name">Название категории</label>
-                  <input id="c-name" type="text" maxlength="60" placeholder="Например: Диваны">
+                  <label for="g-title">Название</label>
+                  <input id="g-title" type="text" maxlength="80" placeholder="Например: Кухня-гостиная">
                 </div>
-                <div class="field field--action">
-                  <button class="btn btn--primary" type="submit">Добавить категорию</button>
+                <div class="field">
+                  <label for="g-alt">Описание для читалки экрана</label>
+                  <input id="g-alt" type="text" maxlength="160" placeholder="Кухня-гостиная с панелями на стене">
+                  <span class="field__hint">Необязательно: без него возьмём название.</span>
                 </div>
               </div>
+
+              <div class="field">
+                <label for="g-caption">Подпись</label>
+                <input id="g-caption" type="text" maxlength="200" placeholder="Стена у обеденной зоны — декор под дерево">
+              </div>
+
               <div class="field-row">
                 <div class="field">
-                  <label for="c-name-kk">На казахском</label>
-                  <input id="c-name-kk" type="text" maxlength="60" placeholder="Дивандар">
-                  <span class="field__hint">Необязательно: без перевода покажем русское название.</span>
+                  <label for="g-title-kk">Название на казахском</label>
+                  <input id="g-title-kk" type="text" maxlength="80">
+                  <span class="field__hint">Необязательно: без перевода покажем русский текст.</span>
                 </div>
                 <div class="field">
-                  <label for="c-name-en">На английском</label>
-                  <input id="c-name-en" type="text" maxlength="60" placeholder="Sofas">
+                  <label for="g-title-en">Название на английском</label>
+                  <input id="g-title-en" type="text" maxlength="80">
                 </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="g-caption-kk">Подпись на казахском</label>
+                  <input id="g-caption-kk" type="text" maxlength="200">
+                </div>
+                <div class="field">
+                  <label for="g-caption-en">Подпись на английском</label>
+                  <input id="g-caption-en" type="text" maxlength="200">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="check-inline">
+                  <input id="g-visible" type="checkbox" checked>
+                  Показывать карточку на сайте
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn--primary" type="submit" data-gallery-submit>Добавить карточку</button>
+                <button class="btn btn--outline" type="button" data-gallery-cancel hidden>Отменить правку</button>
               </div>
             </form>
           </div>
         </section>
 
         <section class="card">
-          <div class="card__head"><h2>Все категории</h2></div>
+          <div class="card__head">
+            <h2>Карточки галереи</h2>
+            <p class="card__note">Порядок карточек на сайте совпадает с порядком в этом списке.</p>
+          </div>
 
-          <div class="table-wrap" data-categories-wrap>
+          <div class="table-wrap" data-gallery-wrap>
             <table class="data">
               <thead>
                 <tr>
-                  <th>Название</th>
-                  <th>Адрес</th>
-                  <th>Изделий</th>
-                  <th>Создана</th>
+                  <th>Снимок</th>
+                  <th>Название и подпись</th>
+                  <th>На сайте</th>
+                  <th>Порядок</th>
                   <th>Действия</th>
                 </tr>
               </thead>
-              <tbody data-categories></tbody>
+              <tbody data-gallery-rows></tbody>
             </table>
           </div>
 
-          <div class="empty" data-categories-empty hidden>
-            <h3>Категорий пока нет</h3>
-            <p>Добавьте первую категорию — она появится в фильтрах каталога.</p>
+          <div class="empty" data-gallery-empty hidden>
+            <h3>В галерее пока пусто</h3>
+            <p>Добавьте первую карточку — она появится в блоке «Панели в интерьере» на главной.</p>
           </div>
         </section>
       </div>

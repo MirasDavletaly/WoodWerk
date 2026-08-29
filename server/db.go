@@ -58,6 +58,25 @@ CREATE TABLE IF NOT EXISTS product_images (
 );
 CREATE INDEX IF NOT EXISTS idx_product_images_product ON product_images(product_id);
 
+-- Галерея «Панели в интерьере» на главной. Раньше карточки были свёрстаны
+-- прямо в index.html; теперь их ведёт администратор.
+CREATE TABLE IF NOT EXISTS gallery (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_url  TEXT    NOT NULL,
+    alt        TEXT    NOT NULL DEFAULT '',
+    title      TEXT    NOT NULL,
+    title_kk   TEXT    NOT NULL DEFAULT '',
+    title_en   TEXT    NOT NULL DEFAULT '',
+    caption    TEXT    NOT NULL DEFAULT '',
+    caption_kk TEXT    NOT NULL DEFAULT '',
+    caption_en TEXT    NOT NULL DEFAULT '',
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    visible    INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT    NOT NULL,
+    updated_at TEXT    NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery(sort_order);
+
 CREATE TABLE IF NOT EXISTS admin_users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     username      TEXT    NOT NULL UNIQUE,
