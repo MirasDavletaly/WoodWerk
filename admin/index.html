@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Вход в админ-панель — WOODWERK</title>
+<link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body data-page="login">
+
+<main class="login">
+  <section class="login__scene">
+    <div class="login__texture"><img src="/assets/img/wood/hero.svg" alt="" aria-hidden="true"></div>
+
+    <a class="login__mark" href="/">
+      <img src="/assets/img/logo.svg" alt="" width="44" height="44">
+      <span class="login__wordmark">Woodwerk<span>массив дерева</span></span>
+    </a>
+
+    <div>
+      <h2 class="login__headline">Панель <b>управления</b></h2>
+      <p class="login__lead">
+        Каталог, фотографии и цены меняются здесь — и в ту же секунду
+        обновляются на сайте.
+      </p>
+    </div>
+
+    <div class="login__foot">
+      <span>Собственный цех</span>
+      <span>С 2013 года</span>
+      <span>Массив дерева</span>
+    </div>
+  </section>
+
+  <section class="login__panel">
+    <div class="login__form">
+      <h1>Вход</h1>
+      <p class="login__hint">Доступ только для администратора магазина.</p>
+
+      <form data-login-form novalidate>
+        <p class="form-error" data-form-error role="alert"></p>
+
+        <div class="field">
+          <label for="login-user">Логин</label>
+          <input id="login-user" name="username" type="text" autocomplete="username"
+                 maxlength="60" spellcheck="false" placeholder="admin" autofocus>
+        </div>
+
+        <div class="field">
+          <label for="login-pass">Пароль</label>
+          <input id="login-pass" name="password" type="password" autocomplete="current-password"
+                 maxlength="200" placeholder="••••••••">
+        </div>
+
+        <button class="btn btn--primary btn--block" type="submit">Войти</button>
+      </form>
+
+      <a class="login__back" href="/">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Вернуться на сайт
+      </a>
+    </div>
+  </section>
+</main>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/admin.js"></script>
+</body>
+</html>

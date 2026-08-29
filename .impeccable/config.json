@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-08-21T18:03:11.215Z",
+        "reason": "Montserrat - шрифт существующего сайта WOODWERK (assets/css/style.css, все публичные страницы). Админка использует ту же типографику намеренно, для единства с брендом; задача прямо требовала сохранить существующий дизайн."
+      }
+    ]
+  }
+}

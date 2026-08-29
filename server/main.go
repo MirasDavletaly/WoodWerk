@@ -1,97 +1,212 @@
-// Небольшой сервер для сайта WOODWERK.
+// Сервер сайта WOODWERK.
 //
-// Делает две вещи, которых не умеет статический хостинг вроде GitHub Pages:
-//   1. отдаёт заголовки безопасности (HSTS, X-Frame-Options, CSP и прочее);
-//   2. принимает заявки с форм на POST /api/lead и складывает их в JSONL.
+// Делает то, чего не умеет статический хостинг:
+//  1. отдаёт заголовки безопасности (HSTS, X-Frame-Options, CSP и прочее);
+//  2. принимает заявки с форм на POST /api/lead и складывает их в JSONL;
+//  3. хранит каталог панелей в SQLite и отдаёт его сайту через /api/…;
+//  4. поднимает админ-панель на /admin с авторизацией и загрузкой фотографий.
 //
-// Только стандартная библиотека, без зависимостей.
+// Запуск:
 //
-//	go run ./server -addr :8080 -dir .
+//	go run ./server -addr :8090 -dir .
+//
+// При первом запуске создаётся учётная запись администратора; логин и пароль
+// печатаются в журнал. Задать их заранее можно через ADMIN_USER и
+// ADMIN_PASSWORD или флаги -admin-user и -admin-pass.
 package main
 
 import (
+	"bufio"
 	"context"
-	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
-	"unicode"
 )
 
-const contentSecurityPolicy = "default-src 'self'; " +
-	"base-uri 'self'; " +
-	"object-src 'none'; " +
-	"script-src 'self'; " +
-	"style-src 'self' https://fonts.googleapis.com; " +
-	"font-src 'self' https://fonts.gstatic.com; " +
-	"img-src 'self' data:; " +
-	"frame-src https://yandex.ru https://*.yandex.ru; " +
-	"connect-src 'self'; " +
-	"form-action 'self'; " +
-	"frame-ancestors 'none'; " +
-	"upgrade-insecure-requests"
-
-// configJS подменяет assets/js/config.js: при работе через этот сервер
-// фронтенд должен слать заявки на /api/lead.
-const configJS = `/* Подставлено Go-сервером woodwerk. */
-window.WOODWERK = { leadEndpoint: "/api/lead" };
-`
-
 func main() {
-	addr := flag.String("addr", ":8080", "адрес и порт, например :8080")
+	// 8080 на рабочих машинах почти всегда занят Apache из XAMPP, OpenServer
+	// или PostgreSQL, поэтому по умолчанию берём порт, который свободен чаще.
+	addr := flag.String("addr", ":8090", "адрес и порт, например :8090")
 	dir := flag.String("dir", ".", "каталог с файлами сайта")
 	leadsPath := flag.String("leads", "leads.jsonl", "файл, куда дописываются заявки")
+	dbPath := flag.String("db", "data/woodwerk.db", "файл базы данных SQLite")
+	uploadsDir := flag.String("uploads", "uploads", "каталог для загруженных фотографий")
+	maxUpload := flag.Int("max-upload", 5, "предельный размер одной фотографии, МБ")
 	hsts := flag.Bool("hsts", false, "слать Strict-Transport-Security (только когда сайт реально за HTTPS)")
+	adminUser := flag.String("admin-user", "", "логин администратора (по умолчанию admin)")
+	adminPass := flag.String("admin-pass", "", "пароль администратора; на уже созданной учётной записи меняет пароль")
+	resetAdmin := flag.Bool("reset-admin", false, "вернуть пароль администратора к admin (если забыли свой)")
 	flag.Parse()
 
-	root, err := filepath.Abs(*dir)
+	root, err := resolveSiteDir(*dir)
 	if err != nil {
-		log.Fatalf("некорректный каталог: %v", err)
-	}
-	if _, err := os.Stat(filepath.Join(root, "index.html")); err != nil {
-		log.Fatalf("в каталоге %s нет index.html", root)
+		fatal("%v", err)
 	}
 
-	store, err := newLeadStore(*leadsPath)
-	if err != nil {
-		log.Fatalf("не открыть файл заявок: %v", err)
+	// Дальше все относительные пути считаем от каталога сайта, а не от того,
+	// откуда программу запустили: при двойном щелчке это разные места.
+	if err := os.Chdir(root); err != nil {
+		fatal("не перейти в каталог сайта: %v", err)
 	}
-	defer store.Close()
+
+	// ---------------------------------------------------------------- база
+
+	db, err := openDB(*dbPath)
+	if err != nil {
+		fatal("не открыть базу данных: %v", err)
+	}
+	defer db.Close()
+
+	store := NewStore(db)
+	if err := store.Seed(); err != nil {
+		fatal("не заполнить базу: %v", err)
+	}
+	usingDefault, err := ensureAdmin(store, *adminUser, *adminPass, *resetAdmin)
+	if err != nil {
+		fatal("не создать администратора: %v", err)
+	}
+	if err := store.CleanExpiredSessions(); err != nil {
+		logError(err)
+	}
+
+	uploads, err := NewUploads(*uploadsDir, *maxUpload)
+	if err != nil {
+		fatal("не создать каталог загрузок: %v", err)
+	}
+
+	leads, err := newLeadStore(*leadsPath)
+	if err != nil {
+		fatal("не открыть файл заявок: %v", err)
+	}
+	defer leads.Close()
+
+	// ---------------------------------------------------------------- маршруты
+
+	auth := NewAuth(store, *hsts)
+	api := &API{store: store, uploads: uploads, auth: auth, logins: newLimiter()}
+	api.setDefaultPassword(usingDefault)
+	site := NewSite(root, auth)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/lead", &leadHandler{store: store, limiter: newLimiter()})
-	mux.Handle("/", staticHandler(root))
+
+	// Заявки с форм — как и раньше.
+	mux.Handle("/api/lead", &leadHandler{store: leads, limiter: newLimiter()})
+
+	// Публичное API: только активные изделия, только чтение.
+	mux.HandleFunc("GET /api/products", api.publicProducts)
+	mux.HandleFunc("GET /api/products/{id}", api.publicProduct)
+	mux.HandleFunc("GET /api/categories", api.publicCategories)
+	mux.HandleFunc("GET /api/gallery", api.publicGallery)
+
+	// Вход и выход из админки.
+	mux.HandleFunc("POST /api/admin/login", api.login)
+	mux.HandleFunc("POST /api/admin/logout", api.logout)
+	mux.HandleFunc("GET /api/admin/session", api.session)
+
+	// Всё остальное в админке — только с действующей сессией.
+	admin := http.NewServeMux()
+	admin.HandleFunc("GET /api/admin/stats", api.stats)
+	admin.HandleFunc("GET /api/admin/products", api.adminProducts)
+	admin.HandleFunc("POST /api/admin/products", api.createProduct)
+	admin.HandleFunc("GET /api/admin/products/{id}", api.adminProduct)
+	admin.HandleFunc("PUT /api/admin/products/{id}", api.updateProduct)
+	admin.HandleFunc("DELETE /api/admin/products/{id}", api.deleteProduct)
+	admin.HandleFunc("PATCH /api/admin/products/{id}/status", api.setProductStatus)
+	admin.HandleFunc("GET /api/admin/categories", api.adminCategories)
+	admin.HandleFunc("POST /api/admin/categories", api.createCategory)
+	admin.HandleFunc("PUT /api/admin/categories/{id}", api.updateCategory)
+	admin.HandleFunc("DELETE /api/admin/categories/{id}", api.deleteCategory)
+	admin.HandleFunc("GET /api/admin/gallery", api.adminGallery)
+	admin.HandleFunc("POST /api/admin/gallery", api.createGalleryItem)
+	admin.HandleFunc("PUT /api/admin/gallery/{id}", api.updateGalleryItem)
+	admin.HandleFunc("DELETE /api/admin/gallery/{id}", api.deleteGalleryItem)
+	admin.HandleFunc("POST /api/admin/gallery/reorder", api.reorderGallery)
+	admin.HandleFunc("POST /api/admin/upload", api.upload)
+	admin.HandleFunc("POST /api/admin/upload/delete", api.deleteUpload)
+	admin.HandleFunc("POST /api/admin/password", api.changePassword)
+	admin.HandleFunc("POST /api/admin/username", api.changeUsername)
+	mux.Handle("/api/admin/", auth.Protect(admin))
+
+	// Загруженные фотографии.
+	mux.Handle("GET /uploads/", uploads.Handler())
+
+	// Страницы админ-панели.
+	mux.HandleFunc("GET /admin", site.LoginPage("admin/index.html"))
+	mux.HandleFunc("GET /admin/dashboard", site.AdminPage("admin/dashboard.html"))
+	mux.HandleFunc("GET /admin/products", site.AdminPage("admin/products.html"))
+	mux.HandleFunc("GET /admin/products/new", site.AdminPage("admin/product-form.html"))
+	mux.HandleFunc("GET /admin/products/{id}/edit", site.AdminPage("admin/product-form.html"))
+	mux.HandleFunc("GET /admin/categories", site.AdminPage("admin/categories.html"))
+	mux.HandleFunc("GET /admin/gallery", site.AdminPage("admin/gallery.html"))
+	mux.HandleFunc("GET /admin/settings", site.AdminPage("admin/settings.html"))
+
+	// Публичные страницы с «красивыми» адресами.
+	mux.HandleFunc("GET /catalog", site.Page("catalog.html"))
+	mux.HandleFunc("GET /product/{id}", site.Page("product.html"))
+
+	// Остальные страницы тоже без .html. Раньше красивый адрес был только
+	// у каталога и карточки: /about отдавал 404, хотя /catalog работал.
+	// Ссылка из письма или визитки чаще выглядит как /contacts.
+	for _, name := range []string{
+		"about", "delivery", "contacts", "partnership", "privacy", "sitemap",
+	} {
+		mux.HandleFunc("GET /"+name, site.Page(name+".html"))
+	}
+
+	mux.Handle("/", site)
+
+	// ---------------------------------------------------------------- запуск
 
 	srv := &http.Server{
 		Addr:              *addr,
-		Handler:           securityHeaders(*hsts, logRequests(mux)),
+		Handler:           securityHeaders(*hsts, logRequests(gzipResponses(mux))),
 		ReadHeaderTimeout: 10 * time.Second,
-		ReadTimeout:       20 * time.Second,
-		WriteTimeout:      30 * time.Second,
+		ReadTimeout:       120 * time.Second, // загрузка фотографий бывает долгой
+		WriteTimeout:      120 * time.Second,
 		IdleTimeout:       90 * time.Second,
 	}
 
+	// Раз в час подчищаем просроченные сессии.
+	stopCleaner := make(chan struct{})
+	go func() {
+		t := time.NewTicker(time.Hour)
+		defer t.Stop()
+		for {
+			select {
+			case <-t.C:
+				logError(store.CleanExpiredSessions())
+			case <-stopCleaner:
+				return
+			}
+		}
+	}()
+
 	go func() {
 		log.Printf("WOODWERK: слушаю %s, каталог %s", *addr, root)
+		log.Printf("база данных: %s", *dbPath)
+		log.Printf("фотографии: %s", *uploadsDir)
 		log.Printf("заявки пишутся в %s", *leadsPath)
+		log.Printf("админ-панель: /admin")
+		go warnIfPortHijacked(*addr)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("сервер упал: %v", err)
+			fatal("сервер упал: %v", err)
 		}
 	}()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
+	close(stopCleaner)
 
 	log.Println("останавливаюсь…")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -101,272 +216,205 @@ func main() {
 	}
 }
 
-// ---------------------------------------------------------------- статика
-
-func staticHandler(root string) http.Handler {
-	files := http.FileServer(http.Dir(root))
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		clean := path.Clean("/" + r.URL.Path)
-
-		// Конфиг фронтенда отдаём свой, с включённым эндпоинтом.
-		if clean == "/assets/js/config.js" {
-			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-			w.Header().Set("Cache-Control", "no-store")
-			_, _ = w.Write([]byte(configJS))
-			return
+// resolveSiteDir находит каталог сайта — тот, где лежит index.html.
+//
+// Если каталог задали флагом -dir, берём только его. Иначе смотрим текущую
+// папку, а потом поднимаемся вверх от самой программы: при запуске двойным
+// щелчком рабочей папкой оказывается server/build, и сайт надо ещё найти.
+func resolveSiteDir(dir string) (string, error) {
+	explicit := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "dir" {
+			explicit = true
 		}
+	})
 
-		// Прячем то, что не должно быть доступно снаружи.
-		for _, part := range strings.Split(clean, "/") {
-			if strings.HasPrefix(part, ".") && part != "." && part != ".well-known" {
-				http.NotFound(w, r)
-				return
+	var tried []string
+	look := func(path string) (string, bool) {
+		abs, err := filepath.Abs(path)
+		if err != nil {
+			return "", false
+		}
+		tried = append(tried, abs)
+		if _, err := os.Stat(filepath.Join(abs, "index.html")); err == nil {
+			return abs, true
+		}
+		return "", false
+	}
+
+	if found, ok := look(dir); ok {
+		return found, nil
+	}
+	if explicit {
+		return "", fmt.Errorf("в каталоге %s нет index.html — это не папка сайта", tried[0])
+	}
+
+	// Поднимаемся от программы вверх: build -> server -> корень проекта.
+	if exe, err := os.Executable(); err == nil {
+		d := filepath.Dir(exe)
+		for i := 0; i < 6; i++ {
+			if found, ok := look(d); ok {
+				return found, nil
 			}
-		}
-		switch strings.ToLower(filepath.Ext(clean)) {
-		case ".md", ".py", ".go", ".mod", ".log", ".bak":
-			http.NotFound(w, r)
-			return
-		}
-
-		if strings.HasSuffix(clean, ".html") || clean == "/" {
-			w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-		} else if strings.HasPrefix(clean, "/assets/") {
-			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		}
-
-		files.ServeHTTP(w, r)
-	})
-}
-
-// ---------------------------------------------------------------- заголовки
-
-func securityHeaders(hsts bool, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h := w.Header()
-		h.Set("Content-Security-Policy", contentSecurityPolicy)
-		h.Set("X-Content-Type-Options", "nosniff")
-		h.Set("X-Frame-Options", "DENY")
-		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
-		h.Set("Permissions-Policy", "accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()")
-		h.Set("Cross-Origin-Opener-Policy", "same-origin")
-		h.Set("X-Permitted-Cross-Domain-Policies", "none")
-		if hsts {
-			h.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-func logRequests(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
-		next.ServeHTTP(rec, r)
-		log.Printf("%s %s %d %s", r.Method, r.URL.Path, rec.status, time.Since(start).Round(time.Millisecond))
-	})
-}
-
-type statusRecorder struct {
-	http.ResponseWriter
-	status int
-}
-
-func (s *statusRecorder) WriteHeader(code int) {
-	s.status = code
-	s.ResponseWriter.WriteHeader(code)
-}
-
-// ---------------------------------------------------------------- заявки
-
-type lead struct {
-	Name    string `json:"name"`
-	Phone   string `json:"phone"`
-	Type    string `json:"type,omitempty"`
-	Comment string `json:"comment,omitempty"`
-	Company string `json:"company,omitempty"` // honeypot: у человека всегда пусто
-}
-
-type storedLead struct {
-	lead
-	At        string `json:"at"`
-	IP        string `json:"ip"`
-	UserAgent string `json:"user_agent"`
-}
-
-type leadStore struct {
-	mu sync.Mutex
-	f  *os.File
-}
-
-func newLeadStore(path string) (*leadStore, error) {
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
-	if err != nil {
-		return nil, err
-	}
-	return &leadStore{f: f}, nil
-}
-
-func (s *leadStore) Append(item storedLead) error {
-	line, err := json.Marshal(item)
-	if err != nil {
-		return err
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if _, err := s.f.Write(append(line, '\n')); err != nil {
-		return err
-	}
-	return s.f.Sync()
-}
-
-func (s *leadStore) Close() error { return s.f.Close() }
-
-type leadHandler struct {
-	store   *leadStore
-	limiter *limiter
-}
-
-func (h *leadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{"ok": false, "error": "только POST"})
-		return
-	}
-	if ct := r.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
-		writeJSON(w, http.StatusUnsupportedMediaType, map[string]any{"ok": false, "error": "нужен application/json"})
-		return
-	}
-
-	ip := clientIP(r)
-	if !h.limiter.allow(ip, 5, 10*time.Minute) {
-		writeJSON(w, http.StatusTooManyRequests, map[string]any{"ok": false, "error": "слишком много заявок, попробуйте позже"})
-		return
-	}
-
-	var in lead
-	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10))
-	if err := dec.Decode(&in); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "некорректный JSON"})
-		return
-	}
-
-	// Ловушка для ботов: поле скрыто от людей, заполнить его может только скрипт.
-	// Отвечаем как при успехе, чтобы бот не понял, что его отсеяли.
-	if strings.TrimSpace(in.Company) != "" {
-		log.Printf("honeypot сработал, ip=%s", ip)
-		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
-		return
-	}
-
-	in.Name = clean(in.Name, 80)
-	in.Phone = clean(in.Phone, 32)
-	in.Type = clean(in.Type, 80)
-	in.Comment = clean(in.Comment, 1000)
-
-	if n := len([]rune(in.Name)); n < 2 || n > 80 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "проверьте имя"})
-		return
-	}
-	if digitsOnly(in.Phone) != 11 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "проверьте телефон"})
-		return
-	}
-
-	item := storedLead{
-		lead:      lead{Name: in.Name, Phone: in.Phone, Type: in.Type, Comment: in.Comment},
-		At:        time.Now().Format(time.RFC3339),
-		IP:        ip,
-		UserAgent: clean(r.UserAgent(), 200),
-	}
-	if err := h.store.Append(item); err != nil {
-		log.Printf("не записать заявку: %v", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "error": "внутренняя ошибка"})
-		return
-	}
-
-	log.Printf("новая заявка: %s, %s", item.Name, item.Phone)
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
-}
-
-// clean убирает управляющие символы и режет строку до максимума рун.
-func clean(s string, max int) string {
-	s = strings.Map(func(r rune) rune {
-		if unicode.IsControl(r) {
-			return ' '
-		}
-		return r
-	}, s)
-	s = strings.TrimSpace(s)
-	if r := []rune(s); len(r) > max {
-		s = string(r[:max])
-	}
-	return s
-}
-
-func digitsOnly(s string) int {
-	n := 0
-	for _, r := range s {
-		if unicode.IsDigit(r) {
-			n++
-		}
-	}
-	return n
-}
-
-func writeJSON(w http.ResponseWriter, code int, body any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(code)
-	_ = json.NewEncoder(w).Encode(body)
-}
-
-func clientIP(r *http.Request) string {
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-	return host
-}
-
-// ---------------------------------------------------------------- лимит частоты
-
-type limiter struct {
-	mu   sync.Mutex
-	hits map[string][]time.Time
-}
-
-func newLimiter() *limiter {
-	return &limiter{hits: make(map[string][]time.Time)}
-}
-
-// allow пропускает не больше max обращений с одного адреса за window.
-func (l *limiter) allow(key string, max int, window time.Duration) bool {
-	now := time.Now()
-	cutoff := now.Add(-window)
-
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	// Заодно подчищаем протухшие записи, чтобы карта не росла бесконечно.
-	for k, times := range l.hits {
-		kept := times[:0]
-		for _, t := range times {
-			if t.After(cutoff) {
-				kept = append(kept, t)
+			parent := filepath.Dir(d)
+			if parent == d {
+				break
 			}
+			d = parent
 		}
-		if len(kept) == 0 {
-			delete(l.hits, k)
+	}
+
+	return "", fmt.Errorf("не нашёл файлы сайта — папку с index.html.\nИскал здесь:\n  %s\n"+
+		"Положите программу внутрь папки сайта или укажите её флагом -dir",
+		strings.Join(tried, "\n  "))
+}
+
+// warnIfPortHijacked проверяет, что по нашему адресу отвечаем действительно мы.
+//
+// Windows разрешает занять один порт дважды, если адреса привязки разные:
+// например Apache слушает 127.0.0.1:8080, а мы — все интерфейсы. Привязка
+// проходит без ошибки, но запросы из браузера достаются чужой программе,
+// и человек видит её страницу «404 Not Found», не понимая, что случилось.
+func warnIfPortHijacked(addr string) {
+	time.Sleep(700 * time.Millisecond)
+
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return
+	}
+	if host == "" || host == "0.0.0.0" || host == "[::]" {
+		host = "127.0.0.1"
+	}
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("http://" + net.JoinHostPort(host, port) + "/api/categories")
+	if err != nil {
+		return // сеть недоступна — молчим, это не наш случай
+	}
+	defer resp.Body.Close()
+
+	// Читаем ответ целиком: ключи в JSON идут по алфавиту, поэтому "ok"
+	// стоит после списка категорий — в первые сотни байт он не попадает.
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err == nil && resp.StatusCode == http.StatusOK && strings.Contains(string(body), `"ok":true`) {
+		return // отвечаем мы, всё в порядке
+	}
+
+	log.Printf("")
+	log.Printf("ВНИМАНИЕ: порт %s занят другой программой — она и отвечает браузеру.", port)
+	log.Printf("Обычно это Apache из XAMPP, OpenServer или PostgreSQL.")
+	log.Printf("Запустите сервер на свободном порту, например:")
+	log.Printf("    woodwerk-windows-amd64.exe -addr :8090")
+	log.Printf("и откройте http://127.0.0.1:8090/admin")
+	log.Printf("")
+}
+
+// fatal печатает ошибку и не даёт окну закрыться, пока её не прочитают:
+// при запуске двойным щелчком иначе видно только вспышку.
+func fatal(format string, args ...any) {
+	log.Printf(format, args...)
+	waitForEnter()
+	os.Exit(1)
+}
+
+// waitForEnter ждёт Enter, только если программа работает в живой консоли.
+// Под systemd и при перенаправлении вывода ждать нельзя — сервис зависнет.
+func waitForEnter() {
+	info, err := os.Stdin.Stat()
+	if err != nil || info.Mode()&os.ModeCharDevice == 0 {
+		return
+	}
+	fmt.Fprint(os.Stderr, "\nНажмите Enter, чтобы закрыть окно.\n")
+	_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+}
+
+// defaultAdminLogin и defaultAdminPassword — то, с чем панель открывается
+// сразу после установки. Пароль умышленно простой, чтобы владелец не искал
+// его в журнале; панель будет напоминать, что его надо сменить.
+const (
+	defaultAdminLogin    = "admin"
+	defaultAdminPassword = "admin"
+)
+
+// ensureAdmin создаёт учётную запись при первом запуске и сообщает,
+// стоит ли на ней пароль по умолчанию. Пароля нет и не может быть
+// в коде фронтенда — он живёт только в базе, и только в виде хеша.
+func ensureAdmin(store *Store, username, password string, reset bool) (bool, error) {
+	if username == "" {
+		username = os.Getenv("ADMIN_USER")
+	}
+	if password == "" {
+		password = os.Getenv("ADMIN_PASSWORD")
+	}
+	username = strings.TrimSpace(username)
+	if username == "" {
+		username = defaultAdminLogin
+	}
+
+	// Пароль задали явно — он и главнее, и требования к нему строже.
+	if password != "" && len([]rune(password)) < 8 {
+		return false, errors.New("пароль администратора должен быть не короче 8 символов")
+	}
+
+	user, _, err := store.UserByName(username)
+	switch {
+	case errors.Is(err, ErrNotFound):
+		pass := password
+		if pass == "" {
+			pass = defaultAdminPassword
+		}
+		if _, err := store.CreateUser(username, pass); err != nil {
+			return false, err
+		}
+		if pass == defaultAdminPassword {
+			log.Printf("создана учётная запись администратора: логин %q, пароль %q",
+				username, pass)
+			warnDefaultPassword()
 		} else {
-			l.hits[k] = kept
+			// Свой пароль в журнал не пишем: journalctl читают не только вы.
+			log.Printf("создана учётная запись администратора: логин %q, пароль задан при запуске",
+				username)
 		}
+		return pass == defaultAdminPassword, nil
+
+	case err != nil:
+		return false, err
 	}
 
-	if len(l.hits[key]) >= max {
-		return false
+	// Учётная запись уже есть.
+	switch {
+	case password != "":
+		if err := store.SetPassword(user.ID, password); err != nil {
+			return false, err
+		}
+		log.Printf("пароль администратора %q обновлён из настроек запуска", username)
+		return false, nil
+
+	case reset:
+		if err := store.SetPassword(user.ID, defaultAdminPassword); err != nil {
+			return false, err
+		}
+		log.Printf("пароль администратора %q сброшен к %q", username, defaultAdminPassword)
+		warnDefaultPassword()
+		return true, nil
 	}
-	l.hits[key] = append(l.hits[key], now)
-	return true
+
+	// Пароль не трогаем, но проверяем, не остался ли он стандартным.
+	_, hash, err := store.UserByName(username)
+	if err != nil {
+		return false, err
+	}
+	if verifyPassword(defaultAdminPassword, hash) {
+		warnDefaultPassword()
+		return true, nil
+	}
+	return false, nil
+}
+
+func warnDefaultPassword() {
+	log.Printf("")
+	log.Printf("ВНИМАНИЕ: у админ-панели стандартный пароль admin/admin.")
+	log.Printf("Пока он не изменён, войти может кто угодно, кто знает адрес /admin.")
+	log.Printf("Смените его в панели: Настройки -> Смена пароля.")
+	log.Printf("")
 }

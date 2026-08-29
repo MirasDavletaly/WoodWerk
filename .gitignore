@@ -21,3 +21,18 @@ _t*.html
 leads.jsonl
 server/server
 server/server.exe
+server/build/
+
+# База данных и загруженные фотографии — это данные, а не код
+data/
+uploads/
+*.db
+*.db-shm
+*.db-wal
+
+# Кеш дизайн-детектора — машинный, в репозиторий не нужен
+.impeccable/hook.cache.json
+
+# Кеш Python от инструментов перевода
+__pycache__/
+*.pyc
