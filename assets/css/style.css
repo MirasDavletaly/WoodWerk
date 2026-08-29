@@ -51,8 +51,7 @@
   --radius-lg: 2px;
 
   /* Прочее */
-  --header-h: 76px;
-  --nav-h: 50px;
+  --header-h: 72px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   /* Тени ослаблены почти до нуля: воздух и линии вместо подложек. */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -180,19 +179,22 @@ main:focus { outline: none; }
 
 .container--narrow { max-width: 940px; }
 
-.section { padding: clamp(64px, 8vw, 132px) 0; }
-.section--tight { padding: clamp(48px, 5vw, 84px) 0; }
+.section { padding: clamp(80px, 9vw, 140px) 0; }
+.section--tight { padding: clamp(56px, 6vw, 96px) 0; }
 .section--dark { background: var(--dark); color: rgba(255, 255, 255, 0.7); }
 .section--dark h2,
 .section--dark h3 { color: #fff; }
 .section--alt { background: var(--bg-alt); }
 
-.section--dark .section-title b { font-weight: 600; }
+.section-title b { font-weight: 500; }
+.section--dark .section-title b,
+.section--black .section-title b { font-weight: 400; }
 
 .section-lead {
-  margin-top: 20px;
+  margin-top: 22px;
   max-width: 620px;
-  font-size: 16px;
+  font-size: 17px;
+  line-height: 1.8;
   color: var(--muted);
 }
 .section--dark .section-lead { color: rgba(255, 255, 255, 0.55); }
@@ -203,7 +205,7 @@ main:focus { outline: none; }
   justify-content: space-between;
   gap: 32px;
   flex-wrap: wrap;
-  margin-bottom: clamp(32px, 4vw, 56px);
+  margin-bottom: clamp(40px, 5vw, 72px);
 }
 .section-head--center {
   flex-direction: column;
@@ -217,178 +219,214 @@ main:focus { outline: none; }
 /* --------------------------------------------------------------------------
    3. Кнопки
    -------------------------------------------------------------------------- */
+/* Кнопки прямоугольные, без теней и подъёма при наведении: единственное
+   действие ховера — инверсия заливки и рамки. Резких движений в этой
+   стилистике быть не должно. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 17px 34px;
-  font-size: 12px;
+  padding: 18px 40px;
+  font-size: var(--fs-micro);
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--tr-micro);
   text-transform: uppercase;
   border: 1px solid transparent;
   border-radius: var(--radius);
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all 0.32s var(--ease);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease),
+              border-color 0.3s var(--ease);
   white-space: nowrap;
 }
 
 .btn--primary {
   background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
 }
 .btn--primary:hover {
-  background: var(--accent-h);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.20);
+  background: transparent;
+  color: var(--ink);
 }
 
-.btn--dark { background: var(--ink); color: #fff; }
-.btn--dark:hover { background: var(--accent); transform: translateY(-2px); }
+.btn--dark { background: var(--ink); border-color: var(--ink); color: #fff; }
+.btn--dark:hover { background: transparent; color: var(--ink); }
 
+/* Поверх фотографии: рамка достаточно плотная, чтобы читаться на любом кадре */
 .btn--ghost {
-  border-color: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.7);
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 .btn--ghost:hover { background: #fff; color: var(--ink); border-color: #fff; }
 
-.btn--outline { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn--outline { border-color: var(--ink); color: var(--ink); background: transparent; }
 .btn--outline:hover { border-color: var(--ink); background: var(--ink); color: #fff; }
 
 .btn--block { width: 100%; }
-.btn--sm { padding: 13px 24px; font-size: 11px; }
+.btn--sm { padding: 14px 26px; font-size: 10.5px; }
 
 .link-more {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  gap: 12px;
+  padding-bottom: 6px;
+  font-size: var(--fs-micro);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--tr-micro);
   text-transform: uppercase;
   color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  transition: border-color 0.3s var(--ease);
 }
 .link-more svg { transition: transform 0.3s var(--ease); }
-.link-more:hover { color: var(--accent); }
+.link-more:hover { border-bottom-color: var(--ink); }
 .link-more:hover svg { transform: translateX(6px); }
+.section--dark .link-more,
+.section--black .link-more,
+.footer .link-more { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.22); }
+.section--dark .link-more:hover,
+.section--black .link-more:hover,
+.footer .link-more:hover { border-bottom-color: #fff; }
 
 /* --------------------------------------------------------------------------
-   4. Верхняя строка, шапка, полоса меню
+   4. Шапка
+   Одна строка вместо трёх ярусов. Верхняя строка удалена целиком: часы,
+   адрес и почта из неё дословно повторялись в подвале, а переключатель
+   языков переехал в правую группу. Полоса меню перестала быть отдельным
+   ярусом — пункты встали на ту же линию, что логотип и контакты.
    -------------------------------------------------------------------------- */
-.topbar {
-  background: var(--bg-alt);
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
   border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 12.5px;
+  transition: box-shadow 0.3s var(--ease);
 }
-.topbar__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  min-height: 38px;
-}
-.topbar__right { display: flex; align-items: center; gap: 24px; }
-.topbar a:hover { color: var(--accent); }
-
-/* --- белая строка с логотипом --- */
-.header { position: relative; z-index: 50; background: var(--white); }
-.header__bar { border-bottom: 1px solid var(--line); }
+/* Шапка идёт от края до края окна, содержимое ниже остаётся в колодце 1320.
+   Тонкая полоса во всю ширину держит воздух лучше, чем центрированная. */
 .header__inner {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: clamp(12px, 1.5vw, 30px);
   min-height: var(--header-h);
+  padding: 0 clamp(18px, 2.6vw, 48px);
 }
+/* Единственный отклик на прокрутку — волосяная тень под линией. */
+.header.is-stuck { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06); }
 
 .logo { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.logo__mark { width: 42px; height: 42px; border-radius: 10px; }
+.logo__mark { width: 38px; height: 38px; }
 .logo__text { display: flex; flex-direction: column; line-height: 1; }
 .logo__name {
-  font-size: 21px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
   color: var(--ink);
   text-transform: uppercase;
 }
 .logo__tag {
   margin-top: 5px;
-  font-size: 9px;
+  font-size: 8.5px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
+/* --- меню в той же строке --- */
+/* auto-поля с обеих сторон ставят меню по центру шапки и одновременно
+   отжимают правую группу к краю: отдельный margin-left: auto не нужен. */
+.navbar { margin: 0 auto; min-width: 0; }
+.navbar__list { display: flex; align-items: center; }
+.navbar__item { position: static; display: flex; }
+.navbar__link {
+  --pad: clamp(6px, 0.75vw, 15px);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--header-h);
+  padding: 0 var(--pad);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition: color 0.3s var(--ease);
+}
+/* Подчёркивание растёт из центра — вместо заливки, которой держался
+   старый пункт меню на цветной полосе. */
+.navbar__link::after {
+  content: "";
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: 24px;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transition: transform 0.3s var(--ease);
+}
+.navbar__link:hover { color: var(--ink); }
+.navbar__link:hover::after { transform: scaleX(1); }
+.navbar__item--catalog .navbar__link { font-weight: 600; color: var(--ink); }
+/* Меню сплошь текстовое: иконка у «Каталога» выбивалась из строки */
+.navbar__item--catalog .navbar__link > svg { display: none; }
+.navbar__item.is-active .navbar__link { color: var(--ink); }
+.navbar__item.is-active .navbar__link::after { transform: scaleX(1); }
+
+/* --- правая группа --- */
 .header__actions {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: clamp(8px, 1vw, 18px);
+  flex-shrink: 0;
+}
+
+/* Переключатель языков в шапке — без рамки и заливки, чтобы не утяжелять
+   полосу; в мобильном меню он остаётся кнопочным. */
+.header__actions .lang {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  gap: 0;
+}
+.header__actions .lang__btn { padding: 6px 7px; font-size: 10px; }
+.header__actions .lang__btn.is-active {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 -1px 0 var(--ink);
 }
 
 /* Кнопка звонка. На широком экране не нужна: рядом стоит номер целиком
    и кнопка заявки. Появляется там, где их прячут. */
 .header__call { display: none; }
-.header__socials { display: flex; gap: 8px; }
+.header__socials { display: flex; gap: 6px; }
 .header__socials a {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   border: 1px solid var(--line);
-  color: var(--muted);
-  transition: all 0.25s var(--ease);
+  color: var(--ink-soft);
+  transition: background 0.3s var(--ease), border-color 0.3s var(--ease),
+              color 0.3s var(--ease);
 }
-.header__socials a:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+.header__socials a:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
 .header__phone {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--ink);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-.header__phone:hover { color: var(--accent); }
-
-/* --- полоса меню --- */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 45;
-  background: var(--nav);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
-}
-.navbar__inner { display: flex; }
-.navbar__list { display: flex; align-items: stretch; width: 100%; }
-.navbar__item { position: static; display: flex; }
-.navbar__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  height: var(--nav-h);
-  padding: 0 18px;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--nav-ink);
-  white-space: nowrap;
-  transition: background 0.25s var(--ease);
-}
-.navbar__link:hover { background: rgba(0, 0, 0, 0.14); color: var(--nav-ink); }
-.navbar__item--catalog .navbar__link {
-  background: var(--nav-active);
-  font-weight: 600;
-  padding-right: 24px;
-}
-/* Пункт «Каталог» утоплен в полосу, поэтому при наведении он светлеет.
-   Затемнение здесь увело бы тёмный текст ниже нормы контраста. */
-.navbar__item--catalog .navbar__link:hover { background: var(--nav-active-h); }
-.navbar__item.is-active .navbar__link { background: rgba(0, 0, 0, 0.18); }
+.header__phone:hover { color: var(--muted); }
 
 /* --- мегаменю --- */
 .mega {
@@ -421,12 +459,12 @@ main:focus { outline: none; }
   margin: 0 auto;
 }
 .mega__title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: var(--tr-micro);
   text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 18px;
+  color: var(--muted);
+  margin-bottom: 20px;
 }
 .mega__links li + li { margin-top: 11px; }
 .mega__links a {
@@ -442,17 +480,16 @@ main:focus { outline: none; }
   content: "";
   width: 14px;
   height: 1px;
-  background: var(--accent);
+  background: var(--ink);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s var(--ease);
 }
-.mega__links a:hover { color: var(--accent); }
+.mega__links a:hover { color: var(--ink); }
 .mega__links a:hover::before { transform: scaleX(1); }
 
 .mega__promo {
   position: relative;
-  border-radius: var(--radius-lg);
   overflow: hidden;
   min-height: 220px;
   display: flex;
@@ -1869,37 +1906,70 @@ form.is-hidden { display: none; }
   .section { padding: clamp(56px, 6vw, 88px) 0; }
 }
 
-@media (max-width: 1180px) {
+/* Лестница сокращений шапки. Меню из семи пунктов в одну строку с логотипом
+   и контактами целиком помещается только на очень широком экране, поэтому
+   элементы уходят по одному, от наименее нужного к самому нужному. */
+@media (max-width: 1700px) {
   .navbar__item--optional { display: none; }
   .mega__promo { display: none; }
   .mega__inner { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* --- Планшет --- */
-@media (max-width: 1024px) {
-  :root { --header-h: 66px; }
-  .navbar, .topbar { display: none; }
-  .header { position: sticky; top: 0; }
-  .header__socials, .header__cta { display: none; }
-  .burger { display: flex; }
+@media (max-width: 1450px) {
+  /* Соцсети остаются в подвале и в мобильном меню */
+  .header__socials { display: none; }
+}
 
-  /* Единственное действие, доступное в шапке телефона, не открывая меню.
-     Для цеха звонок — главный способ связи, прятать его в меню нельзя. */
+@media (max-width: 1400px) {
+  /* Меню поджимается раньше, чем начинает выпадать: так дольше сохраняются
+     и номер телефона, и кнопка заявки. */
+  .navbar__link { font-size: 10.5px; letter-spacing: 0.06em; }
+}
+
+@media (max-width: 1330px) {
+  /* «Ассортимент» — якорь внутри «О компании», в меню дублируется */
+  .navbar__item--optional2 { display: none; }
+}
+
+@media (max-width: 1200px) {
+  /* Номер целиком уступает место круглой кнопке звонка */
+  .header__phone { display: none; }
   .header__call {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: 1px solid var(--line);
     border-radius: 50%;
-    color: var(--accent);
+    color: var(--ink);
     background: var(--white);
     transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
   }
-  .header__call:active { background: var(--accent-soft); border-color: var(--accent); }
+  .header__call:active { background: var(--accent-soft); border-color: var(--ink); }
+}
+
+/* --- Планшет --- */
+/* Ниже этой ширины строка перестаёт вмещать меню без ущерба контактам,
+   поэтому навигация целиком уходит в бургер — там она полная, вместе
+   с языками, телефоном, соцсетями и кнопкой заявки. */
+@media (max-width: 1150px) {
+  :root { --header-h: 66px; }
+  .navbar { display: none; }
+  /* Языки уезжают в мобильное меню, где для них полноценные тач-цели.
+     Кнопка заявки остаётся: места после ухода меню хватает с запасом. */
+  .header__actions .lang { display: none; }
+  .burger { display: flex; }
+
+  /* Единственное действие, доступное в шапке телефона, не открывая меню.
+     Для цеха звонок — главный способ связи, прятать его в меню нельзя. */
+  .header__call { width: 44px; height: 44px; }
   .header__inner { gap: 14px; }
   .logo { margin-right: auto; }
+}
+
+@media (max-width: 1024px) {
+  .header__cta { display: none; }
 
   .usp__grid { grid-template-columns: repeat(2, 1fr); }
   .usp__item:nth-child(2n) { border-right: 0; }
@@ -2090,8 +2160,8 @@ form.is-hidden { display: none; }
 .section-foot { margin-top: clamp(32px, 4vw, 52px); text-align: center; }
 
 /* Белая кнопка на тёмном фоне */
-.btn--light { background: #fff; color: var(--ink); }
-.btn--light:hover { background: var(--accent); color: #fff; transform: translateY(-2px); }
+.btn--light { background: #fff; border-color: #fff; color: var(--ink); }
+.btn--light:hover { background: transparent; color: #fff; }
 
 /* Счётчики в тексте блока «о компании» */
 .stat-row--inline {
@@ -2171,7 +2241,7 @@ form.is-hidden { display: none; }
 /* Тач-цели не меньше 44px */
 .filter-opt { min-height: 44px; }
 .filter-opt input { width: 18px; height: 18px; }
-.topbar a, .footer__links a, .mega__links a { display: inline-flex; align-items: center; }
+.footer__links a, .mega__links a { display: inline-flex; align-items: center; }
 
 @media (max-width: 1024px) {
   .filters { padding: 0; border: 0; background: transparent; }
@@ -2223,7 +2293,6 @@ form.is-hidden { display: none; }
   .footer__legal a,
   .footer__bottom a,
   .footer__contact a,
-  .topbar a { display: inline-flex; align-items: center; min-height: 40px; }
   .footer__legal { gap: 4px 22px; }
 
   /* Ссылка «Показать всё» и подобные внутри списков */

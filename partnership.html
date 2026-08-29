@@ -20,31 +20,14 @@
 </head>
 <body>
 <a class="skip-link" href="#main" data-i18n="t2b0acf6fbd">Перейти к содержимому</a>
-<!-- ====================== ВЕРХНЯЯ СТРОКА ====================== -->
-<div class="topbar">
-  <div class="container topbar__inner">
-    <span class="topbar__item topbar__item--hours" data-i18n="t431a242915">Пн–Пт 9:00–20:00, Сб 10:00–18:00 (Астана)</span>
-    <span class="topbar__right">
-      <a href="contacts.html" class="topbar__item" data-i18n="t5db232df6f">Астана, ул. Шугыла 23/2</a>
-      <a href="mailto:info@woodwerk.ru" class="topbar__item topbar__item--mail" data-i18n="t844a1eadf4">info@woodwerk.ru</a>
-      <span class="lang" role="group" aria-label="Язык сайта" data-i18n-ignore data-i18n-aria-label="tf17492a748">
-        <button class="lang__btn" type="button" data-lang="ru" aria-pressed="true">Рус</button>
-        <button class="lang__btn" type="button" data-lang="kk" aria-pressed="false">Қаз</button>
-        <button class="lang__btn" type="button" data-lang="en" aria-pressed="false">Eng</button>
-      </span>
-    </span>
-  </div>
-</div>
-
 <!-- ====================== ШАПКА ====================== -->
 <header class="header">
-  <div class="header__bar">
-    <div class="container header__inner">
-      <button class="burger" type="button" aria-label="Меню" aria-expanded="false" data-i18n-aria-label="tdd904bebd6">
+  <div class="header__inner">
+    <button class="burger" type="button" aria-label="Меню" aria-expanded="false" data-i18n-aria-label="tdd904bebd6">
         <span></span><span></span><span></span>
       </button>
 
-      <a href="index.html" class="logo">
+    <a href="index.html" class="logo">
         <img src="assets/img/logo.svg" alt="WOODWERK" class="logo__mark" width="42" height="42" data-i18n-alt="t84fd58f986">
         <span class="logo__text">
           <span class="logo__name" data-i18n="tfb8b76eb9c">Woodwerk</span>
@@ -52,8 +35,70 @@
         </span>
       </a>
 
-      <div class="header__actions">
-        <span class="header__socials">
+    <nav class="navbar">
+      <ul class="navbar__list">
+          <li class="navbar__item navbar__item--catalog">
+            <a href="catalog.html" class="navbar__link">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              <span data-i18n="t46e27e2f0a">Каталог</span>
+            </a>
+            <div class="mega">
+              <div class="mega__inner">
+                <div>
+                  <div class="mega__title" data-i18n="t37dde7f3c7">Фактуры</div>
+                  <ul class="mega__links">
+                    <li><a href="catalog.html?cat=wood" data-i18n="t82d616a9a5">Под дерево</a></li>
+                    <li><a href="catalog.html?cat=fabric" data-i18n="t6f02c99ba2">Ткань</a></li>
+                    <li><a href="catalog.html?cat=stone" data-i18n="t419c23d8d8">Под камень</a></li>
+                    <li><a href="catalog.html?cat=leather" data-i18n="t9bc1734a8d">Кожа</a></li>
+                    <li><a href="catalog.html?cat=metal" data-i18n="tf6e79f6e18">Металл</a></li>
+                    <li><a href="catalog.html?cat=plaster" data-i18n="tef16223536">Штукатурка</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="mega__title" data-i18n="t1888d4d9c5">Серии</div>
+                  <ul class="mega__links">
+                    <li><a href="catalog.html?cat=sale" data-i18n="tb45e3d768b">Акция</a></li>
+                    <li><a href="catalog.html?cat=matte" data-i18n="t984c80078d">Матовые</a></li>
+                    <li><a href="catalog.html?cat=slats" data-i18n="te123e14ed4">Декоративные рейки</a></li>
+                    <li><a href="catalog.html?cat=budget" data-i18n="tb8aa9ee3f3">Бюджетная серия</a></li>
+                    <li><a href="catalog.html" data-i18n="t2c2354e7ec">Весь каталог</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="mega__title" data-i18n="t6278a9f6ff">Размер панели</div>
+                  <ul class="mega__links">
+                    <li><a href="catalog.html?size=2800x1220" data-i18n="tba28529da0">2800×1220×5 мм</a></li>
+                    <li><a href="catalog.html?size=3000x1220" data-i18n="t317f83811e">3000×1220×5 мм</a></li>
+                    <li><a href="catalog.html?size=3000x1200" data-i18n="t3de49d1924">3000×1200×5 мм</a></li>
+                  </ul>
+                </div>
+                <a class="mega__promo" href="catalog.html?cat=sale">
+                  <img src="assets/img/panels/lfi-1012.jpg" alt="Панели по акционной цене" width="442" height="372" loading="lazy" decoding="async" data-i18n-alt="t4b4ddcc2dd">
+                  <div>
+                    <strong data-i18n="tb45e3d768b">Акция</strong>
+                    <span data-i18n="ta110119915">Панели по 18 000 ₸ за панель</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
+          <li class="navbar__item"><a href="about.html" class="navbar__link" data-i18n="te7641849e9">О компании</a></li>
+          <li class="navbar__item navbar__item--optional2"><a href="about.html#assortment" class="navbar__link" data-i18n="tcd93c20764">Ассортимент</a></li>
+          <li class="navbar__item navbar__item--optional"><a href="index.html#interiors" class="navbar__link" data-i18n="tdffd963d94">Интерьеры</a></li>
+          <li class="navbar__item"><a href="delivery.html" class="navbar__link" data-i18n="t8f6ff35c11">Оплата и доставка</a></li>
+          <li class="navbar__item navbar__item--optional is-active"><a href="partnership.html" class="navbar__link" data-i18n="tdbab5c4535">Сотрудничество</a></li>
+          <li class="navbar__item"><a href="contacts.html" class="navbar__link" data-i18n="tdba0fcb2cb">Контакты</a></li>
+        </ul>
+    </nav>
+
+    <div class="header__actions">
+      <span class="lang" role="group" aria-label="Язык сайта" data-i18n-ignore data-i18n-aria-label="tf17492a748">
+          <button class="lang__btn" type="button" data-lang="ru" aria-pressed="true">Рус</button>
+          <button class="lang__btn" type="button" data-lang="kk" aria-pressed="false">Қаз</button>
+          <button class="lang__btn" type="button" data-lang="en" aria-pressed="false">Eng</button>
+        </span>
+      <span class="header__socials">
         <a href="#" aria-label="WhatsApp" title="WhatsApp" data-i18n-aria-label="tb336fc5587" data-i18n-title="tb336fc5587"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.6 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.4.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
         <a href="#" aria-label="Telegram" title="Telegram" data-i18n-aria-label="tedbea9ff1a" data-i18n-title="tedbea9ff1a"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.9 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.6L18 6.9c.3-.3 0-.5-.5-.2L7.3 13.1l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1z"/></svg></a>
         <a href="#" aria-label="Instagram" title="Instagram" data-i18n-aria-label="t5721bbef40" data-i18n-title="t5721bbef40"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
@@ -61,68 +106,8 @@
         <a href="tel:+77071394909" class="header__call" aria-label="Позвонить" title="Позвонить" data-i18n-aria-label="t24e917a9a0" data-i18n-title="t24e917a9a0"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2.2 2A17 17 0 0 1 3 5.2 2 2 0 0 1 5 3z"/></svg></a>
         <a href="tel:+77071394909" class="header__phone">+7 (707) 139-49-09</a>
         <button class="btn btn--primary btn--sm header__cta" data-open-modal type="button" data-i18n="t64f982b22f">Оставить заявку</button>
-      </div>
     </div>
   </div>
-
-  <nav class="navbar">
-    <div class="container navbar__inner">
-      <ul class="navbar__list">
-        <li class="navbar__item navbar__item--catalog">
-          <a href="catalog.html" class="navbar__link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-            <span data-i18n="t46e27e2f0a">Каталог</span>
-          </a>
-          <div class="mega">
-            <div class="mega__inner">
-              <div>
-                <div class="mega__title" data-i18n="t37dde7f3c7">Фактуры</div>
-                <ul class="mega__links">
-                  <li><a href="catalog.html?cat=wood" data-i18n="t82d616a9a5">Под дерево</a></li>
-                  <li><a href="catalog.html?cat=fabric" data-i18n="t6f02c99ba2">Ткань</a></li>
-                  <li><a href="catalog.html?cat=stone" data-i18n="t419c23d8d8">Под камень</a></li>
-                  <li><a href="catalog.html?cat=leather" data-i18n="t9bc1734a8d">Кожа</a></li>
-                  <li><a href="catalog.html?cat=metal" data-i18n="tf6e79f6e18">Металл</a></li>
-                  <li><a href="catalog.html?cat=plaster" data-i18n="tef16223536">Штукатурка</a></li>
-                </ul>
-              </div>
-              <div>
-                <div class="mega__title" data-i18n="t1888d4d9c5">Серии</div>
-                <ul class="mega__links">
-                  <li><a href="catalog.html?cat=sale" data-i18n="tb45e3d768b">Акция</a></li>
-                  <li><a href="catalog.html?cat=matte" data-i18n="t984c80078d">Матовые</a></li>
-                  <li><a href="catalog.html?cat=slats" data-i18n="te123e14ed4">Декоративные рейки</a></li>
-                  <li><a href="catalog.html?cat=budget" data-i18n="tb8aa9ee3f3">Бюджетная серия</a></li>
-                  <li><a href="catalog.html" data-i18n="t2c2354e7ec">Весь каталог</a></li>
-                </ul>
-              </div>
-              <div>
-                <div class="mega__title" data-i18n="t6278a9f6ff">Размер панели</div>
-                <ul class="mega__links">
-                  <li><a href="catalog.html?size=2800x1220" data-i18n="tba28529da0">2800×1220×5 мм</a></li>
-                  <li><a href="catalog.html?size=3000x1220" data-i18n="t317f83811e">3000×1220×5 мм</a></li>
-                  <li><a href="catalog.html?size=3000x1200" data-i18n="t3de49d1924">3000×1200×5 мм</a></li>
-                </ul>
-              </div>
-              <a class="mega__promo" href="catalog.html?cat=sale">
-                <img src="assets/img/panels/lfi-1012.jpg" alt="Панели по акционной цене" width="442" height="372" loading="lazy" decoding="async" data-i18n-alt="t4b4ddcc2dd">
-                <div>
-                  <strong data-i18n="tb45e3d768b">Акция</strong>
-                  <span data-i18n="ta110119915">Панели по 18 000 ₸ за панель</span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </li>
-        <li class="navbar__item"><a href="about.html" class="navbar__link" data-i18n="te7641849e9">О компании</a></li>
-        <li class="navbar__item"><a href="about.html#assortment" class="navbar__link" data-i18n="tcd93c20764">Ассортимент</a></li>
-        <li class="navbar__item navbar__item--optional"><a href="index.html#interiors" class="navbar__link" data-i18n="tdffd963d94">Интерьеры</a></li>
-        <li class="navbar__item"><a href="delivery.html" class="navbar__link" data-i18n="t8f6ff35c11">Оплата и доставка</a></li>
-        <li class="navbar__item navbar__item--optional is-active"><a href="partnership.html" class="navbar__link" data-i18n="tdbab5c4535">Сотрудничество</a></li>
-        <li class="navbar__item"><a href="contacts.html" class="navbar__link" data-i18n="tdba0fcb2cb">Контакты</a></li>
-      </ul>
-    </div>
-  </nav>
 </header>
 
 <!-- ====================== МОБИЛЬНОЕ МЕНЮ ====================== -->
