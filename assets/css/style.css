@@ -640,7 +640,7 @@ main:focus { outline: none; }
    -------------------------------------------------------------------------- */
 .hero {
   position: relative;
-  min-height: min(78vh, 700px);
+  min-height: min(84vh, 760px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -663,36 +663,36 @@ main:focus { outline: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 50% 46%, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.62) 78%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.12) 45%, rgba(0, 0, 0, 0.5));
+    radial-gradient(ellipse at 50% 46%, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 78%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2) 45%, rgba(0, 0, 0, 0.55));
 }
 .hero__inner { position: relative; z-index: 2; width: 100%; }
 .hero__content { max-width: 900px; margin: 0 auto; }
+/* Заголовок держится на затемнении кадра, а не на тени под буквами:
+   тень в 28px размывала тонкое начертание и съедала разрядку. */
 .hero__title {
-  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55);
-  font-size: clamp(30px, 4.6vw, 60px);
+  font-size: var(--fs-h1);
   font-weight: 300;
-  line-height: 1.14;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
   color: #fff;
   text-wrap: balance;
 }
 .hero__text {
-  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.6);
-  margin: 22px auto 0;
+  margin: 26px auto 0;
   max-width: 60ch;
   font-size: clamp(15px, 1.25vw, 17px);
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.75;
 }
 .hero__actions {
-  margin-top: 36px;
+  margin-top: 44px;
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
   justify-content: center;
 }
-.hero__actions .btn { min-width: 210px; }
+.hero__actions .btn { min-width: 220px; }
 .hero__scroll {
   position: absolute;
   left: 50%;
@@ -730,31 +730,29 @@ main:focus { outline: none; }
   grid-template-columns: repeat(4, 1fr);
 }
 .usp__item {
-  padding: 40px 32px;
+  padding: 48px 36px;
   display: flex;
   gap: 18px;
   align-items: flex-start;
   border-right: 1px solid var(--line);
 }
 .usp__item:last-child { border-right: 0; }
+/* Кружок-подложка под иконкой убран: в этой палитре он читался как
+   серое пятно и спорил с волосяными разделителями. */
 .usp__icon {
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--ink);
 }
 .usp__item h3 {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
-.usp__item p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.usp__item p { font-size: 14px; color: var(--muted); line-height: 1.65; }
 
 /* --------------------------------------------------------------------------
    7. Коллекции пород
@@ -877,46 +875,76 @@ main:focus { outline: none; }
 .cats__grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 2px;
-  background: var(--line);
-  border: 1px solid var(--line);
+  gap: 24px;
 }
+/* Карточка раздела — кадр фактуры целиком, название и цена поверх
+   затемнения, стрелка в углу. Иконка и описание остаются в разметке,
+   но скрыты: текст никуда не делся, его просто не видно поверх фото. */
+/* Подпись стоит потоком у нижнего края, а не абсолютом: у «Декоративных
+   реек» и «Бюджетной серии» название занимает две строки, и жёстко
+   заданные bottom сталкивали его с ценой. Правый отступ оставляет
+   место под стрелку. */
 .cat {
-  background: var(--white);
-  padding: 34px 24px 30px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  position: relative;
-  transition: background 0.35s var(--ease);
-  min-height: 230px;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 22px;
+  overflow: hidden;
+  background: var(--ink);
+  aspect-ratio: 4 / 5;
 }
-.cat::before {
+.cat__media { position: absolute; inset: 0; }
+.cat__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease);
+}
+.cat:hover .cat__media img { transform: scale(1.06); }
+.cat::after {
   content: "";
   position: absolute;
-  left: 0; top: 0;
-  width: 100%; height: 3px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s var(--ease);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 40%, rgba(0, 0, 0, 0.72));
 }
-.cat:hover { background: var(--bg-alt); }
-.cat:hover::before { transform: scaleX(1); }
-.cat__icon { color: var(--accent); }
+.cat__icon, .cat p { display: none; }
 .cat h3 {
-  font-size: 15px;
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.cat p { font-size: 13.5px; color: var(--muted); line-height: 1.6; flex: 1; }
 .cat__from {
+  position: relative;
+  z-index: 2;
   font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--ink);
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
 }
-.cat__from b { color: var(--accent); font-weight: 600; }
+.cat__from b { color: #fff; font-weight: 600; }
+/* Стрелка в верхнем углу, а не в нижнем: снизу она отбирала у цены
+   половину строки, и «18 000 ₸/панель» ломалось на две. */
+.cat__arrow {
+  position: absolute;
+  z-index: 2;
+  right: 16px;
+  top: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease),
+              border-color 0.3s var(--ease);
+}
+.cat:hover .cat__arrow { background: #fff; border-color: #fff; color: var(--ink); }
 
 /* --------------------------------------------------------------------------
    9. Разделы «о компании» / сплит
@@ -1232,25 +1260,26 @@ main:focus { outline: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 26px 0;
+  gap: 28px;
+  padding: 32px 0;
   text-align: left;
-  font-size: clamp(15px, 1.6vw, 18px);
-  font-weight: 500;
+  font-size: clamp(16px, 1.9vw, 21px);
+  font-weight: 400;
   color: var(--ink);
-  transition: color 0.25s var(--ease);
+  transition: color 0.3s var(--ease);
 }
-.faq__q:hover { color: var(--accent); }
+.faq__q:hover { color: var(--muted); }
+/* Плюс без круглой рамки: в этой палитре обводка читалась как ещё одна
+   линия-разделитель и спорила с той, что делит вопросы. */
 .faq__ic {
   flex-shrink: 0;
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
+  width: 26px; height: 26px;
   display: grid; place-items: center;
-  color: var(--accent);
-  transition: all 0.3s var(--ease);
+  color: var(--ink);
+  transition: transform 0.3s var(--ease), color 0.3s var(--ease);
 }
-.faq__item.is-open .faq__ic { background: var(--accent); color: #fff; border-color: var(--accent); transform: rotate(45deg); }
+.faq__ic svg { width: 20px; height: 20px; }
+.faq__item.is-open .faq__ic { transform: rotate(45deg); }
 .faq__a {
   display: grid;
   grid-template-rows: 0fr;
@@ -1260,12 +1289,13 @@ main:focus { outline: none; }
 .faq__a > * { min-height: 0; }
 .faq__item.is-open .faq__a { grid-template-rows: 1fr; }
 .faq__a p {
-  padding: 0 60px 0 0;
+  padding: 0 80px 0 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 1.8;
   transition: padding-bottom 0.42s var(--ease);
 }
-.faq__item.is-open .faq__a p { padding-bottom: 28px; }
+.faq__item.is-open .faq__a p { padding-bottom: 34px; }
 
 /* --------------------------------------------------------------------------
    15. Форма заявки / CTA
@@ -1292,6 +1322,14 @@ main:focus { outline: none; }
   align-items: center;
 }
 .cta h2 { color: #fff; }
+/* У этого абзаца не было ни одного правила: он лип к заголовку вплотную. */
+.cta__lead {
+  margin-top: 24px;
+  max-width: 54ch;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--on-dark);
+}
 .cta .cta__contact b { display: block; color: #fff; font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
 .cta__contact span { font-size: 12.5px; color: rgba(255, 255, 255, 0.5); }
 
@@ -1306,53 +1344,55 @@ main:focus { outline: none; }
 
 .form-card {
   background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: clamp(28px, 3vw, 44px);
-  box-shadow: var(--shadow-lg);
+  padding: clamp(30px, 3.2vw, 48px);
   color: var(--ink-soft);
 }
 .form-card h3 {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tr-micro);
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
-.form-card > p { font-size: 13.5px; color: var(--muted); margin-bottom: 26px; }
+.form-card > p { font-size: 14px; color: var(--muted); margin-bottom: 34px; }
 
-.field { margin-bottom: 18px; position: relative; }
+.field { margin-bottom: 26px; position: relative; }
 .field label {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--tr-micro);
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
+/* Поля без рамки и заливки: одна линия снизу, которая чернеет при фокусе.
+   Рамка со всех сторон в этой вёрстке спорила бы с волосяными
+   разделителями секций. */
 .field input,
 .field textarea,
 .field select {
   width: 100%;
-  padding: 15px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--bg);
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
   color: var(--ink);
-  font-size: 15px;
-  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  font-size: 16px;
+  transition: border-color 0.3s var(--ease);
 }
-.field textarea { min-height: 104px; resize: vertical; }
+.field textarea { min-height: 92px; resize: vertical; }
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
   outline: none;
-  border-color: var(--accent);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.10);
+  border-bottom-color: var(--ink);
+  /* Толщина линии не меняется: сдвиг на пиксель дёргал бы всё поле */
+  box-shadow: 0 1px 0 var(--ink);
 }
 .field.has-error input,
-.field.has-error textarea { border-color: #c8553d; background: #fdf3f1; }
+.field.has-error textarea { border-bottom-color: #c8553d; box-shadow: none; }
 .field__err {
   display: none;
   margin-top: 6px;
@@ -1361,7 +1401,7 @@ main:focus { outline: none; }
 }
 .field.has-error .field__err { display: block; }
 
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
 
 .check {
   display: flex;
@@ -1378,7 +1418,7 @@ main:focus { outline: none; }
   flex-shrink: 0;
   width: 20px; height: 20px;
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: 0;
   display: grid; place-items: center;
   margin-top: 2px;
   transition: all 0.22s var(--ease);
@@ -1387,7 +1427,7 @@ main:focus { outline: none; }
 .check__box svg { opacity: 0; transform: scale(0.6); transition: all 0.22s var(--ease); color: #fff; }
 .check input:checked + .check__box { background: var(--accent); border-color: var(--accent); }
 .check input:checked + .check__box svg { opacity: 1; transform: scale(1); }
-.check a { color: var(--accent); text-decoration: underline; }
+.check a { color: var(--ink); text-decoration: underline; }
 .check.has-error .check__box { border-color: #c8553d; }
 
 .form-note {
@@ -1406,8 +1446,8 @@ main:focus { outline: none; }
   width: 68px; height: 68px;
   margin: 0 auto 20px;
   border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
+  border: 1px solid var(--line);
+  color: var(--ink);
   display: grid; place-items: center;
 }
 .form-success h3 { margin-bottom: 10px; }
@@ -1492,20 +1532,20 @@ form.is-hidden { display: none; }
   transition: opacity 0.3s var(--ease), visibility 0.3s;
 }
 .modal.is-open { opacity: 1; visibility: visible; }
-.modal__overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); }
+.modal__overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
 .modal__box {
   position: relative;
   z-index: 2;
   width: min(520px, 100%);
   max-height: 92vh;
   overflow-y: auto;
-  transform: translateY(24px) scale(0.98);
+  transform: translateY(16px);
   transition: transform 0.36s var(--ease);
 }
-.modal.is-open .modal__box { transform: translateY(0) scale(1); }
+.modal.is-open .modal__box { transform: translateY(0); }
 .modal__close {
   position: absolute;
-  top: 16px; right: 16px;
+  top: 18px; right: 18px;
   width: 38px; height: 38px;
   border-radius: 50%;
   display: grid; place-items: center;
@@ -2047,7 +2087,6 @@ form.is-hidden { display: none; }
   }
 
   .cats__grid { grid-template-columns: 1fr; }
-  .cat { min-height: 0; padding: 26px 20px 24px; }
   .steps, .steps--4 { grid-template-columns: 1fr; }
   .step { border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.12); padding: 24px 0 0; }
   .step:last-child { border-right: 0; }
@@ -2476,7 +2515,7 @@ form.is-hidden { display: none; }
   }
 
   .link-more:hover svg { transform: none; }
-  .cat:hover::before { transform: none; }
+  .cat:hover .cat__media img { transform: none; }
   .species__item:hover .species__swatch { transform: none; }
 
   /* Затемнение поверх карточки коллекции меняться от касания не должно */
@@ -2535,14 +2574,10 @@ form.is-hidden { display: none; }
   .cats__grid::-webkit-scrollbar { display: none; }
 
   .cat {
-    flex: 0 0 78%;
+    flex: 0 0 72%;
     scroll-snap-align: start;
-    min-height: 0;
-    padding: 28px 22px 26px;
-    border-radius: var(--radius);
+    aspect-ratio: 3 / 4;
   }
-  /* В ленте карточки разделяет промежуток, рамки между ними лишние. */
-  .cat { border-right: 0 !important; border-bottom: 0 !important; }
 
   .swipe-hint--dark {
     display: block;
