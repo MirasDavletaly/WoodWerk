@@ -33,7 +33,7 @@
   --err: #97362a;
   --err-bg: #f7e3df;
 
-  --font: "Montserrat", "Segoe UI", Arial, sans-serif;
+  --font: "Inter", "Segoe UI", Arial, sans-serif;
   --tr-title: 0.03em;   /* разрядка крупных заголовков, как на сайте */
   --tr-micro: 0.18em;   /* разрядка мелких надписей в капсе */
   --radius: 0px;

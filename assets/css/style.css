@@ -7,56 +7,59 @@
    1. Переменные и базовые сбросы
    -------------------------------------------------------------------------- */
 :root {
-  /* Палитра. Строго нейтральная: единственный источник цвета на сайте —
-     фотографии панелей. Контраст пересчитан заново, каждая пара
-     текст/фон даёт >= 4.5:1. */
-  --ink: #0f0f0f;            /* заголовки, 19.2:1 на --bg */
-  --ink-soft: #3b3b3b;       /* основной текст, 11.2:1 на --bg */
-  --muted: #6b6b6b;          /* 5.3:1 на --bg, 4.85:1 на --bg-alt */
+  /* Палитра снята с референса: инлайновые стили его страницы дают
+     #000 для заголовков, #222 для тёмных блоков, #f5f5f5 для светлых,
+     #939393 для вторичного текста и #d7d7d7 для текста на тёмном. */
+  --ink: #000000;
+  --ink-soft: #333333;       /* 12.6:1 на белом */
+  --muted: #939393;          /* достаточно для подписей, не для абзацев */
+  --muted-strong: #6e6e6e;   /* там, где серый несёт смысл: 5.1:1 */
   --bg: #ffffff;
-  --bg-alt: #f5f4f2;
-  --sand: #ebe9e6;           /* служебные поверхности: скроллбар, плашки */
-  --line: #e4e2df;
+  --bg-alt: #f5f5f5;
+  --sand: #ebebeb;
+  --line: #ebebeb;
+  --line-dark: rgba(255, 255, 255, 0.14);
   --white: #ffffff;
-  --accent: #111111;         /* белый текст на нём — 19:1 */
-  --accent-h: #383838;
-  --accent-soft: #f0efed;    /* только заливки, не текст */
+  --accent: #000000;
+  --accent-h: #222222;
+  --accent-soft: #f5f5f5;
   --accent-on-dark: #ffffff;
-  /* Второстепенный текст на тёмном. Одна прозрачность на весь сайт вместо
-     россыпи значений от 0.38 до 0.5, половина которых не добирала до нормы. */
-  --on-dark: rgba(255, 255, 255, 0.62);       /* 7.5:1 на --dark и --black */
-  --on-dark-quiet: rgba(255, 255, 255, 0.52); /* 5.6:1, для самого мелкого */
-  --dark: #161616;
-  --black: #0b0b0b;
-  --nav: #ffffff;            /* полоса меню больше не цветная */
-  --nav-ink: #0f0f0f;
-  --nav-active: #111111;
-  --nav-active-h: #383838;
+  --on-dark: #d7d7d7;        /* 10.4:1 на --dark */
+  --on-dark-quiet: #a1a1a1;  /* 5.6:1 на --dark */
+  --dark: #222222;
+  --black: #000000;
+  --nav: #ffffff;
+  --nav-ink: #000000;
+  --nav-active: #000000;
+  --nav-active-h: #333333;
 
-  /* Типографика */
-  --font: "Montserrat", "Segoe UI", Arial, sans-serif;
-  --tr-title: 0.03em;        /* разрядка крупных заголовков */
-  --tr-micro: 0.18em;        /* разрядка мелких надписей в капсе */
-  --measure: 66ch;
-  --fs-h1: clamp(34px, 5vw, 68px);
-  --fs-h2: clamp(26px, 3.4vw, 44px);
-  --fs-h3: clamp(18px, 1.8vw, 22px);
-  --fs-micro: 11px;
+  /* Типографика. Разрядки нет нигде: на референсе letter-spacing
+     не встречается ни разу, а веса держатся в диапазоне 400–700. */
+  --font: "Inter", "Segoe UI", Arial, sans-serif;
+  --tr-title: 0em;
+  --tr-micro: 0em;
+  --measure: 68ch;
+  --fs-h1: clamp(28px, 3vw, 42px);
+  --fs-h2: clamp(25px, 2.5vw, 36px);
+  --fs-h3: clamp(18px, 1.5vw, 20px);
+  --fs-micro: 13px;
 
-  /* Сетка */
-  --container: 1320px;
-  --gutter: 24px;
-  /* Скруглений нет: форму держат волосяные линии, а не радиусы. */
-  --radius: 0px;
-  --radius-lg: 2px;
+  /* Сетка. Колодец 1200 — как у референса на 1440. */
+  --container: 1200px;
+  --gutter: 20px;
+
+  /* Скругления — опорный приём всей вёрстки референса */
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-card: 24px;
+  --radius-pill: 100px;
 
   /* Прочее */
-  --header-h: 72px;
+  --header-h: 88px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  /* Тени ослаблены почти до нуля: воздух и линии вместо подложек. */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.10);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.12);
 }
 
 *,
@@ -73,7 +76,7 @@ body {
   font-family: var(--font);
   font-size: 17px;
   font-weight: 400;
-  line-height: 1.75;
+  line-height: 1.6;
   color: var(--ink-soft);
   background: var(--bg);
   overflow-x: hidden;
@@ -91,14 +94,13 @@ h1, h2, h3, h4, h5 {
   text-wrap: balance;
 }
 
-/* Крупные заголовки — светлое начертание вразрядку. Разрядку вешаем именно
-   на h1/h2, а не на всю группу: у мелких h3 в капсе своя, куда шире.
-   До этого у h1/h2 не было ни размера, ни веса — заголовки секций
-   держались на браузерном 1.5em и выходили в 24px на любом экране. */
+/* Заголовки нормального веса и без разрядки — как на референсе.
+   Прошлый заход ставил вес 300 и разрядку 0.03em; на самом сайте-образце
+   ни того, ни другого нет. */
 h1, h2 {
-  font-weight: 300;
-  line-height: 1.14;
-  letter-spacing: var(--tr-title);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 h1 { font-size: var(--fs-h1); }
 h2 { font-size: var(--fs-h2); }
@@ -179,25 +181,39 @@ main:focus { outline: none; }
 
 .container--narrow { max-width: 940px; }
 
-.section { padding: clamp(80px, 9vw, 140px) 0; }
-.section--tight { padding: clamp(56px, 6vw, 96px) 0; }
-.section--dark { background: var(--dark); color: rgba(255, 255, 255, 0.7); }
+/* Страница целиком белая, а блоки лежат на ней скруглёнными карточками —
+   это главный приём референса. Поэтому фон и радиус живут не на секции,
+   а на её контейнере: разметку менять не пришлось. */
+.section { padding: clamp(36px, 4vw, 56px) 0; }
+.section--tight { padding: clamp(28px, 3vw, 40px) 0; }
+
+.section--dark > .container,
+.section--black > .container,
+.section--alt > .container {
+  border-radius: var(--radius-card);
+  padding-top: clamp(44px, 5vw, 76px);
+  padding-bottom: clamp(44px, 5vw, 76px);
+  padding-left: clamp(24px, 3.4vw, 56px);
+  padding-right: clamp(24px, 3.4vw, 56px);
+}
+.section--dark { color: var(--on-dark); }
+.section--dark > .container { background: var(--dark); }
 .section--dark h2,
 .section--dark h3 { color: #fff; }
-.section--alt { background: var(--bg-alt); }
+.section--alt > .container { background: var(--bg-alt); }
 
-.section-title b { font-weight: 500; }
+.section-title b { font-weight: 600; }
 .section--dark .section-title b,
 .section--black .section-title b { font-weight: 400; }
 
 .section-lead {
-  margin-top: 22px;
-  max-width: 620px;
+  margin-top: 18px;
+  max-width: 720px;
   font-size: 17px;
-  line-height: 1.8;
-  color: var(--muted);
+  line-height: 1.55;
+  color: var(--muted-strong);
 }
-.section--dark .section-lead { color: rgba(255, 255, 255, 0.55); }
+.section--dark .section-lead { color: var(--on-dark); }
 
 .section-head {
   display: flex;
@@ -205,38 +221,39 @@ main:focus { outline: none; }
   justify-content: space-between;
   gap: 32px;
   flex-wrap: wrap;
-  margin-bottom: clamp(40px, 5vw, 72px);
+  margin-bottom: clamp(28px, 3.4vw, 46px);
 }
+/* Референс выравнивает заголовки секций по левому краю даже там, где
+   блок центрирован; модификатор оставляем в разметке, но гасим. */
 .section-head--center {
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 }
-.section-head--center .section-lead { margin-left: auto; margin-right: auto; }
+.section-head--center .section-lead { margin-left: 0; margin-right: 0; }
 
 .text-center { text-align: center; }
 
 /* --------------------------------------------------------------------------
    3. Кнопки
    -------------------------------------------------------------------------- */
-/* Кнопки прямоугольные, без теней и подъёма при наведении: единственное
-   действие ховера — инверсия заливки и рамки. Резких движений в этой
-   стилистике быть не должно. */
+/* Кнопки-пилюли строчными буквами — как на референсе. Ни капса,
+   ни разрядки, ни теней; отклик один — смена заливки. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 18px 40px;
-  font-size: var(--fs-micro);
-  font-weight: 600;
-  letter-spacing: var(--tr-micro);
-  text-transform: uppercase;
+  min-height: 56px;
+  padding: 16px 34px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   border: 1px solid transparent;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   position: relative;
-  overflow: hidden;
   transition: background 0.3s var(--ease), color 0.3s var(--ease),
               border-color 0.3s var(--ease);
   white-space: nowrap;
@@ -247,13 +264,10 @@ main:focus { outline: none; }
   border-color: var(--accent);
   color: #fff;
 }
-.btn--primary:hover {
-  background: transparent;
-  color: var(--ink);
-}
+.btn--primary:hover { background: var(--accent-h); border-color: var(--accent-h); }
 
 .btn--dark { background: var(--ink); border-color: var(--ink); color: #fff; }
-.btn--dark:hover { background: transparent; color: var(--ink); }
+.btn--dark:hover { background: var(--accent-h); border-color: var(--accent-h); }
 
 /* Поверх фотографии: рамка достаточно плотная, чтобы читаться на любом кадре */
 .btn--ghost {
@@ -266,30 +280,27 @@ main:focus { outline: none; }
 .btn--outline:hover { border-color: var(--ink); background: var(--ink); color: #fff; }
 
 .btn--block { width: 100%; }
-.btn--sm { padding: 14px 26px; font-size: 10.5px; }
+.btn--sm { min-height: 44px; padding: 11px 24px; font-size: 15px; }
 
+/* «Каталог →» у референса — обычная строчная надпись со стрелкой,
+   без подчёркивания и капса. */
 .link-more {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 6px;
-  font-size: var(--fs-micro);
-  font-weight: 600;
-  letter-spacing: var(--tr-micro);
-  text-transform: uppercase;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink);
-  border-bottom: 1px solid var(--line);
-  transition: border-color 0.3s var(--ease);
+  transition: opacity 0.3s var(--ease);
 }
 .link-more svg { transition: transform 0.3s var(--ease); }
-.link-more:hover { border-bottom-color: var(--ink); }
+.link-more:hover { opacity: 0.6; }
 .link-more:hover svg { transform: translateX(6px); }
 .section--dark .link-more,
 .section--black .link-more,
-.footer .link-more { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.22); }
-.section--dark .link-more:hover,
-.section--black .link-more:hover,
-.footer .link-more:hover { border-bottom-color: #fff; }
+.footer .link-more { color: #fff; }
 
 /* --------------------------------------------------------------------------
    4. Шапка
@@ -303,35 +314,39 @@ main:focus { outline: none; }
   top: 0;
   z-index: 50;
   background: var(--white);
-  border-bottom: 1px solid var(--line);
   transition: box-shadow 0.3s var(--ease);
 }
 /* Шапка идёт от края до края окна, содержимое ниже остаётся в колодце 1320.
    Тонкая полоса во всю ширину держит воздух лучше, чем центрированная. */
+/* Шапка референса живёт в том же колодце, что и блоки, и не имеет
+   ни фоновой полосы, ни разделительной линии — она просто на белом. */
 .header__inner {
   display: flex;
   align-items: center;
-  gap: clamp(12px, 1.5vw, 30px);
+  gap: clamp(12px, 1.6vw, 30px);
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
   min-height: var(--header-h);
-  padding: 0 clamp(18px, 2.6vw, 48px);
+  padding: 0 var(--gutter);
 }
 /* Единственный отклик на прокрутку — волосяная тень под линией. */
-.header.is-stuck { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06); }
+.header.is-stuck { box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07); }
 
 .logo { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.logo__mark { width: 38px; height: 38px; }
+.logo__mark { width: 40px; height: 40px; border-radius: 8px; }
 .logo__text { display: flex; flex-direction: column; line-height: 1; }
 .logo__name {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: 0.26em;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--ink);
   text-transform: uppercase;
 }
 .logo__tag {
-  margin-top: 5px;
-  font-size: 8.5px;
-  letter-spacing: 0.24em;
+  margin-top: 3px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -343,41 +358,26 @@ main:focus { outline: none; }
 .navbar__list { display: flex; align-items: center; }
 .navbar__item { position: static; display: flex; }
 .navbar__link {
-  --pad: clamp(6px, 0.75vw, 15px);
+  --pad: clamp(6px, 0.7vw, 14px);
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   height: var(--header-h);
   padding: 0 var(--pad);
-  font-size: var(--fs-micro);
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
   white-space: nowrap;
-  transition: color 0.3s var(--ease);
+  transition: opacity 0.3s var(--ease);
 }
-/* Подчёркивание растёт из центра — вместо заливки, которой держался
-   старый пункт меню на цветной полосе. */
-.navbar__link::after {
-  content: "";
-  position: absolute;
-  left: var(--pad);
-  right: var(--pad);
-  bottom: 24px;
-  height: 1px;
-  background: var(--ink);
-  transform: scaleX(0);
-  transition: transform 0.3s var(--ease);
-}
-.navbar__link:hover { color: var(--ink); }
-.navbar__link:hover::after { transform: scaleX(1); }
-.navbar__item--catalog .navbar__link { font-weight: 600; color: var(--ink); }
+.navbar__link:hover { opacity: 0.55; }
+.navbar__item--catalog .navbar__link { font-weight: 500; }
 /* Меню сплошь текстовое: иконка у «Каталога» выбивалась из строки */
 .navbar__item--catalog .navbar__link > svg { display: none; }
-.navbar__item.is-active .navbar__link { color: var(--ink); }
-.navbar__item.is-active .navbar__link::after { transform: scaleX(1); }
+.navbar__item.is-active .navbar__link { font-weight: 500; }
 
 /* --- правая группа --- */
 .header__actions {
@@ -395,41 +395,42 @@ main:focus { outline: none; }
   background: transparent;
   gap: 0;
 }
-.header__actions .lang__btn { padding: 6px 7px; font-size: 10px; }
+.header__actions .lang__btn { padding: 7px 9px; font-size: 13px; letter-spacing: 0; }
 .header__actions .lang__btn.is-active {
-  background: transparent;
+  background: var(--bg-alt);
   color: var(--ink);
-  box-shadow: inset 0 -1px 0 var(--ink);
+  border-radius: var(--radius-pill);
 }
 
 /* Кнопка звонка. На широком экране не нужна: рядом стоит номер целиком
    и кнопка заявки. Появляется там, где их прячут. */
 .header__call { display: none; }
-.header__socials { display: flex; gap: 6px; }
+.header__socials { display: flex; gap: 8px; }
 .header__socials a {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  transition: background 0.3s var(--ease), border-color 0.3s var(--ease),
-              color 0.3s var(--ease);
+  border-radius: 12px;
+  border: 0;
+  background: var(--bg-alt);
+  color: var(--ink);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
 }
-.header__socials a:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
+.header__socials a:hover { background: var(--ink); color: #fff; }
 .header__phone {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--ink);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-.header__phone:hover { color: var(--muted); }
+.header__phone:hover { opacity: 0.6; }
 
 /* --- мегаменю --- */
 .mega {
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
   position: absolute;
   left: 0;
   right: 0;
@@ -638,16 +639,22 @@ main:focus { outline: none; }
 /* --------------------------------------------------------------------------
    5. Главный экран
    -------------------------------------------------------------------------- */
+/* Главный экран у референса — не полоса во всю ширину, а скруглённая
+   карточка внутри колодца, с текстом по левому краю. */
 .hero {
   position: relative;
-  min-height: min(84vh, 760px);
+  width: calc(100% - var(--gutter) * 2);
+  max-width: var(--container);
+  margin: 12px auto 0;
+  border-radius: var(--radius-card);
+  min-height: min(62vh, 560px);
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
   color: #fff;
   overflow: hidden;
-  padding: clamp(72px, 9vw, 130px) 0 clamp(84px, 9vw, 130px);
+  padding: clamp(40px, 5vw, 72px) 0;
 }
 .hero__bg { position: absolute; inset: 0; z-index: 0; }
 .hero__bg img {
@@ -662,41 +669,41 @@ main:focus { outline: none; }
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 46%, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 78%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2) 45%, rgba(0, 0, 0, 0.55));
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.55) 45%, rgba(0, 0, 0, 0.25) 100%);
 }
 .hero__inner { position: relative; z-index: 2; width: 100%; }
-.hero__content { max-width: 900px; margin: 0 auto; }
+.hero__content { max-width: 760px; margin: 0; }
 /* Заголовок держится на затемнении кадра, а не на тени под буквами:
    тень в 28px размывала тонкое начертание и съедала разрядку. */
+/* Единственное место, где референс набирает капсом и жирным */
 .hero__title {
-  font-size: var(--fs-h1);
-  font-weight: 300;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
+  font-size: clamp(26px, 3.1vw, 42px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: 0;
+  text-transform: uppercase;
   color: #fff;
   text-wrap: balance;
 }
 .hero__text {
-  margin: 26px auto 0;
-  max-width: 60ch;
-  font-size: clamp(15px, 1.25vw, 17px);
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.75;
+  margin: 22px 0 0;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.2vw, 17px);
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.5;
 }
 .hero__actions {
-  margin-top: 44px;
+  margin-top: 34px;
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
 }
-.hero__actions .btn { min-width: 220px; }
+.hero__actions .btn { min-width: 200px; }
 .hero__scroll {
   position: absolute;
   left: 50%;
-  bottom: 30px;
+  bottom: 22px;
   transform: translateX(-50%);
   z-index: 3;
   width: 44px;
@@ -746,13 +753,13 @@ main:focus { outline: none; }
   color: var(--ink);
 }
 .usp__item h3 {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 8px;
 }
-.usp__item p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+.usp__item p { font-size: 15px; color: var(--muted-strong); line-height: 1.5; }
 
 /* --------------------------------------------------------------------------
    7. Коллекции пород
@@ -780,6 +787,7 @@ main:focus { outline: none; }
   gap: 22px;
 }
 .collection {
+  border-radius: var(--radius-lg);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -814,9 +822,9 @@ main:focus { outline: none; }
 .collection__body { display: block; }
 .collection__name {
   display: block;
-  font-size: clamp(26px, 2.4vw, 34px);
-  font-weight: 400;
-  letter-spacing: 0.2em;
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 500;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: #fff;
   text-indent: 0.2em;
@@ -874,77 +882,76 @@ main:focus { outline: none; }
    -------------------------------------------------------------------------- */
 .cats__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
 }
 /* Карточка раздела — кадр фактуры целиком, название и цена поверх
    затемнения, стрелка в углу. Иконка и описание остаются в разметке,
    но скрыты: текст никуда не делся, его просто не видно поверх фото. */
-/* Подпись стоит потоком у нижнего края, а не абсолютом: у «Декоративных
-   реек» и «Бюджетной серии» название занимает две строки, и жёстко
-   заданные bottom сталкивали его с ценой. Правый отступ оставляет
-   место под стрелку. */
+/* Карточка раздела по образцу референса: широкий скруглённый кадр,
+   а подпись — под ним на белом, названием слева и стрелкой справа.
+   Текст поверх фото, как было в прошлом заходе, у образца не встречается. */
 .cat {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 22px;
-  overflow: hidden;
-  background: var(--ink);
-  aspect-ratio: 4 / 5;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "media media"
+    "title arrow"
+    "price arrow";
+  align-items: center;
+  column-gap: 20px;
+  padding: 0;
+  background: transparent;
 }
-.cat__media { position: absolute; inset: 0; }
+.cat__media {
+  grid-area: media;
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--bg-alt);
+  margin-bottom: 16px;
+}
 .cat__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.7s var(--ease);
 }
-.cat:hover .cat__media img { transform: scale(1.06); }
-.cat::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 40%, rgba(0, 0, 0, 0.72));
-}
+.cat:hover .cat__media img { transform: scale(1.05); }
 .cat__icon, .cat p { display: none; }
 .cat h3 {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  grid-area: title;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .cat__from {
-  position: relative;
-  z-index: 2;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.75);
+  grid-area: price;
+  margin-top: 4px;
+  font-size: 15px;
+  letter-spacing: 0;
+  color: var(--muted-strong);
 }
-.cat__from b { color: #fff; font-weight: 600; }
-/* Стрелка в верхнем углу, а не в нижнем: снизу она отбирала у цены
-   половину строки, и «18 000 ₸/панель» ломалось на две. */
+.cat__from b { color: var(--ink); font-weight: 500; }
+/* Стрелка — как «Каталог →» у референса: тонкая, у правого края подписи */
 .cat__arrow {
-  position: absolute;
-  z-index: 2;
-  right: 16px;
-  top: 16px;
-  width: 40px;
-  height: 40px;
+  grid-area: arrow;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  /* Белый кружок, а не серый: карточки стоят на светло-сером блоке,
+     и серая заливка на нём просто исчезала. */
+  background: var(--white);
   display: grid;
   place-items: center;
-  color: #fff;
-  transition: background 0.3s var(--ease), color 0.3s var(--ease),
-              border-color 0.3s var(--ease);
+  color: var(--ink);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
 }
-.cat:hover .cat__arrow { background: #fff; border-color: #fff; color: var(--ink); }
+.cat:hover .cat__arrow { background: var(--ink); color: #fff; }
 
 /* --------------------------------------------------------------------------
    9. Разделы «о компании» / сплит
@@ -957,6 +964,7 @@ main:focus { outline: none; }
 }
 .split--reverse .split__media { order: 2; }
 .split__media {
+  border-radius: var(--radius-lg);
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -1048,11 +1056,11 @@ main:focus { outline: none; }
   display: block;
 }
 .step h3 {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 10px;
 }
 .step p { font-size: 13.5px; line-height: 1.65; color: rgba(255, 255, 255, 0.55); }
 .step__time {
@@ -1077,6 +1085,7 @@ main:focus { outline: none; }
   gap: 16px;
 }
 .gallery__item {
+  border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
@@ -1212,6 +1221,7 @@ main:focus { outline: none; }
 }
 .reviews__track::-webkit-scrollbar { display: none; }
 .review {
+  border-radius: var(--radius-card);
   flex: 0 0 calc((100% - 52px) / 3);
   scroll-snap-align: start;
   background: var(--white);
@@ -1261,23 +1271,27 @@ main:focus { outline: none; }
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  padding: 32px 0;
+  padding: 26px 0;
   text-align: left;
-  font-size: clamp(16px, 1.9vw, 21px);
+  font-size: clamp(16px, 1.5vw, 19px);
   font-weight: 400;
   color: var(--ink);
-  transition: color 0.3s var(--ease);
+  transition: opacity 0.3s var(--ease);
 }
-.faq__q:hover { color: var(--muted); }
+.faq__q:hover { opacity: 0.6; }
 /* Плюс без круглой рамки: в этой палитре обводка читалась как ещё одна
    линия-разделитель и спорила с той, что делит вопросы. */
 .faq__ic {
   flex-shrink: 0;
-  width: 26px; height: 26px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--white);
   display: grid; place-items: center;
   color: var(--ink);
-  transition: transform 0.3s var(--ease), color 0.3s var(--ease);
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease),
+              color 0.3s var(--ease);
 }
+.faq__item.is-open .faq__ic { background: var(--ink); color: #fff; }
 .faq__ic svg { width: 20px; height: 20px; }
 .faq__item.is-open .faq__ic { transform: rotate(45deg); }
 .faq__a {
@@ -1302,8 +1316,13 @@ main:focus { outline: none; }
    -------------------------------------------------------------------------- */
 .cta {
   position: relative;
+  width: calc(100% - var(--gutter) * 2);
+  max-width: var(--container);
+  margin: 0 auto;
+  border-radius: var(--radius-card);
   overflow: hidden;
   color: #fff;
+  padding: clamp(44px, 5vw, 76px) 0;
 }
 .cta__bg { position: absolute; inset: 0; z-index: 0; }
 .cta__bg img { width: 100%; height: 100%; object-fit: cover; }
@@ -1344,14 +1363,15 @@ main:focus { outline: none; }
 
 .form-card {
   background: var(--white);
-  padding: clamp(30px, 3.2vw, 48px);
+  border-radius: var(--radius-card);
+  padding: clamp(30px, 3.2vw, 44px);
   color: var(--ink-soft);
 }
 .form-card h3 {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: var(--tr-micro);
-  text-transform: uppercase;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   margin-bottom: 10px;
 }
 .form-card > p { font-size: 14px; color: var(--muted); margin-bottom: 34px; }
@@ -1359,40 +1379,35 @@ main:focus { outline: none; }
 .field { margin-bottom: 26px; position: relative; }
 .field label {
   display: block;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: var(--tr-micro);
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted-strong);
+  margin-bottom: 8px;
 }
-/* Поля без рамки и заливки: одна линия снизу, которая чернеет при фокусе.
-   Рамка со всех сторон в этой вёрстке спорила бы с волосяными
-   разделителями секций. */
+/* Поля в скруглённой рамке — как в формах референса. */
 .field input,
 .field textarea,
 .field select {
   width: 100%;
-  padding: 12px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  background: transparent;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
   color: var(--ink);
   font-size: 16px;
   transition: border-color 0.3s var(--ease);
 }
-.field textarea { min-height: 92px; resize: vertical; }
+.field textarea { min-height: 104px; resize: vertical; border-radius: var(--radius); }
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
   outline: none;
-  border-bottom-color: var(--ink);
-  /* Толщина линии не меняется: сдвиг на пиксель дёргал бы всё поле */
-  box-shadow: 0 1px 0 var(--ink);
+  border-color: var(--ink);
 }
 .field.has-error input,
-.field.has-error textarea { border-bottom-color: #c8553d; box-shadow: none; }
+.field.has-error textarea { border-color: #c8553d; }
 .field__err {
   display: none;
   margin-top: 6px;
@@ -1418,7 +1433,7 @@ main:focus { outline: none; }
   flex-shrink: 0;
   width: 20px; height: 20px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: 5px;
   display: grid; place-items: center;
   margin-top: 2px;
   transition: all 0.22s var(--ease);
@@ -1497,9 +1512,9 @@ form.is-hidden { display: none; }
 .footer__contact small { font-size: 12.5px; color: var(--on-dark); }
 .footer__pay { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
 .footer__pay span {
-  padding: 6px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--line-dark);
+  border-radius: var(--radius-pill);
   font-size: 11px;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.5);
@@ -1536,6 +1551,7 @@ form.is-hidden { display: none; }
 .modal__box {
   position: relative;
   z-index: 2;
+  border-radius: var(--radius-card);
   width: min(520px, 100%);
   max-height: 92vh;
   overflow-y: auto;
@@ -1560,7 +1576,11 @@ form.is-hidden { display: none; }
    -------------------------------------------------------------------------- */
 .page-hero {
   position: relative;
-  padding: clamp(60px, 7vw, 110px) 0 clamp(52px, 6vw, 92px);
+  width: calc(100% - var(--gutter) * 2);
+  max-width: var(--container);
+  margin: 12px auto 0;
+  border-radius: var(--radius-card);
+  padding: clamp(44px, 5vw, 76px) 0;
   background: var(--dark);
   color: #fff;
   overflow: hidden;
@@ -1576,9 +1596,9 @@ form.is-hidden { display: none; }
 .page-hero__inner { position: relative; z-index: 3; }
 .page-hero h1 {
   color: #fff;
-  font-size: clamp(28px, 4.4vw, 56px);
-  font-weight: 300;
-  letter-spacing: 0.06em;
+  font-size: clamp(26px, 3.1vw, 42px);
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 .page-hero p { margin-top: 18px; max-width: 620px; color: rgba(255, 255, 255, 0.66); }
@@ -1587,14 +1607,15 @@ form.is-hidden { display: none; }
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 22px;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--on-dark-quiet);
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 .crumbs a:hover { color: #fff; }
+.page-hero p { color: var(--on-dark); }
 
 /* Крошки шли строкой в 20px — ниже нормы WCAG 2.2 на размер цели (24x24).
    Растягиваем только по вертикали: строка на месте, попасть можно. */
@@ -1617,15 +1638,16 @@ form.is-hidden { display: none; }
 .filters {
   position: sticky;
   top: calc(var(--header-h) + 24px);
-  background: transparent;
-  padding: 0 24px 0 0;
+  background: var(--bg-alt);
+  border-radius: var(--radius-card);
+  padding: 30px 26px;
 }
 .filters__group + .filters__group { margin-top: 28px; padding-top: 26px; border-top: 1px solid var(--line); }
 .filters__title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink);
   margin-bottom: 16px;
 }
@@ -1655,12 +1677,12 @@ form.is-hidden { display: none; }
 }
 .catalog-toolbar__count { font-size: 13.5px; color: var(--muted); }
 .catalog-toolbar select {
-  padding: 11px 14px;
+  padding: 12px 18px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--white);
   color: var(--ink);
-  font-size: 13.5px;
+  font-size: 15px;
 }
 
 .products {
@@ -1675,7 +1697,13 @@ form.is-hidden { display: none; }
   display: flex;
   flex-direction: column;
 }
-.product__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-alt); }
+.product__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--bg-alt);
+}
 .product__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
 .product:hover .product__media img { transform: scale(1.06); }
 .product__badge {
@@ -1687,11 +1715,12 @@ form.is-hidden { display: none; }
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 7px 12px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
 }
 .product__body { padding: 22px 0 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.product__cat { font-size: 10.5px; letter-spacing: var(--tr-micro); text-transform: uppercase; color: var(--muted); }
-.product h3 { font-size: 17px; font-weight: 500; letter-spacing: 0.02em; }
+.product__cat { font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.product h3 { font-size: 18px; font-weight: 500; letter-spacing: 0; }
 .product__spec { font-size: 13px; color: var(--muted); flex: 1; }
 .product__foot {
   display: flex;
@@ -1717,16 +1746,16 @@ form.is-hidden { display: none; }
   letter-spacing: 0.06em;
   white-space: nowrap;
 }
-.product__foot .btn { padding: 11px 16px; letter-spacing: 0.1em; }
+.product__foot .btn { min-height: 42px; padding: 10px 20px; font-size: 15px; }
 .product.is-hidden { display: none; }
 
 .empty-state {
   grid-column: 1 / -1;
   padding: 60px 20px;
   text-align: center;
-  color: var(--muted);
-  border: 1px dashed var(--line);
-  border-radius: var(--radius-lg);
+  color: var(--muted-strong);
+  background: var(--bg-alt);
+  border-radius: var(--radius-card);
 }
 
 /* Карточки-инфо */
@@ -1736,12 +1765,13 @@ form.is-hidden { display: none; }
   gap: 26px;
 }
 .info-card {
-  background: var(--white);
-  border: 1px solid var(--line);
+  background: var(--bg-alt);
+  border: 0;
+  border-radius: var(--radius-card);
   padding: 38px 32px;
-  transition: border-color 0.35s var(--ease);
+  transition: background 0.35s var(--ease);
 }
-.info-card:hover { border-color: var(--ink); }
+.info-card:hover { background: var(--sand); }
 .info-card__ic {
   width: 52px; height: 52px;
   border-radius: 50%;
@@ -1750,7 +1780,7 @@ form.is-hidden { display: none; }
   display: grid; place-items: center;
   margin-bottom: 20px;
 }
-.info-card h3 { font-size: 16px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+.info-card h3 { font-size: 19px; font-weight: 500; letter-spacing: 0; margin-bottom: 12px; }
 .info-card p { font-size: 14px; color: var(--muted); }
 
 .stat-row {
@@ -1763,6 +1793,7 @@ form.is-hidden { display: none; }
   overflow: hidden;
 }
 .stat {
+  border-radius: var(--radius-lg);
   background: var(--white);
   padding: 38px 26px;
   text-align: center;
@@ -1799,7 +1830,7 @@ form.is-hidden { display: none; }
   color: var(--accent);
   display: grid; place-items: center;
 }
-.contact-item h3 { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.contact-item h3 { font-size: 15px; letter-spacing: 0; color: var(--muted-strong); margin-bottom: 6px; font-weight: 400; }
 .contact-item b { font-size: 18px; color: var(--ink); font-weight: 500; }
 .contact-item p { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
 
@@ -1962,26 +1993,36 @@ form.is-hidden { display: none; }
 /* Лестница сокращений шапки. Меню из семи пунктов в одну строку с логотипом
    и контактами целиком помещается только на очень широком экране, поэтому
    элементы уходят по одному, от наименее нужного к самому нужному. */
-@media (max-width: 1700px) {
+/* Колодец шапки зафиксирован (1340), поэтому сокращения срабатывают
+   не от ширины окна, а сразу: строчные пункты в 16px занимают втрое
+   больше места, чем прежний капс в 11px. */
+@media (min-width: 1151px) {
   .navbar__item--optional { display: none; }
+}
+
+@media (max-width: 1700px) {
   .mega__promo { display: none; }
   .mega__inner { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 1450px) {
-  /* Соцсети остаются в подвале и в мобильном меню */
+/* Соцсети показываем только там, где для них действительно есть место:
+   строчное меню в 16px съедает ту ширину, где раньше стоял капс в 11px.
+   Ниже 1700 они остаются в подвале и в мобильном меню. */
+@media (max-width: 1700px) {
   .header__socials { display: none; }
 }
 
-@media (max-width: 1400px) {
-  /* Меню поджимается раньше, чем начинает выпадать: так дольше сохраняются
-     и номер телефона, и кнопка заявки. */
-  .navbar__link { font-size: 10.5px; letter-spacing: 0.06em; }
+@media (min-width: 1701px) {
+  .header__inner { max-width: 1500px; }
 }
 
-@media (max-width: 1330px) {
-  /* «Ассортимент» — якорь внутри «О компании», в меню дублируется */
+@media (min-width: 1151px) {
+  /* «Ассортимент» — якорь внутри «О компании», в меню он дублируется */
   .navbar__item--optional2 { display: none; }
+}
+
+@media (max-width: 1400px) {
+  .navbar__link { font-size: 15px; }
 }
 
 @media (max-width: 1200px) {
@@ -2183,6 +2224,7 @@ form.is-hidden { display: none; }
 
 /* Сообщение об ошибке отправки формы */
 .form-error {
+  border-radius: var(--radius);
   display: none;
   margin-top: 14px;
   padding: 12px 14px;
@@ -2199,21 +2241,23 @@ form.is-hidden { display: none; }
    -------------------------------------------------------------------------- */
 
 /* Секция на чёрном — как блок коллекций у референса */
-.section--black {
+/* Фон живёт на контейнере, а не на секции: иначе чёрное растекается
+   во всю ширину окна вместо скруглённой карточки. */
+.section--black { color: var(--on-dark); }
+.section--black > .container {
   background: var(--black);
-  color: rgba(255, 255, 255, 0.66);
-  /* Водяной знак шире экрана — обрезаем по секции, иначе страница едет вбок */
+  /* Водяной знак шире колодца — обрезаем по карточке */
   overflow: hidden;
 }
 .section--black h2,
 .section--black h3 { color: #fff; }
-.section--black .section-lead { color: rgba(255, 255, 255, 0.58); }
+.section--black .section-lead { color: var(--on-dark); }
 
 .section-foot { margin-top: clamp(32px, 4vw, 52px); text-align: center; }
 
 /* Белая кнопка на тёмном фоне */
 .btn--light { background: #fff; border-color: #fff; color: var(--ink); }
-.btn--light:hover { background: transparent; color: #fff; }
+.btn--light:hover { background: var(--on-dark); border-color: var(--on-dark); }
 
 /* Счётчики в тексте блока «о компании» */
 .stat-row--inline {
