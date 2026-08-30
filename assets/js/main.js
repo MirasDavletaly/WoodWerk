@@ -58,6 +58,64 @@
     a.setAttribute('rel', rel.join(' '));
   });
 
+
+  /* ------------------------------------------------------------------
+     Данные компании: телефон, почта, адреса, соцсети, логотип
+
+     Значения лежат в базе и подставляются в размеченные места. То, что
+     стоит в разметке, остаётся запасным видом: если сервер не ответил,
+     посетитель видит прежние контакты, а не пустые строки.
+     ------------------------------------------------------------------ */
+  function applySiteSettings(values) {
+    function each(attr, fn) {
+      $$('[' + attr + ']').forEach(function (node) {
+        var key = node.getAttribute(attr);
+        if (Object.prototype.hasOwnProperty.call(values, key)) fn(node, values[key]);
+      });
+    }
+
+    each('data-site', function (node, value) {
+      // Пустое значение прячет элемент целиком: так исчезает строка
+      // второго телефона или адреса, когда офис один.
+      var box = node.closest ? node.closest('[data-site-row]') : null;
+      if (!value) {
+        (box || node).hidden = true;
+        return;
+      }
+      (box || node).hidden = false;
+      node.textContent = value;
+    });
+
+    each('data-site-src', function (node, value) { if (value) node.src = value; });
+
+    each('data-site-tel', function (node, value) {
+      if (!value) return;
+      node.href = 'tel:' + value.replace(/[^\d+]/g, '');
+    });
+
+    each('data-site-mail', function (node, value) {
+      if (!value) return;
+      node.href = 'mailto:' + value;
+    });
+
+    each('data-site-href', function (node, value) {
+      // У значка без ссылки нет смысла: прячем, а не ведём в никуда.
+      if (!value) { node.hidden = true; return; }
+      node.hidden = false;
+      node.href = value;
+      node.target = '_blank';
+      node.rel = 'noopener noreferrer';
+    });
+  }
+
+  fetch(((window.WOODWERK && window.WOODWERK.apiBase) || '/api') + '/settings',
+        { credentials: 'same-origin' })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.ok && data.settings) applySiteSettings(data.settings);
+    })
+    .catch(function () { /* остаются значения из разметки */ });
+
   /* ------------------------------------------------------------------
      Год в подвале
      ------------------------------------------------------------------ */

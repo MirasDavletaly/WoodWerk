@@ -497,8 +497,9 @@ func (s *Store) UsedImage(url string) (bool, error) {
 	err := s.db.QueryRow(`
         SELECT (SELECT COUNT(*) FROM products WHERE image_url = ?) +
                (SELECT COUNT(*) FROM product_images WHERE image_url = ?) +
-               (SELECT COUNT(*) FROM gallery WHERE image_url = ?)`,
-		url, url, url).Scan(&n)
+               (SELECT COUNT(*) FROM gallery WHERE image_url = ?) +
+               (SELECT COUNT(*) FROM settings WHERE value = ?)`,
+		url, url, url, url).Scan(&n)
 	return n > 0, err
 }
 

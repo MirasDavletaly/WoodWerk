@@ -1364,6 +1364,149 @@
     });
   }
 
+
+  /* ------------------------------------------------------------------
+     Данные компании: контакты, адреса, соцсети, логотип
+
+     Поля не перечислены в разметке, а приходят с сервера вместе
+     со значениями: список задан один раз в settingSpecs, и добавить
+     настройку — значит дописать строку там, а не в трёх местах.
+     ------------------------------------------------------------------ */
+  function pageCompany() {
+    var box = $('[data-company-fields]');
+    var form = $('[data-company-form]');
+    var submitBtn = $('[data-company-submit]');
+    var reloadBtn = $('[data-company-reload]');
+    var inputs = {};   // ключ настройки -> поле ввода
+    var logo = null;   // { get, set } для картинки
+
+    load();
+
+    function load() {
+      return api('/admin/settings-site').then(function (data) {
+        render(data.fields || [], data.settings || {});
+      }).catch(function (err) { toast(err.message, 'err'); });
+    }
+
+    function render(fields, values) {
+      clear(box);
+      inputs = {};
+      logo = null;
+
+      fields.forEach(function (f) {
+        box.appendChild(f.kind === 'image'
+          ? imageField(f, values[f.key] || '')
+          : textField(f, values[f.key] || ''));
+      });
+    }
+
+    function textField(f, value) {
+      var wrap = el('div', 'field');
+      var id = 'set-' + f.key;
+
+      var label = el('label', null, f.label);
+      label.setAttribute('for', id);
+      wrap.appendChild(label);
+
+      var input = el('input');
+      input.id = id;
+      input.type = f.kind === 'email' ? 'email' : (f.kind === 'url' ? 'url' : 'text');
+      input.maxLength = 300;
+      input.value = value;
+      wrap.appendChild(input);
+
+      if (f.hint) wrap.appendChild(el('span', 'field__hint', f.hint));
+      inputs[f.key] = input;
+      return wrap;
+    }
+
+    // Логотип: показываем текущий и даём заменить файлом через ту же
+    // загрузку, что и фотографии панелей.
+    function imageField(f, value) {
+      var wrap = el('div', 'field');
+      wrap.appendChild(el('label', null, f.label));
+
+      var current = value;
+      var preview = el('div', 'preview');
+      var file = el('input');
+      file.type = 'file';
+      file.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+      file.hidden = true;
+
+      function draw() {
+        clear(preview);
+        if (!current) return;
+        var img = el('img');
+        img.src = current;
+        img.alt = 'Текущий логотип';
+        preview.appendChild(img);
+      }
+
+      var pick = el('button', 'btn btn--outline btn--sm', 'Загрузить логотип');
+      pick.type = 'button';
+      pick.addEventListener('click', function () { file.click(); });
+
+      file.addEventListener('change', function () {
+        var chosen = file.files && file.files[0];
+        if (!chosen) return;
+        var problem = checkFile(chosen);
+        if (problem) { toast(problem, 'err'); file.value = ''; return; }
+
+        uploadFiles([chosen]).then(function (data) {
+          current = data.url;
+          draw();
+          toast('Логотип загружен, не забудьте сохранить', 'ok');
+        }).catch(function (err) {
+          toast(err.message, 'err');
+        }).then(function () { file.value = ''; });
+      });
+
+      draw();
+      wrap.appendChild(preview);
+      wrap.appendChild(pick);
+      wrap.appendChild(file);
+      if (f.hint) wrap.appendChild(el('span', 'field__hint', f.hint));
+
+      logo = { key: f.key, get: function () { return current; } };
+      return wrap;
+    }
+
+    if (reloadBtn) reloadBtn.addEventListener('click', load);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var payload = {};
+      for (var key in inputs) {
+        if (Object.prototype.hasOwnProperty.call(inputs, key)) {
+          payload[key] = inputs[key].value.trim();
+        }
+      }
+      if (logo) payload[logo.key] = logo.get();
+
+      submitBtn.disabled = true;
+      api('/admin/settings-site', { method: 'PUT', body: { settings: payload } })
+        .then(function (data) {
+          toast(data.message || 'Данные компании сохранены', 'ok');
+          render_from(data.settings);
+        })
+        .catch(function (err) { toast(err.message, 'err'); })
+        .then(function () { submitBtn.disabled = false; });
+    });
+
+    // После сохранения сервер возвращает значения целиком — показываем их,
+    // чтобы было видно, что именно записалось.
+    function render_from(values) {
+      if (!values) return;
+      for (var key in inputs) {
+        if (Object.prototype.hasOwnProperty.call(inputs, key) &&
+            Object.prototype.hasOwnProperty.call(values, key)) {
+          inputs[key].value = values[key];
+        }
+      }
+    }
+  }
+
   /* ------------------------------------------------------------------
      Запуск
      ------------------------------------------------------------------ */
@@ -1375,6 +1518,7 @@
     'product-form': pageProductForm,
     categories: pageCategories,
     gallery: pageGallery,
+    company: pageCompany,
     settings: pageSettings
   };
 

@@ -77,6 +77,14 @@ CREATE TABLE IF NOT EXISTS gallery (
 );
 CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery(sort_order);
 
+-- Данные компании: контакты, адреса, соцсети, логотип. Ключи заданы
+-- в коде (settingSpecs), в базе лежат только изменённые значения.
+CREATE TABLE IF NOT EXISTS settings (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS admin_users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     username      TEXT    NOT NULL UNIQUE,

@@ -107,6 +107,7 @@ func main() {
 	mux.HandleFunc("GET /api/products/{id}", api.publicProduct)
 	mux.HandleFunc("GET /api/categories", api.publicCategories)
 	mux.HandleFunc("GET /api/gallery", api.publicGallery)
+	mux.HandleFunc("GET /api/settings", api.publicSettings)
 
 	// Вход и выход из админки.
 	mux.HandleFunc("POST /api/admin/login", api.login)
@@ -131,6 +132,8 @@ func main() {
 	admin.HandleFunc("PUT /api/admin/gallery/{id}", api.updateGalleryItem)
 	admin.HandleFunc("DELETE /api/admin/gallery/{id}", api.deleteGalleryItem)
 	admin.HandleFunc("POST /api/admin/gallery/reorder", api.reorderGallery)
+	admin.HandleFunc("GET /api/admin/settings-site", api.adminSiteSettings)
+	admin.HandleFunc("PUT /api/admin/settings-site", api.updateSiteSettings)
 	admin.HandleFunc("POST /api/admin/upload", api.upload)
 	admin.HandleFunc("POST /api/admin/upload/delete", api.deleteUpload)
 	admin.HandleFunc("POST /api/admin/password", api.changePassword)
@@ -148,6 +151,7 @@ func main() {
 	mux.HandleFunc("GET /admin/products/{id}/edit", site.AdminPage("admin/product-form.html"))
 	mux.HandleFunc("GET /admin/categories", site.AdminPage("admin/categories.html"))
 	mux.HandleFunc("GET /admin/gallery", site.AdminPage("admin/gallery.html"))
+	mux.HandleFunc("GET /admin/company", site.AdminPage("admin/company.html"))
 	mux.HandleFunc("GET /admin/settings", site.AdminPage("admin/settings.html"))
 
 	// Публичные страницы с «красивыми» адресами.
