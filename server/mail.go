@@ -80,7 +80,18 @@ func (m *mailer) send(msg []byte) error {
 
 	// Свой таймаут: без него зависший почтовый сервер держал бы горутину
 	// неопределённо долго.
-	conn, err := net.DialTimeout("tcp", addr, 15*time.Second)
+	dialer := &net.Dialer{Timeout: 15 * time.Second}
+
+	// Порт 465 шифруется с первого байта, 587 — обычным соединением
+	// с последующей командой STARTTLS. Открывать 465 как обычный сокет
+	// нельзя: тогда пароль ушёл бы открытым текстом.
+	var conn net.Conn
+	var err error
+	if m.Port == "465" {
+		conn, err = tls.DialWithDialer(dialer, "tcp", addr, &tls.Config{ServerName: m.Host})
+	} else {
+		conn, err = dialer.Dial("tcp", addr)
+	}
 	if err != nil {
 		return err
 	}
@@ -93,12 +104,18 @@ func (m *mailer) send(msg []byte) error {
 	}
 	defer c.Close()
 
-	// Порт 587 начинает открытым соединением и поднимает шифрование
-	// командой STARTTLS; на 465 канал зашифрован с самого начала.
+	// На 465 канал уже зашифрован, на остальных портах поднимаем защиту
+	// командой STARTTLS — до неё пароль отправлять нельзя.
 	if m.Port != "465" {
 		if err := c.StartTLS(&tls.Config{ServerName: m.Host}); err != nil {
 			return err
 		}
+	}
+
+	// Подстраховка: если шифрование почему-то не установилось, письмо
+	// не уходит. Лучше потерять письмо, чем отдать пароль открытым текстом.
+	if _, ok := c.TLSConnectionState(); !ok {
+		return fmt.Errorf("соединение с %s не зашифровано, пароль не отправляем", addr)
 	}
 
 	if err := c.Auth(smtp.PlainAuth("", m.User, m.Pass, m.Host)); err != nil {
