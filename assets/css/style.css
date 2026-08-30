@@ -187,6 +187,17 @@ main:focus { outline: none; }
 .section { padding: clamp(36px, 4vw, 56px) 0; }
 .section--tight { padding: clamp(28px, 3vw, 40px) 0; }
 
+/* Скруглённые блоки во всю ширину колодца: у них внутренний отступ
+   больше базового, иначе текст липнет к краю карточки. Главный экран,
+   шапка внутренней страницы и блок заявки — такие же карточки,
+   поэтому отступ у них общий. */
+.hero__inner,
+.page-hero__inner,
+.cta__inner {
+  padding-left: clamp(24px, 3.4vw, 56px);
+  padding-right: clamp(24px, 3.4vw, 56px);
+}
+
 .section--dark > .container,
 .section--black > .container,
 .section--alt > .container {
