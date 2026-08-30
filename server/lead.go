@@ -57,6 +57,7 @@ func (s *leadStore) Close() error { return s.f.Close() }
 type leadHandler struct {
 	store   *leadStore
 	limiter *limiter
+	mail    *mailer
 }
 
 func (h *leadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +117,10 @@ func (h *leadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, apiError("внутренняя ошибка"))
 		return
 	}
+
+	// Письмо отправляем отдельно и не ждём его: SMTP отвечает не мгновенно,
+	// а заявка уже сохранена — посетителю ждать нечего.
+	go h.mail.Send(item)
 
 	logInfo("новая заявка: %s, %s", item.Name, item.Phone)
 	writeJSON(w, http.StatusOK, apiOK(nil))

@@ -100,7 +100,22 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Заявки с форм — как и раньше.
-	mux.Handle("/api/lead", &leadHandler{store: leads, limiter: newLimiter()})
+	// Доступ к почте берём из окружения, а не из флагов: флаги видны
+	// в списке процессов любому пользователю сервера.
+	mail := &mailer{
+		Host: envOr("SMTP_HOST", "smtp.gmail.com"),
+		Port: envOr("SMTP_PORT", "587"),
+		User: os.Getenv("SMTP_USER"),
+		Pass: os.Getenv("SMTP_PASS"),
+		To:   os.Getenv("MAIL_TO"),
+	}
+	if mail.enabled() {
+		logInfo("заявки будут дублироваться на почту %s", mail.To)
+	} else {
+		logInfo("отправка заявок на почту выключена: не заданы SMTP_USER, SMTP_PASS и MAIL_TO")
+	}
+
+	mux.Handle("/api/lead", &leadHandler{store: leads, limiter: newLimiter(), mail: mail})
 
 	// Публичное API: только активные изделия, только чтение.
 	mux.HandleFunc("GET /api/products", api.publicProducts)

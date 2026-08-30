@@ -8,6 +8,9 @@ Wants=network-online.target
 Type=simple
 User=woodwerk
 Group=woodwerk
+# SMTP_USER, SMTP_PASS, MAIL_TO for lead e-mails.
+# Leading minus: file may be absent, service still starts.
+EnvironmentFile=-/etc/woodwerk.env
 WorkingDirectory=/var/www/woodwerk
 
 # Слушаем только локальный адрес: наружу сайт отдаёт nginx, он же держит HTTPS.

@@ -5,4 +5,4 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://woodwerk.ru/sitemap.xml
+Sitemap: https://wooodwerk.com/sitemap.xml
