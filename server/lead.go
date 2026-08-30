@@ -16,7 +16,7 @@ type lead struct {
 	Phone   string `json:"phone"`
 	Type    string `json:"type,omitempty"`
 	Comment string `json:"comment,omitempty"`
-	Company string `json:"company,omitempty"` // honeypot: у человека всегда пусто
+	Honeypot string `json:"hp_note,omitempty"` // ловушка: у человека всегда пусто
 }
 
 type storedLead struct {
@@ -86,7 +86,7 @@ func (h *leadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Ловушка для ботов: поле скрыто от людей, заполнить его может только скрипт.
 	// Отвечаем как при успехе, чтобы бот не понял, что его отсеяли.
-	if strings.TrimSpace(in.Company) != "" {
+	if strings.TrimSpace(in.Honeypot) != "" {
 		logInfo("honeypot сработал, ip=%s", ip)
 		writeJSON(w, http.StatusOK, apiOK(nil))
 		return
