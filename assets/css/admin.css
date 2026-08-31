@@ -1118,3 +1118,9 @@ tr.is-editing { background: var(--bg-alt); }
   color: var(--muted);
   font-size: 12.5px;
 }
+
+/* Логотип в боковом меню стоит на тёмном фоне: чёрный знак там не виден. */
+.sidebar__logo {
+  object-fit: contain;
+  filter: invert(1);
+}

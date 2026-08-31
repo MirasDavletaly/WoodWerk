@@ -1741,7 +1741,9 @@ form.is-hidden { display: none; }
 }
 .product__media {
   position: relative;
-  aspect-ratio: 4 / 3;
+  /* Панель — лист 3000×1220 мм, то есть вытянутый по вертикали.
+     Горизонтальный кадр показывал её лежащей на боку. */
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--bg-alt);
@@ -2457,7 +2459,7 @@ form.is-hidden { display: none; }
 
 .pdp__main {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--bg-alt);
@@ -2757,4 +2759,22 @@ form.is-hidden { display: none; }
   /* В столбик кнопки шире и попадать по ним проще, чем по половинкам строки */
   .nf__actions { flex-direction: column; }
   .nf__actions .btn { width: 100%; }
+}
+
+/* --------------------------------------------------------------------------
+   Логотип
+   -------------------------------------------------------------------------- */
+
+/* Знак вертикальный, а место под него квадратное: без object-fit
+   картинка сплющивалась бы по ширине. */
+.logo__mark,
+.footer .logo__mark {
+  object-fit: contain;
+}
+
+/* На тёмном подвале чёрный знак сливался с фоном — осветляем.
+   Знак одноцветный, поэтому инверсии достаточно и отдельный файл не нужен. */
+.footer .logo__mark,
+.mobile-nav .logo__mark {
+  filter: invert(1);
 }
